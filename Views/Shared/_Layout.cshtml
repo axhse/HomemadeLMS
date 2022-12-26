@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/HomemadeLMS.styles.css" asp-append-version="true" />
+    <link rel="icon" href="~/img/icon.png" type="image/png" />
+</head>
+<body>
+    <div id="header-navbar">
+        @if (ViewData.ContainsKey("PopupMenu") || ViewData.ContainsKey("NavbarMenu")
+             || ViewData.ContainsKey("HeaderTitle")) {
+            <div class="container d-flex py-1">
+                @if (ViewData.TryGetValue("PopupMenu", out object? popupMenuObject))
+                {
+                    MenuVM? menuModel = popupMenuObject as MenuVM;
+                    if (menuModel is not null)
+                    {
+                        <div class="btn-group">
+                            <button id="popup-menu-button" class="btn dropdown-toggle"
+                            data-bs-toggle="dropdown" aria-expanded="false">☰</button>
+                            <ul id="popup-menu" class="dropdown-menu">
+                                @foreach (var linkGroup in menuModel.LinkGroups)
+                                {
+                                    if (linkGroup != menuModel.LinkGroups[0]) {
+                                        <li class="dropdown-divider"></li>
+                                    }
+                                    @foreach (var linkItem in linkGroup.Items)
+                                    {
+                                        string linkCategoryName = linkItem.LinkCategory switch
+                                        {
+                                            LinkCategory.Danger => "danger",
+                                            LinkCategory.Highlighted => "highlighted",
+                                            LinkCategory.Important => "important",
+                                            _ => "regular",
+                                        };
+                                        string linkCategoryClass = $"popup-menu-link-{linkCategoryName}";
+                                        <li class="dropdown-item">
+                                            <a class="@linkCategoryClass" href="@linkItem.Href">
+                                                @linkItem.Label
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    }
+                }
+                @if (ViewData.TryGetValue("NavbarMenu", out object? navbarMenuObject))
+                {
+                    LinkGroup? menuLinkGroup = navbarMenuObject as LinkGroup;
+                    if (menuLinkGroup is not null)
+                    {
+                        <div class="ms-4"></div>
+                        foreach (LinkItem item in menuLinkGroup.Items)
+                        {
+                            <a href="@item.Href">
+                                <div class="mx-4 my-2">@item.Label</div>
+                            </a>
+                        }
+                    }
+                }
+                else if (ViewData.TryGetValue("HeaderTitle", out object? titleObject))
+                {
+                    string? headerTitle = titleObject as string;
+                    if (headerTitle is not null)
+                    {
+                        <div class="flex-grow-1 ms-3 py-2 text-center">
+                            <p class="mb-0">@headerTitle</p>
+                        </div>
+                    }
+                }
+            </div>
+        }
+        else
+        {
+            <div class="pt-5"></div>
+        }
+    </div>
+
+    <div class="container pt-3">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer id="footer" class="footer">
+        <div class="container">
+            TODO: GitHub, Wiki, Feedback
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
