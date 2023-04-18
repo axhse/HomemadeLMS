@@ -8,28 +8,30 @@ using System.Security.Claims;
 
 namespace HomemadeLMS.Controllers
 {
-    public class AccountController : BaseController
+    public class AccountController : ControllerWithAccounts
     {
         private const string SectionPath = "/account";
-        private readonly IStorage<string, Account> accountStorage;
+        private const string SignInPath = SectionPath + "/signin";
 
-        public AccountController(IStorage<string, Account> accountStorage)
-        {
-            this.accountStorage = accountStorage;
-        }
+        public AccountController(IStorage<string, Account> accountStorage) : base(accountStorage)
+        { }
 
         [HttpGet]
         [RequireHttps]
         [Route(SectionPath)]
-        public IActionResult Homepage()
+        public async Task<IActionResult> Account()
         {
-            var claims = HttpContext.User.Claims;
-            return Content($"Claims[{claims.Count()}]{{{string.Join(", ", claims)}}}");
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            return View(account);
         }
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath + "/signin")]
+        [Route(SignInPath)]
         public IActionResult Signin_Get()
         {
             return View("SignIn");
@@ -37,8 +39,8 @@ namespace HomemadeLMS.Controllers
 
         [HttpPost]
         [RequireHttps]
-        [Route(SectionPath + "/signin")]
-        public IActionResult Signin_Post()
+        [Route(SignInPath)]
+        public async Task<IActionResult> Signin_Post()
         {
             var parser = new FormParser(Request.Form);
             if (!parser.TryGetInt("id", out int id))
@@ -51,19 +53,16 @@ namespace HomemadeLMS.Controllers
             }
             var username = role.ToString() + id.ToString();
 
-            var resultStatus = string.Empty;
             Account? account = accountStorage.Find(username);
             if (account is null)
             {
                 var newAccount = new Account(username, "password123");
                 accountStorage.TryInsert(newAccount);
-                resultStatus = "created and ";
             }
             var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, username) };
             ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            HttpContext.SignInAsync(new ClaimsPrincipal(identity)).Wait();
-            resultStatus += $"signed in - {username}";
-            return Content(resultStatus);
+            await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
+            return RedirectToHomepage();
         }
 
         [HttpGet]
@@ -72,7 +71,7 @@ namespace HomemadeLMS.Controllers
         public async Task<IActionResult> SignOut_Get()
         {
             await HttpContext.SignOutAsync();
-            return RedirectPermanent(DefaultPath);
+            return RedirectPermanent(SignInPath);
         }
 
         protected override string GetHomepagePath() => SectionPath;

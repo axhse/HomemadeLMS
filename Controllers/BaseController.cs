@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HomemadeLMS.Models.Domain;
+using HomemadeLMS.Services.Data;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HomemadeLMS.Controllers
 {
@@ -12,5 +15,38 @@ namespace HomemadeLMS.Controllers
         }
 
         protected virtual string GetHomepagePath() => DefaultPath;
+    }
+
+    public class ControllerWithAccounts : BaseController
+    {
+        protected readonly IStorage<string, Account> accountStorage;
+        private Account? currentAccount;
+
+        public ControllerWithAccounts(IStorage<string, Account> accountStorage)
+        {
+            this.accountStorage = accountStorage;
+        }
+
+        protected async Task<Account?> GetAccount()
+        {
+            if (currentAccount is not null)
+            {
+                return currentAccount;
+            }
+            var claims = HttpContext.User.Claims;
+            if (!claims.Any())
+            {
+                return null;
+            }
+            var username = claims.First().Value;
+            Account? account = accountStorage.Find(username);
+            if (account is null)
+            {
+                await HttpContext.SignOutAsync();
+                return null;
+            }
+            currentAccount = account;
+            return account;
+        }
     }
 }

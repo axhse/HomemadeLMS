@@ -1,0 +1,10 @@
+﻿@using HomemadeLMS.Models.Domain
+@model Account
+@{
+	ViewData["Title"] = "Account";
+}
+
+<div class="container mt-5" align="center">
+	<p>username: @Model.Username</p>
+	<p>role: @Model.Role.ToString()</p>
+</div>
