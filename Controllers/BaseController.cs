@@ -4,11 +4,13 @@ namespace HomemadeLMS.Controllers
 {
     public class BaseController : Controller
     {
-        public RedirectResult RedirectToHomepage()
+        protected const string DefaultPath = "/";
+
+        public IActionResult RedirectToHomepage()
         {
             return RedirectPermanent(GetHomepagePath());
         }
 
-        protected virtual string GetHomepagePath() => "/";
+        protected virtual string GetHomepagePath() => DefaultPath;
     }
 }

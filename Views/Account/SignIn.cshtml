@@ -1,0 +1,34 @@
+﻿@using HomemadeLMS.Models.Domain
+@{
+	ViewData["Title"] = "Sign In";
+}
+
+<div class="container mt-5" align="center">
+	<form method="POST">
+		<div class="d-inline-flex mb-4">
+			<div class="align-self-center">
+				<label for="roleCodeInput">Роль</label>
+			</div>
+			<div class="ms-2">
+				<select class="form-control text-center" id="roleCodeInput" name="roleCode">
+					<option value="@UserRole.Student.ToString()" selected>Студент</option>
+					<option value="@UserRole.Teacher.ToString()">Преподаватель</option>
+					<option value="@UserRole.Manager.ToString()">Менеджер</option>
+					<option value="@UserRole.Administrator.ToString()">Администратор</option>
+				</select>
+			</div>
+		</div>
+		<div class="d-inline-flex mb-4 ms-4">
+			<div class="align-self-center">
+				<label for="idInput">ID</label>
+			</div>
+			<div class="ms-2">
+				<input type="number" class="form-control text-center" id="idInput" name="id"
+					   value="1" min="1" max="1000000000">
+			</div>
+		</div>
+		<div class="d-inline-flex mb-4 ms-4">
+			<button type="submit" class="btn btn-primary">Продолжить</button>
+		</div>
+	</form>
+</div>

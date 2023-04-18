@@ -2,6 +2,15 @@
 
 namespace HomemadeLMS.Models.Domain
 {
+    public enum UserRole
+    {
+        None,
+        Student,
+        Teacher,
+        Manager,
+        Administrator,
+    }
+
     public class Account
     {
         private const string EmailAddressBase = "@edu.hse.ru";
@@ -27,7 +36,7 @@ namespace HomemadeLMS.Models.Domain
             => password is not null && 8 <= password.Length && password.Length <= 50;
 
         public static bool HasUsernameValidFormat(string? username)
-            => username is not null && Regex.IsMatch(username, $"^[a-z0-9_.]{{1,100}}$");
+            => username is not null && Regex.IsMatch(username, $"^[A-Za-z0-9_.]{{1,100}}$");
 
         private static string GetUsername(string accountId)
         {
@@ -42,6 +51,8 @@ namespace HomemadeLMS.Models.Domain
             }
             return accountId;
         }
+
+        public UserRole Role { get; set; } = UserRole.None;
 
         public string PasswordHash
         {
