@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace HomemadeLMS.Models.Domain
 {
@@ -13,7 +15,6 @@ namespace HomemadeLMS.Models.Domain
     public class Account
     {
         private const string EmailAddressBase = "@edu.hse.ru";
-        private string passwordHash = string.Empty;
         private string username = string.Empty;
 
         public Account()
@@ -28,7 +29,17 @@ namespace HomemadeLMS.Models.Domain
 
         public static string CalculateHash(string text)
         {
-            return text;
+            byte[] bytes = Encoding.UTF8.GetBytes(text);
+            byte[] offsets = new byte[] { 103, 13, 209, 60, 17, 53, 2, 41 };
+            for (int i = offsets.Length; i >= 1; i--)
+            {
+                for (int j = 0; j < bytes.Length; j++)
+                {
+                    bytes[j] += offsets[j % i];
+                }
+                bytes = SHA256.HashData(bytes);
+            }
+            return Convert.ToHexString(bytes);
         }
 
         public static bool HasPasswordValidFormat(string? password)
@@ -52,20 +63,8 @@ namespace HomemadeLMS.Models.Domain
         }
 
         public string? HeadUsername { get; set; }
+        public string PasswordHash { get; set; } = string.Empty;
         public UserRole Role { get; set; } = UserRole.None;
-
-        public string PasswordHash
-        {
-            get => passwordHash;
-            set
-            {
-                if (!HasPasswordValidFormat(value))
-                {
-                    throw new ArgumentException("Invalid password format.");
-                }
-                passwordHash = value;
-            }
-        }
 
         public string Username
         {
@@ -85,6 +84,10 @@ namespace HomemadeLMS.Models.Domain
         /// <exception cref="ArgumentException"></exception>
         public void SetPassword(string password)
         {
+            if (!HasPasswordValidFormat(password))
+            {
+                throw new ArgumentException("Invalid username format.");
+            }
             PasswordHash = CalculateHash(password);
         }
 

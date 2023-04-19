@@ -13,6 +13,9 @@ namespace HomemadeLMS.Services.Data
             builder.Property(account => account.Username).IsRequired();
             builder.Property(account => account.Username).ValueGeneratedNever();
             builder.Property(account => account.Username).HasMaxLength(100);
+            builder.Property(account => account.HeadUsername).HasMaxLength(100);
+            builder.Property(account => account.PasswordHash).HasMaxLength(64);
+            builder.Property(account => account.Role).IsRequired();
             builder.ToTable("Account");
         }
     }
