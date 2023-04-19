@@ -47,7 +47,7 @@ namespace HomemadeLMS.Controllers
         [Route(SectionPath)]
         public async Task<IActionResult> Account_Post(string? username)
         {
-            if (username is null)
+            if (username is null || !Request.HasFormContentType)
             {
                 return View("Status", ActionStatus.NotSupported);
             }
@@ -83,14 +83,15 @@ namespace HomemadeLMS.Controllers
         [Route(SignInPath)]
         public async Task<IActionResult> Signin_Post()
         {
-            var parser = new FormParser(Request.Form);
-            if (!parser.TryGetInt("id", out int id))
+            if (!Request.HasFormContentType)
             {
-                return Content("invalid id");
+                return View("Status", ActionStatus.NotSupported);
             }
-            if (!parser.TryGetUserRole("roleCode", out UserRole role))
+            var parser = new FormParser(Request.Form);
+            if (!parser.TryGetUserRole("roleCode", out UserRole role)
+                || !parser.TryGetInt("id", out int id))
             {
-                return Content("invalid roleCode");
+                return View("Status", ActionStatus.InvalidFormData);
             }
             var username = role.ToString() + id.ToString();
 
