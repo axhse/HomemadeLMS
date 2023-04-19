@@ -15,16 +15,53 @@ namespace HomemadeLMS.Models.Domain
     public class Account
     {
         private const string EmailAddressBase = "@edu.hse.ru";
-        private string username = string.Empty;
+        private string username;
+        private string passwordHash;
+        private string? headUsername;
 
-        public Account()
-        { }
+        /// <exception cref="ArgumentException"></exception>
+        public Account(string username, string passwordHash, UserRole role, string? headUsername)
+        {
+            Username = username;
+            PasswordHash = passwordHash;
+            Role = role;
+            HeadUsername = headUsername;
+
+            this.username = Username;
+            this.passwordHash = PasswordHash;
+        }
 
         /// <exception cref="ArgumentException"></exception>
         public Account(string accountId, string password)
         {
-            SetPassword(password);
             SetAccountId(accountId);
+            SetPassword(password);
+
+            username = Username;
+            passwordHash = PasswordHash;
+        }
+
+        public static bool HasPasswordHashValidFormat(string? passwordHash)
+            => passwordHash is not null && Regex.IsMatch(passwordHash, $"^[A-F0-9]{{64}}$");
+
+        public static bool HasPasswordValidFormat(string? password)
+            => password is not null && 8 <= password.Length && password.Length <= 50;
+
+        public static bool HasUsernameValidFormat(string? username)
+            => username is not null && Regex.IsMatch(username, $"^[A-Za-z0-9_.]{{1,100}}$");
+
+        public static string GetUsername(string accountId)
+        {
+            if (accountId is null)
+            {
+                return string.Empty;
+            }
+            accountId = accountId.Trim(' ').ToLower();
+            if (accountId.EndsWith(EmailAddressBase))
+            {
+                return accountId[..^EmailAddressBase.Length];
+            }
+            return accountId;
         }
 
         public static string CalculateHash(string text)
@@ -42,30 +79,9 @@ namespace HomemadeLMS.Models.Domain
             return Convert.ToHexString(bytes);
         }
 
-        public static bool HasPasswordValidFormat(string? password)
-            => password is not null && 8 <= password.Length && password.Length <= 50;
-
-        public static bool HasUsernameValidFormat(string? username)
-            => username is not null && Regex.IsMatch(username, $"^[A-Za-z0-9_.]{{1,100}}$");
-
-        private static string GetUsername(string accountId)
-        {
-            if (accountId is null)
-            {
-                return string.Empty;
-            }
-            accountId = accountId.Trim(' ').ToLower();
-            if (accountId.EndsWith(EmailAddressBase))
-            {
-                return accountId[..^EmailAddressBase.Length];
-            }
-            return accountId;
-        }
-
-        public string? HeadUsername { get; set; }
-        public string PasswordHash { get; set; } = string.Empty;
         public UserRole Role { get; set; } = UserRole.None;
 
+        /// <exception cref="ArgumentException"></exception>
         public string Username
         {
             get => username;
@@ -76,6 +92,34 @@ namespace HomemadeLMS.Models.Domain
                     throw new ArgumentException("Invalid username format.");
                 }
                 username = value;
+            }
+        }
+
+        /// <exception cref="ArgumentException"></exception>
+        public string PasswordHash
+        {
+            get => passwordHash;
+            set
+            {
+                if (!HasPasswordHashValidFormat(value))
+                {
+                    throw new ArgumentException("Invalid passwordHash format.");
+                }
+                passwordHash = value;
+            }
+        }
+
+        /// <exception cref="ArgumentException"></exception>
+        public string? HeadUsername
+        {
+            get => headUsername;
+            set
+            {
+                if (value is not null && !HasUsernameValidFormat(value))
+                {
+                    throw new ArgumentException("Invalid username format.");
+                }
+                headUsername = value;
             }
         }
 
