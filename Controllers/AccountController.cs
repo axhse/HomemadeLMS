@@ -56,7 +56,7 @@ namespace HomemadeLMS.Controllers
                 return RedirectPermanent(SignInPath);
             }
             Account? targetAccount = await accountStorage.Find(username);
-            if (targetAccount is null || !requestMaker.CanChangeRole(targetAccount))
+            if (targetAccount is null || !requestMaker.CanChangeRoleOf(targetAccount))
             {
                 return View("Status", ActionStatus.NotSupported);
             }

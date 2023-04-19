@@ -43,7 +43,7 @@ namespace HomemadeLMS.Controllers
         [HttpGet]
         [RequireHttps]
         [Route(SectionPath + "/create")]
-        public async Task<IActionResult> CreateCourse()
+        public async Task<IActionResult> CreateCourse_Get()
         {
             var account = await GetAccount();
             if (account is null)
@@ -52,10 +52,11 @@ namespace HomemadeLMS.Controllers
             }
             if (account.Role != UserRole.Teacher && account.Role != UserRole.Manager)
             {
-                return View("Status", ActionStatus.NoAccess);
+                return View("Status", ActionStatus.NoPermission);
             }
             var course = new Course(account.Username);
-            if (!await courseStorage.TryInsert(course)) {
+            if (!await courseStorage.TryInsert(course))
+            {
                 return View("Status", ActionStatus.UnknownError);
             }
             return RedirectPermanent($"{SectionPath}/edit?id={course.Id}");
@@ -78,7 +79,7 @@ namespace HomemadeLMS.Controllers
             }
             if (!course.CanBeEditedBy(account))
             {
-                return View("Status", ActionStatus.NoAccess);
+                return View("Status", ActionStatus.NoPermission);
             }
             return View("EditCourse", course);
         }
@@ -104,7 +105,7 @@ namespace HomemadeLMS.Controllers
             }
             if (!course.CanBeEditedBy(account))
             {
-                return View("Status", ActionStatus.NoAccess);
+                return View("Status", ActionStatus.NoPermission);
             }
             var parser = new FormParser(Request.Form);
             var title = parser.GetString("title");

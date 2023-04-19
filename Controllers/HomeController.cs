@@ -10,9 +10,9 @@ namespace HomemadeLMS.Controllers
         [RequireHttps]
         [Route(DefaultPath)]
         [Route(SectionPath)]
-        public IActionResult Homepage()
+        public IActionResult Homepage_Get()
         {
-            return View();
+            return View("Homepage");
         }
     }
 }

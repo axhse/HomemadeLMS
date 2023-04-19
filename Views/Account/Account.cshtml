@@ -2,7 +2,7 @@
 @model AccountVM
 @{
 	ViewData["Title"] = "Account";
-	bool canChangeRole = Model.RequestMaker.CanChangeRole(Model.TargetAccount);
+	bool canChangeRole = Model.RequestMaker.CanChangeRoleOf(Model.TargetAccount);
 	var role = Model.TargetAccount.Role;
 }
 
@@ -21,7 +21,7 @@
 			</div>
 		</div>
 		<div class="d-inline-flex mb-4 ms-4">
-			<button type="submit" class="btn btn-primary">Изменить роль</button>
+			<button type="submit" class="btn btn-secondary">Изменить роль</button>
 		</div>
 	</form>
 }

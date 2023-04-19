@@ -3,7 +3,7 @@
 @{
 	var title = Model switch
 	{
-		ActionStatus.NoAccess => "No Access",
+		ActionStatus.NoPermission => "No Permission",
 		ActionStatus.NotFound => "Not Found",
 		_ => "Error",
 	};
@@ -11,8 +11,8 @@
 	{
 		ActionStatus.InternalError => "Ошибка сервера",
 		ActionStatus.InvalidFormData => "Форма содержит некорректные данные",
-		ActionStatus.NoAccess => "Нет доступа",
-		ActionStatus.NotFound => "Не найдено",
+		ActionStatus.NoPermission => "Недостаточно разрешений",
+		ActionStatus.NotFound => "Ресурс не существует",
 		ActionStatus.NotSupported => "Действие не может быть выполнено",
 		ActionStatus.UnknownError => "Неизвестная ошибка",
 		_ => "",
@@ -20,4 +20,4 @@
 	ViewData["Title"] = title;
 }
 
-<h5 class="text-info fw-bold">@statusDescription</h5>
+<h5 class="text-secondary fw-bold">@statusDescription</h5>

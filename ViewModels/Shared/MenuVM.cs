@@ -2,7 +2,7 @@ namespace HomemadeLMS.ViewModels
 {
     public enum LinkCategory
     {
-        Regular = 0,
+        Regular,
         Danger,
         Highlighted,
         Important,

@@ -141,7 +141,7 @@ namespace HomemadeLMS.Models.Domain
             Username = GetUsername(accountId);
         }
 
-        public bool CanChangeRole(Account other)
+        public bool CanChangeRoleOf(Account other)
         {
             return Username != other.Username && Role == UserRole.Manager && (
                 other.Role != UserRole.Manager || other.HeadUsername == Username
