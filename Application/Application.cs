@@ -53,10 +53,12 @@ namespace HomemadeLMS.Application
         private static void ConfigureDomainServices(
             IServiceCollection services)
         {
-            IStorage<string, Account> accountStorage
-                    = new DbStorage<string, Account>(new AccountDbClient());
-
-            services.AddSingleton(accountStorage);
+            services.AddScoped<IStorage<string, Account>>(
+                _ => new DbStorage<string, Account>(new AccountDbClient())
+            );
+            services.AddScoped<IStorage<int, Course>>(
+                _ => new DbStorage<int, Course>(new CourseDbClient())
+            );
         }
 
         private static void ConfigureWebApp(WebApplication app, BuildingConfig config)

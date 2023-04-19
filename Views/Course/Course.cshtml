@@ -1,0 +1,38 @@
+﻿@model CourseVM
+@{
+	ViewData["Title"] = "Course";
+
+	var course = Model.Course;
+	var isValuable = (string? text) => text is not null && text != string.Empty;
+}
+
+<div class="col-12 col-md-10 col-lg-8 col-xl-6" align="center">
+	<div>
+		<h6>@course.Title</h6>
+	</div>
+	@if (isValuable(course.Description)) {
+		<div class="mt-4">
+			<p>@course.Description</p>
+		</div>
+	}
+	@if (isValuable(course.SmartLmsUrl))
+	{
+		<div class="mt-4">
+			<a href="@course.SmartLmsUrl">Cсылка на курс в SmartLMS</a>
+		</div>
+	}
+	@if (isValuable(course.PldUrl))
+	{
+		<div class="mt-@(isValuable(course.SmartLmsUrl) ? 2 : 4)">
+			<a href="@course.PldUrl">Cсылка на ПУД</a>
+		</div>
+	}
+	@if (course.CanBeEditedBy(Model.Account))
+	{
+		<div class="mt-5">
+			<a class="btn btn-secondary" href="/course/edit?id=@course.Id">
+				Редактировать
+			</a>
+		</div>
+	}
+</div>

@@ -11,7 +11,6 @@ namespace HomemadeLMS.Controllers
     public class AccountController : ControllerWithAccounts
     {
         private const string SectionPath = "/account";
-        private const string SignInPath = SectionPath + "/signin";
 
         public AccountController(IStorage<string, Account> accountStorage) : base(accountStorage)
         { }
@@ -27,7 +26,7 @@ namespace HomemadeLMS.Controllers
                 return RedirectPermanent(SignInPath);
             }
             Account? targetAccount;
-            if (username is null || username == requestMaker.Username)
+            if (username is null || username == string.Empty || username == requestMaker.Username)
             {
                 targetAccount = requestMaker;
             }
@@ -101,17 +100,20 @@ namespace HomemadeLMS.Controllers
                 {
                     Role = role
                 };
-                await accountStorage.TryInsert(newAccount);
+                if (!await accountStorage.TryInsert(newAccount))
+                {
+                    return View("Status", ActionStatus.UnknownError);
+                }
             }
             var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, username) };
             ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
-            return RedirectToHomepage();
+            return RedirectPermanent(GetHomepagePath());
         }
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath + "/signout")]
+        [Route(SignOutPath)]
         public async Task<IActionResult> SignOut_Get()
         {
             await HttpContext.SignOutAsync();

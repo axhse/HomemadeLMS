@@ -1,0 +1,42 @@
+﻿@using HomemadeLMS.Models.Domain
+@model Course
+@{
+	ViewData["Title"] = "Edit Course";
+}
+
+<div class="col-12 col-md-10 col-lg-8 col-xl-6" align="left">
+	<form method="POST">
+		<div class="form-group" align="left">
+			<label for="titleInput" class="form-label">Название курса (обязательное поле)</label>
+			<input class="form-control" id="titleInput" name="title"
+				   value="@Model.Title" maxlength="@Course.MaxTitleSize">
+		</div>
+		<div class="form-group mt-3">
+			<label for="descriptionInput" class="form-label">
+				Описание курса
+			</label>
+			<textarea class="form-control" id="descriptionInput" name="description"
+				      rows="6" maxlength="@Course.MaxDescriptionSize">@Model.Description</textarea>
+		</div>
+		<div class="form-group mt-3">
+			<label for="smartLmsUrlInput" class="form-label">Ссылка на курс в SmartLMS</label>
+			<input class="form-control" id="smartLmsUrlInput" name="smartLmsUrl"
+				   value="@Model.SmartLmsUrl" maxlength="@Course.MaxUrlSize">
+		</div>
+		<div class="form-group mt-3">
+			<label for="pldUrlInput" class="form-label">Ссылка на ПУД</label>
+			<input class="form-control" id="pldUrlInput" name="pldUrl"
+				   value="@Model.PldUrl" maxlength="@Course.MaxUrlSize">
+		</div>
+		<div class="mt-4" align="center">
+			<button type="submit" class="btn btn-secondary">
+				Сохранить
+			</button>
+		</div>
+	</form>
+	<div class="mt-5" align="center">
+		<a class="link-secondary" href="/course?id=@Model.Id">
+			Вернуться
+		</a>
+	</div>
+</div>

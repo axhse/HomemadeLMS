@@ -19,6 +19,9 @@ namespace HomemadeLMS.Controllers
 
     public class ControllerWithAccounts : BaseController
     {
+        protected const string SignInPath = "/signin";
+        protected const string SignOutPath = "/signout";
+
         protected readonly IStorage<string, Account> accountStorage;
         private Account? currentAccount;
 

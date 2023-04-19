@@ -7,5 +7,6 @@ namespace HomemadeLMS.ViewModels
         NoAccess,
         NotFound,
         NotSupported,
+        UnknownError,
     }
 }

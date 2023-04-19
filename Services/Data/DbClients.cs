@@ -7,4 +7,10 @@ namespace HomemadeLMS.Services.Data
         public AccountDbClient() : base(new AccountConfiguration())
         { }
     }
+
+    public class CourseDbClient : DbClient<Course>
+    {
+        public CourseDbClient() : base(new CourseConfiguration())
+        { }
+    }
 }
