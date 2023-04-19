@@ -19,14 +19,57 @@ namespace HomemadeLMS.Controllers
         [HttpGet]
         [RequireHttps]
         [Route(SectionPath)]
-        public async Task<IActionResult> Account()
+        public async Task<IActionResult> Account_Get(string? username)
         {
-            var account = await GetAccount();
-            if (account is null)
+            var requestMaker = await GetAccount();
+            if (requestMaker is null)
             {
                 return RedirectPermanent(SignInPath);
             }
-            return View(account);
+            Account? targetAccount;
+            if (username is null || username == requestMaker.Username)
+            {
+                targetAccount = requestMaker;
+            }
+            else
+            {
+                targetAccount = accountStorage.Find(username);
+                if (targetAccount is null)
+                {
+                    return View("Status", ActionStatus.NotFound);
+                }
+
+            }
+            return View("Account", new AccountVM(requestMaker, targetAccount));
+        }
+
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(SectionPath)]
+        public async Task<IActionResult> Account_Post(string? username)
+        {
+            if (username is null)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var requestMaker = await GetAccount();
+            if (requestMaker is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            Account? targetAccount = accountStorage.Find(username);
+            if (targetAccount is null || !requestMaker.CanChangeRole(targetAccount))
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            if (new FormParser(Request.Form).TryGetUserRole("roleCode", out UserRole role))
+            {
+                targetAccount.Role = role;
+                targetAccount.HeadUsername = role == UserRole.Manager ? requestMaker.Username : null;
+                accountStorage.Update(targetAccount);
+            }
+            return View("Account", new AccountVM(requestMaker, targetAccount));
         }
 
         [HttpGet]
@@ -56,7 +99,10 @@ namespace HomemadeLMS.Controllers
             Account? account = accountStorage.Find(username);
             if (account is null)
             {
-                var newAccount = new Account(username, "password123");
+                var newAccount = new Account(username, "password123")
+                {
+                    Role = role
+                };
                 accountStorage.TryInsert(newAccount);
             }
             var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, username) };

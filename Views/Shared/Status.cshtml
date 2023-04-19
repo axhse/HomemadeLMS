@@ -1,0 +1,24 @@
+﻿@using HomemadeLMS.Models.Domain
+@model ActionStatus
+@{
+	var title = Model switch
+	{
+		ActionStatus.NoAccess => "No Access",
+		ActionStatus.NotFound => "Not Found",
+		_ => "Error",
+	};
+	var statusDescription = Model switch
+	{
+		ActionStatus.InternalError => "Ошибка сервера",
+		ActionStatus.InvalidFormData => "Форма содержит некорректные данные",
+		ActionStatus.NoAccess => "Нет доступа",
+		ActionStatus.NotFound => "Не найдено",
+		ActionStatus.NotSupported => "Действие не может быть выполнено",
+		_ => "",
+	};
+	ViewData["Title"] = title;
+}
+
+<div class="container mt-5" align="center">
+	<h5 class="text-info fw-bold">@statusDescription</h5>
+</div>

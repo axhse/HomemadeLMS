@@ -1,10 +1,29 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model Account
+@model AccountVM
 @{
 	ViewData["Title"] = "Account";
+	bool canChangeRole = Model.RequestMaker.CanChangeRole(Model.TargetAccount);
+	var role = Model.TargetAccount.Role;
 }
 
 <div class="container mt-5" align="center">
-	<p>username: @Model.Username</p>
-	<p>role: @Model.Role.ToString()</p>
+	<p>username: @Model.TargetAccount.Username</p>
+	<p>role: @Model.TargetAccount.Role.ToString()</p>
+	@if (canChangeRole) {
+		<form class="mt-5" method="POST">
+			<div class="d-inline-flex mb-4">
+				<div>
+					<select class="form-control text-center" id="roleCodeInput" name="roleCode">
+						<option value="">Выбрать роль</option>
+						<option value="@UserRole.Student.ToString()">Студент</option>
+						<option value="@UserRole.Teacher.ToString()">Преподаватель</option>
+						<option value="@UserRole.Manager.ToString()">Менеджер</option>
+					</select>
+				</div>
+			</div>
+			<div class="d-inline-flex mb-4 ms-4">
+				<button type="submit" class="btn btn-primary">Изменить роль</button>
+			</div>
+		</form>
+	}
 </div>

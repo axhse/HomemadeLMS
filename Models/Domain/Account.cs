@@ -8,7 +8,6 @@ namespace HomemadeLMS.Models.Domain
         Student,
         Teacher,
         Manager,
-        Administrator,
     }
 
     public class Account
@@ -52,6 +51,7 @@ namespace HomemadeLMS.Models.Domain
             return accountId;
         }
 
+        public string? HeadUsername { get; set; }
         public UserRole Role { get; set; } = UserRole.None;
 
         public string PasswordHash
@@ -92,6 +92,13 @@ namespace HomemadeLMS.Models.Domain
         public void SetAccountId(string accountId)
         {
             Username = GetUsername(accountId);
+        }
+
+        public bool CanChangeRole(Account other)
+        {
+            return Username != other.Username && Role == UserRole.Manager && (
+                other.Role != UserRole.Manager || other.HeadUsername == Username
+            );
         }
     }
 }
