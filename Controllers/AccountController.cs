@@ -33,16 +33,14 @@ namespace HomemadeLMS.Controllers
             }
             else
             {
-                targetAccount = accountStorage.Find(username);
+                targetAccount = await accountStorage.Find(username);
                 if (targetAccount is null)
                 {
                     return View("Status", ActionStatus.NotFound);
                 }
-
             }
             return View("Account", new AccountVM(requestMaker, targetAccount));
         }
-
 
         [HttpPost]
         [RequireHttps]
@@ -58,7 +56,7 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            Account? targetAccount = accountStorage.Find(username);
+            Account? targetAccount = await accountStorage.Find(username);
             if (targetAccount is null || !requestMaker.CanChangeRole(targetAccount))
             {
                 return View("Status", ActionStatus.NotSupported);
@@ -67,7 +65,7 @@ namespace HomemadeLMS.Controllers
             {
                 targetAccount.Role = role;
                 targetAccount.HeadUsername = role == UserRole.Manager ? requestMaker.Username : null;
-                accountStorage.Update(targetAccount);
+                await accountStorage.Update(targetAccount);
             }
             return View("Account", new AccountVM(requestMaker, targetAccount));
         }
@@ -96,14 +94,13 @@ namespace HomemadeLMS.Controllers
             }
             var username = role.ToString() + id.ToString();
 
-            Account? account = accountStorage.Find(username);
-            if (account is null)
+            if (!await accountStorage.HasKey(username))
             {
                 var newAccount = new Account(username, "password123")
                 {
                     Role = role
                 };
-                accountStorage.TryInsert(newAccount);
+                await accountStorage.TryInsert(newAccount);
             }
             var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, username) };
             ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);

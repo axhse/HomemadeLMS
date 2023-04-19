@@ -39,7 +39,7 @@ namespace HomemadeLMS.Controllers
                 return null;
             }
             var username = claims.First().Value;
-            Account? account = accountStorage.Find(username);
+            Account? account = await accountStorage.Find(username);
             if (account is null)
             {
                 await HttpContext.SignOutAsync();

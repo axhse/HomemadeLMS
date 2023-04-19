@@ -1,7 +1,14 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace HomemadeLMS.Services.Data
 {
+    public class StorageException : Exception
+    {
+        public StorageException(Exception innerException) : base(string.Empty, innerException)
+        { }
+    }
+
     public class DbStorage<TPrimaryKey, TEntity> : IStorage<TPrimaryKey, TEntity>
         where TEntity : class
     {
@@ -12,7 +19,7 @@ namespace HomemadeLMS.Services.Data
             this.dbClient = dbClient;
         }
 
-        public TEntity? Find(TPrimaryKey key)
+        public async Task<TEntity?> Find(TPrimaryKey key)
         {
             if (key is null)
             {
@@ -20,16 +27,15 @@ namespace HomemadeLMS.Services.Data
             }
             try
             {
-                return dbClient.Items.Find(key);
+                return await dbClient.Items.FindAsync(key);
             }
             catch (Exception exception)
             {
-                throw;
-                // TODO: throw standart exception + documment it
+                throw new StorageException(exception);
             }
         }
 
-        public bool HasKey(TPrimaryKey key)
+        public async Task<bool> HasKey(TPrimaryKey key)
         {
             if (key is null)
             {
@@ -37,30 +43,27 @@ namespace HomemadeLMS.Services.Data
             }
             try
             {
-                return dbClient.Items.Find(key) is not null;
+                return await Find(key) is not null;
             }
             catch (Exception exception)
             {
-                throw;
-                // TODO: throw standart exception + documment it
+                throw new StorageException(exception);
             }
         }
 
-        public IEnumerable<TEntity> Select(
-            Expression<Func<TEntity, bool>> selector)
+        public Task<IEnumerable<TEntity>> Select(Expression<Func<TEntity, bool>> selector)
         {
             try
             {
-                return dbClient.Items.Where(selector).AsEnumerable();
+                return Task.FromResult(dbClient.Items.Where(selector).AsEnumerable());
             }
             catch (Exception exception)
             {
-                throw;
-                // TODO: throw standart exception + documment it
+                return Task.FromException<IEnumerable<TEntity>>(new StorageException(exception));
             }
         }
 
-        public bool TryDelete(TPrimaryKey key)
+        public async Task<bool> TryDelete(TPrimaryKey key)
         {
             if (key is null)
             {
@@ -74,26 +77,25 @@ namespace HomemadeLMS.Services.Data
                     return false;
                 }
                 dbClient.Remove(entity);
-                dbClient.SaveChanges();
+                await dbClient.SaveChangesAsync();
                 return true;
             }
-            catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException)
             {
                 return false;
             }
             catch (Exception exception)
             {
-                throw;
-                // TODO: throw standart exception + documment it
+                throw new StorageException(exception);
             }
         }
 
-        public bool TryInsert(TEntity entity)
+        public async Task<bool> TryInsert(TEntity entity)
         {
             try
             {
-                dbClient.Add(entity);
-                dbClient.SaveChanges();
+                await dbClient.AddAsync(entity);
+                await dbClient.SaveChangesAsync();
                 return true;
             }
             catch (InvalidOperationException)
@@ -102,33 +104,31 @@ namespace HomemadeLMS.Services.Data
             }
             catch (Exception exception)
             {
-                throw;
-                // TODO: throw standart exception + documment it
+                throw new StorageException(exception);
             }
         }
 
-        public bool TryInsert(TPrimaryKey key, TEntity entity)
+        public async Task<bool> TryInsert(TPrimaryKey key, TEntity entity)
         {
-            return TryInsert(entity);
+            return await TryInsert(entity);
         }
 
-        public void Update(TEntity entity)
+        public async Task Update(TEntity entity)
         {
             try
             {
                 dbClient.Update(entity);
-                dbClient.SaveChanges();
+                await dbClient.SaveChangesAsync();
             }
             catch (Exception exception)
             {
-                throw;
-                // TODO: throw standart exception + documment it
+                throw new StorageException(exception);
             }
         }
 
-        public void Update(TPrimaryKey key, TEntity entity)
+        public async Task Update(TPrimaryKey key, TEntity entity)
         {
-            Update(entity);
+            await Update(entity);
         }
     }
 }
