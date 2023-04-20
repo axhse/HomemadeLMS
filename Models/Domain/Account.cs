@@ -14,6 +14,12 @@ namespace HomemadeLMS.Models.Domain
 
     public class Account
     {
+        public const int MinUsernameSize = 1;
+        public const int MaxUsernameSize = 100;
+        public const int MinPasswordSize = 8;
+        public const int MaxPasswordSize = 50;
+        public const int PasswordHashSize = 64;
+
         private const string EmailAddressBase = "@edu.hse.ru";
         private string username;
         private string passwordHash;
@@ -42,13 +48,13 @@ namespace HomemadeLMS.Models.Domain
         }
 
         public static bool HasPasswordHashValidFormat(string? passwordHash)
-            => passwordHash is not null && Regex.IsMatch(passwordHash, $"^[A-F0-9]{{64}}$");
+            => passwordHash is not null && Regex.IsMatch(passwordHash, $"^[A-F0-9]{{{PasswordHashSize}}}$");
 
         public static bool HasPasswordValidFormat(string? password)
-            => password is not null && 8 <= password.Length && password.Length <= 50;
+            => password is not null && MinPasswordSize <= password.Length && password.Length <= MaxPasswordSize;
 
         public static bool HasUsernameValidFormat(string? username)
-            => username is not null && Regex.IsMatch(username, $"^[a-z0-9_.]{{1,100}}$");
+            => username is not null && Regex.IsMatch(username, $"^[a-z0-9_.]{{{MinUsernameSize},{MaxUsernameSize}}}$");
 
         public static string GetUsername(string accountId)
         {
