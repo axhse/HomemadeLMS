@@ -13,4 +13,10 @@ namespace HomemadeLMS.Services.Data
         public CourseContext() : base(new CourseConfiguration())
         { }
     }
+
+    public class CourseMemberContext : GenericContext<CourseMember>
+    {
+        public CourseMemberContext() : base(new CourseMemberConfiguration())
+        { }
+    }
 }

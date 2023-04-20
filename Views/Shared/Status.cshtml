@@ -3,6 +3,7 @@
 @{
 	var title = Model switch
 	{
+		ActionStatus.NoAccess => "No Access",
 		ActionStatus.NoPermission => "No Permission",
 		ActionStatus.NotFound => "Not Found",
 		_ => "Error",
@@ -11,6 +12,7 @@
 	{
 		ActionStatus.InternalError => "Ошибка сервера",
 		ActionStatus.InvalidFormData => "Форма содержит некорректные данные",
+		ActionStatus.NoAccess => "Ресурс не доступен",
 		ActionStatus.NoPermission => "Недостаточно разрешений",
 		ActionStatus.NotFound => "Ресурс не существует",
 		ActionStatus.NotSupported => "Действие не может быть выполнено",

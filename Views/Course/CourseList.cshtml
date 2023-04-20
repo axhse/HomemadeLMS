@@ -1,0 +1,21 @@
+﻿@using HomemadeLMS.Models.Domain
+@model AccountAndObject<IEnumerable<CourseInfo>>
+@{
+	ViewData["Title"] = "Courses";
+}
+
+<div class="col-12 col-md-10 col-lg-8 col-xl-6" align="left">
+	<form method="POST">
+		<div align="center">
+			<button type="submit" class="btn btn-secondary">+ Создать курс</button>
+		</div>
+	</form>
+	<div class="mt-5">
+		@foreach (var courseInfo in Model.Object)
+		{
+			<div class="mt-1">
+				<a href="/course?id=@courseInfo.Id">@courseInfo.Title</a>
+			</div>
+		}
+	</div>
+</div>

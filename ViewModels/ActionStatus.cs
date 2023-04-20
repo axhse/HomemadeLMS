@@ -4,6 +4,7 @@ namespace HomemadeLMS.ViewModels
     {
         InternalError,
         InvalidFormData,
+        NoAccess,
         NoPermission,
         NotFound,
         NotSupported,

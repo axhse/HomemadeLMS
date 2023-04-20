@@ -9,11 +9,17 @@ namespace HomemadeLMS.Controllers
     {
         private const string SectionPath = "/course";
         private readonly IStorage<int, Course> courseStorage;
+        private readonly IStorage<int, CourseMember> courseMemberStorage;
+        private readonly CourseAggregator courseAggregator;
 
         public CourseController(IStorage<string, Account> accountStorage,
-            IStorage<int, Course> courseStorage) : base(accountStorage)
+            IStorage<int, Course> courseStorage,
+            IStorage<int, CourseMember> courseMemberStorage,
+            CourseAggregator courseAggregator) : base(accountStorage)
         {
             this.courseStorage = courseStorage;
+            this.courseMemberStorage = courseMemberStorage;
+            this.courseAggregator = courseAggregator;
         }
 
         [HttpGet]
@@ -29,39 +35,57 @@ namespace HomemadeLMS.Controllers
             }
             if (id == 0)
             {
-                // TODO: all courses
-                return Content("TODO: all courses");
+                var allCourseInfo = await courseAggregator.GetUserCourses(account.Username);
+                var model = new AccountAndObject<IEnumerable<CourseInfo>>(account, allCourseInfo);
+                return View("CourseList", model);
             }
             Course? course = await courseStorage.Find(id);
             if (course is null)
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            // TODO: check if allowed
+            var members = await courseMemberStorage.Select(
+                member => member.CourseId == course.Id && member.Username == account.Username
+            );
+            if (!members.Any())
+            {
+                return View("Status", ActionStatus.NoAccess);
+            }
             return View("Course", new CourseVM(account, course));
         }
 
-        [HttpGet]
+        [HttpPost]
         [RequireHttps]
-        [Route(SectionPath + "/create")]
+        [Route(SectionPath)]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> CreateCourse_Get()
+        public async Task<IActionResult> Course_Post(int id)
         {
             var account = await GetAccount();
             if (account is null)
             {
                 return RedirectPermanent(SignInPath);
             }
-            if (account.Role != UserRole.Teacher && account.Role != UserRole.Manager)
+            if (!account.CanEditCourses)
             {
                 return View("Status", ActionStatus.NoPermission);
             }
-            var course = new Course(account.Username);
-            if (!await courseStorage.TryInsert(course))
+            if (id == 0)
             {
-                return View("Status", ActionStatus.UnknownError);
+                var course = new Course(account.Username);
+                if (!await courseStorage.TryInsert(course))
+                {
+                    return View("Status", ActionStatus.UnknownError);
+                }
+                var courseRole = account.Role == UserRole.Teacher
+                                    ? CourseRole.Teacher : CourseRole.Manager;
+                var courseMember = new CourseMember(course.Id, account.Username, courseRole);
+                if (!await courseMemberStorage.TryInsert(courseMember))
+                {
+                    return View("Status", ActionStatus.UnknownError);
+                }
+                id = course.Id;
             }
-            return RedirectPermanent($"{SectionPath}/edit?id={course.Id}");
+            return RedirectPermanent($"{SectionPath}/edit?id={id}");
         }
 
         [HttpGet]

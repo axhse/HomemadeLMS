@@ -59,6 +59,10 @@ namespace HomemadeLMS.Application
             services.AddScoped<IStorage<int, Course>>(
                 _ => new Storage<int, Course>(new CourseContext())
             );
+            services.AddScoped<IStorage<int, CourseMember>>(
+                _ => new Storage<int, CourseMember>(new CourseMemberContext())
+            );
+            services.AddScoped(_ => new CourseAggregator(new CourseCompositeContext()));
         }
 
         private static void ConfigureWebApp(WebApplication app, BuildingConfig config)

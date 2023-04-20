@@ -16,8 +16,9 @@
 
         public Course(string ownerUsername)
         {
-            this.ownerUsername = ownerUsername;
+            OwnerUsername = ownerUsername;
             title = DefaulCourseTitle;
+            this.ownerUsername = OwnerUsername;
         }
 
         public static bool HasTitleValidFormat(string? title)

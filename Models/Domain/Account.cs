@@ -130,6 +130,7 @@ namespace HomemadeLMS.Models.Domain
         }
 
         public string EmailAddress => Username + EmailAddressBase;
+        public bool CanEditCourses => Role == UserRole.Teacher || Role == UserRole.Manager;
 
         /// <exception cref="ArgumentException"></exception>
         public void SetPassword(string password)
