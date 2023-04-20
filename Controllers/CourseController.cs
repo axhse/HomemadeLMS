@@ -19,6 +19,7 @@ namespace HomemadeLMS.Controllers
         [HttpGet]
         [RequireHttps]
         [Route(SectionPath)]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Course_Get(int id)
         {
             var account = await GetAccount();
@@ -43,6 +44,7 @@ namespace HomemadeLMS.Controllers
         [HttpGet]
         [RequireHttps]
         [Route(SectionPath + "/create")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> CreateCourse_Get()
         {
             var account = await GetAccount();
@@ -65,6 +67,7 @@ namespace HomemadeLMS.Controllers
         [HttpGet]
         [RequireHttps]
         [Route(SectionPath + "/edit")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> EditCourse_Get(int id)
         {
             var account = await GetAccount();
@@ -87,6 +90,7 @@ namespace HomemadeLMS.Controllers
         [HttpPost]
         [RequireHttps]
         [Route(SectionPath + "/edit")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> EditCourse_Post(int id)
         {
             if (id == 0 || !Request.HasFormContentType)

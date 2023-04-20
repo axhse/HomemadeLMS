@@ -18,6 +18,7 @@ namespace HomemadeLMS.Controllers
         [HttpGet]
         [RequireHttps]
         [Route(SectionPath)]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Account_Get(string? username)
         {
             var requestMaker = await GetAccount();
@@ -49,6 +50,7 @@ namespace HomemadeLMS.Controllers
         [HttpPost]
         [RequireHttps]
         [Route(SectionPath)]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Account_Post(string? username)
         {
             if (username is null || !Request.HasFormContentType)
@@ -77,6 +79,7 @@ namespace HomemadeLMS.Controllers
         [HttpGet]
         [RequireHttps]
         [Route(SignInPath)]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Signin_Get()
         {
             return View("SignIn");
@@ -85,6 +88,7 @@ namespace HomemadeLMS.Controllers
         [HttpPost]
         [RequireHttps]
         [Route(SignInPath)]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Signin_Post()
         {
             if (!Request.HasFormContentType)
@@ -119,6 +123,7 @@ namespace HomemadeLMS.Controllers
         [HttpGet]
         [RequireHttps]
         [Route(SignOutPath)]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> SignOut_Get()
         {
             await HttpContext.SignOutAsync();
