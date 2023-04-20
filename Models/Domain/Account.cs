@@ -48,7 +48,7 @@ namespace HomemadeLMS.Models.Domain
             => password is not null && 8 <= password.Length && password.Length <= 50;
 
         public static bool HasUsernameValidFormat(string? username)
-            => username is not null && Regex.IsMatch(username, $"^[A-Za-z0-9_.]{{1,100}}$");
+            => username is not null && Regex.IsMatch(username, $"^[a-z0-9_.]{{1,100}}$");
 
         public static string GetUsername(string accountId)
         {

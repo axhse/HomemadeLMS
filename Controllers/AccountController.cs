@@ -32,6 +32,11 @@ namespace HomemadeLMS.Controllers
             }
             else
             {
+                username = Account.GetUsername(username);
+                if (!Account.HasUsernameValidFormat(username))
+                {
+                    return View("Status", ActionStatus.NotFound);
+                }
                 targetAccount = await accountStorage.Find(username);
                 if (targetAccount is null)
                 {
@@ -92,7 +97,7 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.InvalidFormData);
             }
-            var username = role.ToString() + id.ToString();
+            var username = role.ToString().ToLower() + id.ToString();
 
             if (!await accountStorage.HasKey(username))
             {
