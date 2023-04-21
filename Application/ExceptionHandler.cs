@@ -1,3 +1,5 @@
+using HomemadeLMS.Controllers;
+
 namespace HomemadeLMS.Application
 {
     public class ExceptionHandler
@@ -12,9 +14,9 @@ namespace HomemadeLMS.Application
             {
                 await next(context);
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                // TODO: log exception
+                context.Response.Redirect(HomeController.ErrorPath);
             }
         }
     }
