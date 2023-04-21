@@ -56,7 +56,7 @@ namespace HomemadeLMS.Models.Domain
         public static bool HasUsernameValidFormat(string? username)
             => username is not null && Regex.IsMatch(username, $"^[a-z0-9_.]{{{MinUsernameSize},{MaxUsernameSize}}}$");
 
-        public static string GetUsername(string accountId)
+        public static string GetUsername(string? accountId)
         {
             if (accountId is null)
             {

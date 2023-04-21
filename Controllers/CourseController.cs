@@ -141,6 +141,7 @@ namespace HomemadeLMS.Controllers
             var description = DataUtils.GetTrimmed(parser.GetString("description"));
             var smartLmsUrl = DataUtils.GetTrimmed(parser.GetString("smartLmsUrl"));
             var pldUrl = DataUtils.GetTrimmed(parser.GetString("pldUrl"));
+            var ownerUsername = Account.GetUsername(parser.GetString("ownerUsername"));
             if (title is not null && Course.HasTitleValidFormat(title))
             {
                 course.Title = title;
@@ -156,6 +157,10 @@ namespace HomemadeLMS.Controllers
             if (Course.HasUrlValidFormat(pldUrl))
             {
                 course.PldUrl = pldUrl;
+            }
+            if (Account.HasUsernameValidFormat(ownerUsername))
+            {
+                course.OwnerUsername = ownerUsername;
             }
             await courseStorage.Update(course);
             return RedirectPermanent($"{SectionPath}?id={course.Id}");
