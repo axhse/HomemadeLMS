@@ -9,14 +9,14 @@ namespace HomemadeLMS.Services.Data
         { }
     }
 
-    public class DbStorage<TPrimaryKey, TEntity> : IStorage<TPrimaryKey, TEntity>
+    public class Storage<TPrimaryKey, TEntity> : IStorage<TPrimaryKey, TEntity>
         where TEntity : class
     {
-        private readonly DbClient<TEntity> dbClient;
+        private readonly GenericContext<TEntity> context;
 
-        public DbStorage(DbClient<TEntity> dbClient)
+        public Storage(GenericContext<TEntity> context)
         {
-            this.dbClient = dbClient;
+            this.context = context;
         }
 
         public async Task<TEntity?> Find(TPrimaryKey key)
@@ -27,7 +27,7 @@ namespace HomemadeLMS.Services.Data
             }
             try
             {
-                return await dbClient.Items.FindAsync(key);
+                return await context.Items.FindAsync(key);
             }
             catch (Exception exception)
             {
@@ -55,7 +55,7 @@ namespace HomemadeLMS.Services.Data
         {
             try
             {
-                return Task.FromResult(dbClient.Items.Where(selector).AsEnumerable());
+                return Task.FromResult(context.Items.Where(selector).AsEnumerable());
             }
             catch (Exception exception)
             {
@@ -71,13 +71,13 @@ namespace HomemadeLMS.Services.Data
             }
             try
             {
-                TEntity? entity = dbClient.Items.Find(key);
+                TEntity? entity = context.Items.Find(key);
                 if (entity is null)
                 {
                     return false;
                 }
-                dbClient.Remove(entity);
-                await dbClient.SaveChangesAsync();
+                context.Remove(entity);
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (DbUpdateConcurrencyException)
@@ -94,8 +94,8 @@ namespace HomemadeLMS.Services.Data
         {
             try
             {
-                await dbClient.AddAsync(entity);
-                await dbClient.SaveChangesAsync();
+                await context.AddAsync(entity);
+                await context.SaveChangesAsync();
                 return true;
             }
             catch (InvalidOperationException)
@@ -117,8 +117,8 @@ namespace HomemadeLMS.Services.Data
         {
             try
             {
-                dbClient.Update(entity);
-                await dbClient.SaveChangesAsync();
+                context.Update(entity);
+                await context.SaveChangesAsync();
             }
             catch (Exception exception)
             {

@@ -54,10 +54,10 @@ namespace HomemadeLMS.Application
             IServiceCollection services)
         {
             services.AddScoped<IStorage<string, Account>>(
-                _ => new DbStorage<string, Account>(new AccountDbClient())
+                _ => new Storage<string, Account>(new AccountContext())
             );
             services.AddScoped<IStorage<int, Course>>(
-                _ => new DbStorage<int, Course>(new CourseDbClient())
+                _ => new Storage<int, Course>(new CourseContext())
             );
         }
 

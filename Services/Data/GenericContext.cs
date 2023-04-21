@@ -2,23 +2,20 @@
 
 namespace HomemadeLMS.Services.Data
 {
-    public class DbClient<TEntity> : DbContext where TEntity : class
+    public class GenericContext<TEntity> : DbContext where TEntity : class
     {
         private readonly IEntityTypeConfiguration<TEntity> entityConfiguration;
 
-        protected DbClient(IEntityTypeConfiguration<TEntity> entityConfiguration)
-            : base(new DbContextOptions<DbClient<TEntity>>())
+        protected GenericContext(IEntityTypeConfiguration<TEntity> entityConfiguration) : base()
         {
             this.entityConfiguration = entityConfiguration;
-            Database.SetConnectionString(Program.AppConfig.DatabaseConfig.DbConnectionString);
-            SaveChangesAsync();    // TODO: remove?
         }
 
         public DbSet<TEntity> Items { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer();
+            optionsBuilder.UseSqlServer(Program.AppConfig.DatabaseConfig.DbConnectionString);
             base.OnConfiguring(optionsBuilder);
         }
 
