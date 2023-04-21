@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Linq.Expressions;
 
 namespace HomemadeLMS.Services.Data
@@ -51,15 +52,19 @@ namespace HomemadeLMS.Services.Data
             }
         }
 
-        public Task<IEnumerable<TEntity>> Select(Expression<Func<TEntity, bool>> selector)
+        public Task<List<TEntity>> Select(Expression<Func<TEntity, bool>> selector)
         {
+            if (selector is null)
+            {
+                return Task.FromResult(new List<TEntity>());
+            }
             try
             {
-                return Task.FromResult(context.Items.Where(selector).AsEnumerable());
+                return Task.FromResult(context.Items.Where(selector).ToList());
             }
             catch (Exception exception)
             {
-                return Task.FromException<IEnumerable<TEntity>>(new StorageException(exception));
+                return Task.FromException<List<TEntity>>(new StorageException(exception));
             }
         }
 
@@ -71,11 +76,27 @@ namespace HomemadeLMS.Services.Data
             }
             try
             {
-                TEntity? entity = context.Items.Find(key);
+                TEntity? entity = await context.Items.FindAsync(key);
                 if (entity is null)
                 {
                     return false;
                 }
+                return await TryDeleteValue(entity);
+            }
+            catch (Exception exception)
+            {
+                throw new StorageException(exception);
+            }
+        }
+
+        public async Task<bool> TryDeleteValue(TEntity entity)
+        {
+            if (entity is null)
+            {
+                return false;
+            }
+            try
+            {
                 context.Remove(entity);
                 await context.SaveChangesAsync();
                 return true;
@@ -92,6 +113,10 @@ namespace HomemadeLMS.Services.Data
 
         public async Task<bool> TryInsert(TEntity entity)
         {
+            if (entity is null)
+            {
+                return false;
+            }
             try
             {
                 await context.AddAsync(entity);
@@ -115,6 +140,10 @@ namespace HomemadeLMS.Services.Data
 
         public async Task Update(TEntity entity)
         {
+            if (entity is null)
+            {
+                return;
+            }
             try
             {
                 context.Update(entity);

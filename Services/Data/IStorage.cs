@@ -8,9 +8,11 @@ namespace HomemadeLMS.Services.Data
 
         Task<bool> HasKey(Tkey key);
 
-        Task<IEnumerable<TValue>> Select(Expression<Func<TValue, bool>> selector);
+        Task<List<TValue>> Select(Expression<Func<TValue, bool>> selector);
 
         Task<bool> TryDelete(Tkey key);
+
+        Task<bool> TryDeleteValue(TValue value);
 
         Task<bool> TryInsert(TValue value);
 
