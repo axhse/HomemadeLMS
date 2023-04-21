@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
 
 namespace HomemadeLMS.Services.Data
@@ -90,18 +91,25 @@ namespace HomemadeLMS.Services.Data
 
         public async Task<bool> TryDeleteValue(TEntity entity)
         {
+            EntityEntry<TEntity>? entry = null;
             if (entity is null)
             {
                 return false;
             }
             try
             {
-                context.Remove(entity);
+                entry = context.Remove(entity);
                 await context.SaveChangesAsync();
                 return true;
             }
+            catch (InvalidOperationException)
+            {
+                Detach(entry);
+                return false;
+            }
             catch (DbUpdateConcurrencyException)
             {
+                Detach(entry);
                 return false;
             }
             catch (Exception exception)
@@ -112,18 +120,25 @@ namespace HomemadeLMS.Services.Data
 
         public async Task<bool> TryInsert(TEntity entity)
         {
+            EntityEntry<TEntity>? entry = null; 
             if (entity is null)
             {
                 return false;
             }
             try
             {
-                await context.AddAsync(entity);
+                entry = await context.AddAsync(entity);
                 await context.SaveChangesAsync();
                 return true;
             }
             catch (InvalidOperationException)
             {
+                Detach(entry);
+                return false;
+            }
+            catch (DbUpdateException)
+            {
+                Detach(entry);
                 return false;
             }
             catch (Exception exception)
@@ -157,6 +172,14 @@ namespace HomemadeLMS.Services.Data
         public async Task Update(TPrimaryKey key, TEntity entity)
         {
             await Update(entity);
+        }
+
+        private static void Detach(EntityEntry<TEntity>? entry)
+        {
+            if (entry is not null)
+            {
+                entry.State = EntityState.Detached;
+            }
         }
     }
 }
