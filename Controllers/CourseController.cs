@@ -3,7 +3,7 @@ using HomemadeLMS.Models.Domain;
 using HomemadeLMS.Services.Data;
 using HomemadeLMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace HomemadeLMS.Controllers
 {
@@ -272,11 +272,9 @@ namespace HomemadeLMS.Controllers
             var parser = new FormParser(Request.Form);
             var accountIdText = parser.GetString("accountIdText");
             accountIdText ??= string.Empty;
-            accountIdText = accountIdText.Replace("\n", " ").Replace("\t", " ")
-                                   .Replace(",", " ").Replace(";", " ");
+            accountIdText = Regex.Replace(accountIdText, @"[\s,;]", " ");
             var accountIds = accountIdText.Split(" ", StringSplitOptions.RemoveEmptyEntries)
                                           .ToHashSet();
-
             var model = new MemberListChangelog(course);
             foreach (var accountId in accountIds)
             {
@@ -377,7 +375,7 @@ namespace HomemadeLMS.Controllers
                 }
                 foreach(var courseMember in courseMembers)
                 {
-                    await courseMemberStorage.TryDelete(courseMember.RecordId);
+                    await courseMemberStorage.TryDeleteValue(courseMember);
                 }
                 model.RemovedUsernames.Add(username);
             }

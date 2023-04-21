@@ -19,7 +19,6 @@
             this.username = Username;
         }
 
-        public int RecordId { get; set; }
         public int CourseId { get; set; }
         public CourseRole Role { get; set; }
 
@@ -34,6 +33,12 @@
                 }
                 username = value;
             }
+        }
+
+        public string Uid
+        {
+            get => $"{CourseId}:{Username}";
+            set { }
         }
     }
 }
