@@ -37,8 +37,22 @@ namespace HomemadeLMS.Controllers
             }
             if (id == 0)
             {
-                var allCourseInfo = await courseAggregator.GetUserCourses(account.Username);
-                var model = new AccountAndObject<IEnumerable<CourseInfo>>(account, allCourseInfo);
+                List<Course> allCourses;
+                if (account.Role == UserRole.Manager)
+                {
+                    allCourses = await courseStorage.Select(_ => true);
+                }
+                else
+                {
+                    allCourses = await courseAggregator.GetUserCourses(account.Username);
+                    var ownedCourses = await courseStorage.Select(
+                        course => course.OwnerUsername == account.Username
+                    );
+                    bool IsIdSelected(int id) => allCourses.Any(course => course.Id == id);
+                    var notSelectedCourses = ownedCourses.Where(course => !IsIdSelected(course.Id));
+                    allCourses = allCourses.Concat(notSelectedCourses).ToList();
+                }
+                var model = new AccountAndObject<List<Course>>(account, allCourses);
                 return View("CourseList", model);
             }
             Course? course = await courseStorage.Find(id);

@@ -12,17 +12,13 @@ namespace HomemadeLMS.Services.Data
             this.context = context;
         }
 
-        public async Task<IEnumerable<CourseInfo>> GetUserCourses(string username)
+        public async Task<List<Course>> GetUserCourses(string username)
         {
             var query = from courseMember in context.CourseMembers
                         where courseMember.Username == username
                         join course in context.Courses
                         on courseMember.CourseId equals course.Id
-                        select new CourseInfo
-                        {
-                            Id = course.Id,
-                            Title = course.Title,
-                        };
+                        select course;
             return await query.ToListAsync();
         }
     }

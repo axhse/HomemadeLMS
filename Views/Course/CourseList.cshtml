@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model AccountAndObject<IEnumerable<CourseInfo>>
+@model AccountAndObject<List<Course>>
 @{
 	ViewData["Title"] = "Courses";
 
@@ -15,10 +15,10 @@
 		</div>
 	</form>
 	<div class="mt-5">
-		@foreach (var courseInfo in Model.Object)
+		@foreach (var course in Model.Object)
 		{
 			<div class="mt-1">
-				<a href="/course?id=@courseInfo.Id">@courseInfo.Title</a>
+				<a href="/course?id=@course.Id">@course.Title</a>
 			</div>
 		}
 	</div>
