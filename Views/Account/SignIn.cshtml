@@ -1,6 +1,10 @@
 ﻿@using HomemadeLMS.Models.Domain
 @{
 	ViewData["Title"] = "Sign In";
+
+	var linkItemGroup = new LinkGroup();
+	linkItemGroup.Items.Add(new LinkItem { Href = "/", Label = "Главная страница" });
+	ViewData["NavbarMenu"] = linkItemGroup;
 }
 
 <form method="POST">

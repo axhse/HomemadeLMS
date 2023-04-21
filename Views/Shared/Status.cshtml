@@ -19,7 +19,13 @@
 		ActionStatus.UnknownError => "Неизвестная ошибка",
 		_ => "",
 	};
+
 	ViewData["Title"] = title;
+
+	var linkItemGroup = new LinkGroup();
+	linkItemGroup.Items.Add(new LinkItem { Href = "/account", Label = "Аккаунт" });
+	linkItemGroup.Items.Add(new LinkItem { Href = "/course", Label = "Курсы" });
+	ViewData["NavbarMenu"] = linkItemGroup;
 }
 
 <h5 class="text-secondary fw-bold">@statusDescription</h5>

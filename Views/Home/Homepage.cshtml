@@ -1,32 +1,5 @@
 ﻿@{
     ViewData["Title"] = "Home";
-
-    var linkItem = new LinkItem { Href = "https://google.com", Label = "link label" };
-    var linkItemGroup = new LinkGroup();
-
-    linkItemGroup.Items.Add(linkItem);
-    linkItemGroup.Items.Add(linkItem);
-    linkItemGroup.Items.Add(linkItem);
-    ViewData["NavbarMenu"] = linkItemGroup;
-
-    var popupMenu = new MenuVM();
-    popupMenu.LinkGroups.Add(new());
-    popupMenu.LinkGroups[0].Items.Add(new LinkItem { Label = "Link label", LinkCategory = LinkCategory.Important });
-    popupMenu.LinkGroups[0].Items.Add(new LinkItem { Label = "Link label", LinkCategory = LinkCategory.Highlighted });
-    popupMenu.LinkGroups[0].Items.Add(new LinkItem { Label = "Link label", LinkCategory = LinkCategory.Highlighted });
-    popupMenu.LinkGroups.Add(new());
-    popupMenu.LinkGroups[1].Items.Add(new LinkItem { Label = "Link label" });
-    popupMenu.LinkGroups[1].Items.Add(new LinkItem { Label = "Link label" });
-    popupMenu.LinkGroups.Add(new());
-    popupMenu.LinkGroups[2].Items.Add(new LinkItem { Label = "Link label", LinkCategory = LinkCategory.Danger });
-    popupMenu.LinkGroups[2].Items.Add(new LinkItem { Label = "Link label", LinkCategory = LinkCategory.Danger });
-    ViewData["PopupMenu"] = popupMenu;
-
-    ViewData["HeaderTitle"] = "Test title text";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core2">building Web apps with ASP.NET Core2</a>.</p>
-</div>
+<a href="/account">Мой аккаунт</a>

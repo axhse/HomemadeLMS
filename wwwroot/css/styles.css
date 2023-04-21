@@ -91,10 +91,6 @@ body {
     align-content: center;
 }
 
-#popup-menu a {
-    pointer-events: none;
-}
-
 #popup-menu .dropdown-item:hover {
     background-color: var(--popup-menu-hover-background-color);
 }

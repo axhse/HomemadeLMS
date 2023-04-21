@@ -2,6 +2,22 @@
 @model AccountAndObject<Account>
 @{
 	ViewData["Title"] = "Account";
+
+	var linkItemGroup = new LinkGroup();
+	if (Model.Account.Username == Model.Object.Username)
+	{
+		var popupMenu = new MenuVM();
+		popupMenu.LinkGroups.Add(new());
+		popupMenu.LinkGroups[0].Items.Add(new LinkItem { Href = "/signout", Label = "Выйти", LinkCategory = LinkCategory.Danger });
+		ViewData["PopupMenu"] = popupMenu;
+	}
+	else
+	{
+		linkItemGroup.Items.Add(new LinkItem { Href = "/account", Label = "Мой аккаунт" });
+	}
+	linkItemGroup.Items.Add(new LinkItem { Href = "/course", Label = "Курсы" });
+	ViewData["NavbarMenu"] = linkItemGroup;
+
 }
 
 <p>username: @Model.Object.Username</p>
