@@ -1,0 +1,60 @@
+﻿@using HomemadeLMS.Models.Domain
+@model MemberListChangelog
+@{
+	ViewData["Title"] = "Result";
+
+	var linkItemGroup = new LinkGroup();
+	linkItemGroup.Items.Add(new LinkItem { Href = "/account", Label = "Аккаунт" });
+	linkItemGroup.Items.Add(new LinkItem { Href = "/course", Label = "Курсы" });
+	ViewData["NavbarMenu"] = linkItemGroup;
+
+	var sortedUsernameLists = new List<string>[] {
+		Model.AddedUsernames,
+		Model.RemovedUsernames,
+		Model.AlreadyAddedUsernames,
+		Model.AlreadyRemovedUsernames,
+		Model.InvalidUsernames,
+	};
+}
+
+<div class="col-12 col-md-10 col-lg-8 col-xl-6" align="center">
+	@foreach (var usernameList in sortedUsernameLists)
+	{
+		var listName = string.Empty;
+		if (usernameList == Model.AddedUsernames)
+		{
+			listName = "Добавлены";
+		}
+		if (usernameList == Model.RemovedUsernames)
+		{
+			listName = "Удалены";
+		}
+		if (usernameList == Model.AlreadyAddedUsernames)
+		{
+			listName = "Уже были добавлены (никаких действий)";
+		}
+		if (usernameList == Model.AlreadyRemovedUsernames)
+		{
+			listName = "Уже не были на курсе (никаких действий)";
+		}
+		if (usernameList == Model.InvalidUsernames)
+		{
+			listName = "Некорректные идентификаторы (никаких действий)";
+		}
+		@if (usernameList.Any())
+		{
+			<div>
+				<p class="fw-bold">@usernameList.Count  @listName</p>
+			</div>
+			<div class="mt-2 mb-5">
+				@foreach (var username in usernameList)
+				{
+					<p>@username</p>
+				}
+			</div>
+		}
+	}
+	<div>
+		<a class="link-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
+	</div>
+</div>

@@ -1,0 +1,59 @@
+﻿@using HomemadeLMS.Models.Domain
+@model CourseMembers
+@{
+	ViewData["Title"] = "Course Members";
+
+	var linkItemGroup = new LinkGroup();
+	linkItemGroup.Items.Add(new LinkItem { Href = "/account", Label = "Аккаунт" });
+	linkItemGroup.Items.Add(new LinkItem { Href = "/course", Label = "Курсы" });
+	ViewData["NavbarMenu"] = linkItemGroup;
+
+	var sortedRoles = new CourseRole[] {
+		CourseRole.Teacher,
+		CourseRole.Assistant,
+		CourseRole.Student,
+	};
+}
+
+<div class="col-12 col-md-10 col-lg-8 col-xl-6" align="center">
+	@if (Model.Course.CanBeEditedBy(Model.Account)) 
+	{
+		<form method="POST">
+			<div class="mb-5">
+				<button type="submit" class="btn btn-secondary" name="actionCode" value="add">
+					Добавить
+				</button>
+				<button type="submit" class="btn btn-secondary" name="actionCode" value="remove">
+					Удалить
+				</button>
+			</div>
+		</form>
+	}
+	@foreach (var role in sortedRoles) {
+		var members = Model.Members.Where(member => member.Role == role);
+		var roleName = role switch
+		{
+			CourseRole.Teacher => "Преподаватели",
+			CourseRole.Assistant => "Ассистенты",
+			CourseRole.Student => "Студенты",
+			_ => string.Empty,
+		};
+		@if (members.Any()) {
+			<div>
+				<p class="fw-bold">@members.Count()  @roleName</p>
+			</div>
+			<div class="mt-2 mb-5">
+				@foreach (var member in members) {
+					<div class="mt-1">
+						<a href="/account?username=@member.Username">@member.Username</a>
+					</div>
+				}
+			</div>
+		} 
+	}
+	<div align="center">
+		<a class="link-secondary" href="/course?id=@Model.Course.Id">
+			Вернуться
+		</a>
+	</div>
+</div>

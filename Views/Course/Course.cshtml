@@ -32,6 +32,9 @@
 			<a href="@course.PldUrl">Cсылка на ПУД</a>
 		</div>
 	}
+	<div class="mt-4">
+		<a href="/course/members?courseId=@course.Id">Участники</a>
+	</div>
 	@if (course.CanBeEditedBy(Model.Account))
 	{
 		<form method="POST">

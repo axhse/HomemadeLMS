@@ -5,7 +5,6 @@
         Student,
         Assistant,
         Teacher,
-        Manager,
     }
 
     public class CourseMember
