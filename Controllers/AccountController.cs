@@ -46,7 +46,7 @@ namespace HomemadeLMS.Controllers
                     return View("Status", ActionStatus.NotFound);
                 }
             }
-            return View("Account", new AccountVM(requestMaker, targetAccount));
+            return View("Account", new AccountAndObject<Account>(requestMaker, targetAccount));
         }
 
         [HttpPost]
@@ -75,7 +75,7 @@ namespace HomemadeLMS.Controllers
                 targetAccount.HeadUsername = role == UserRole.Manager ? requestMaker.Username : null;
                 await accountStorage.Update(targetAccount);
             }
-            return View("Account", new AccountVM(requestMaker, targetAccount));
+            return View("Account", new AccountAndObject<Account>(requestMaker, targetAccount));
         }
 
         [HttpGet]

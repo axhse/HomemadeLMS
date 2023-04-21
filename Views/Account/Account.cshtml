@@ -1,14 +1,12 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model AccountVM
+@model AccountAndObject<Account>
 @{
 	ViewData["Title"] = "Account";
-	bool canChangeRole = Model.RequestMaker.CanChangeRoleOf(Model.TargetAccount);
-	var role = Model.TargetAccount.Role;
 }
 
-<p>username: @Model.TargetAccount.Username</p>
-<p>role: @Model.TargetAccount.Role.ToString()</p>
-@if (canChangeRole) {
+<p>username: @Model.Object.Username</p>
+<p>role: @Model.Object.Role.ToString()</p>
+@if (Model.Account.CanChangeRoleOf(Model.Object)) {
 	<form class="mt-5" method="POST">
 		<div class="d-inline-flex mb-4">
 			<div>

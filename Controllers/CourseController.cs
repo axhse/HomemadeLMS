@@ -52,7 +52,7 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NoAccess);
             }
-            return View("Course", new CourseVM(account, course));
+            return View("Course", new AccountAndObject<Course>(account, course));
         }
 
         [HttpPost]

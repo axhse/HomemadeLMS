@@ -1,8 +1,9 @@
-﻿@model CourseVM
+﻿@using HomemadeLMS.Models.Domain
+@model AccountAndObject<Course>
 @{
 	ViewData["Title"] = "Course";
 
-	var course = Model.Course;
+	var course = Model.Object;
 }
 
 <div class="col-12 col-md-10 col-lg-8 col-xl-6" align="center">
