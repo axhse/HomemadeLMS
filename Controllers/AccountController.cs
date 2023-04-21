@@ -27,7 +27,9 @@ namespace HomemadeLMS.Controllers
                 return RedirectPermanent(SignInPath);
             }
             Account? targetAccount;
-            if (username is null || username == string.Empty || username == requestMaker.Username)
+            username ??= string.Empty;
+            username = username.Trim().ToLower();
+            if (username == string.Empty || username == requestMaker.Username)
             {
                 targetAccount = requestMaker;
             }

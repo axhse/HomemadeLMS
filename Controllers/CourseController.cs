@@ -1,4 +1,5 @@
-﻿using HomemadeLMS.Models.Domain;
+﻿using HomemadeLMS.Models;
+using HomemadeLMS.Models.Domain;
 using HomemadeLMS.Services.Data;
 using HomemadeLMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -136,21 +137,26 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NoPermission);
             }
             var parser = new FormParser(Request.Form);
-            var title = parser.GetString("title");
-            var description = parser.GetString("description");
-            var smartLmsUrl = parser.GetString("smartLmsUrl");
-            var pldUrl = parser.GetString("pldUrl");
-            if (title is null || !Course.HasTitleValidFormat(title)
-                || !Course.HasDescriptionValidFormat(description)
-                || !Course.HasUrlValidFormat(smartLmsUrl)
-                || !Course.HasUrlValidFormat(pldUrl))
+            var title = DataUtils.GetTrimmed(parser.GetString("title"));
+            var description = DataUtils.GetTrimmed(parser.GetString("description"));
+            var smartLmsUrl = DataUtils.GetTrimmed(parser.GetString("smartLmsUrl"));
+            var pldUrl = DataUtils.GetTrimmed(parser.GetString("pldUrl"));
+            if (title is not null && Course.HasTitleValidFormat(title))
             {
-                return View("Status", ActionStatus.InvalidFormData);
+                course.Title = title;
             }
-            course.Title = title;
-            course.Description = description;
-            course.SmartLmsUrl = smartLmsUrl;
-            course.PldUrl = pldUrl;
+            if (Course.HasDescriptionValidFormat(description))
+            {
+                course.Description = description;
+            }
+            if (Course.HasUrlValidFormat(smartLmsUrl))
+            {
+                course.SmartLmsUrl = smartLmsUrl;
+            }
+            if (Course.HasUrlValidFormat(pldUrl))
+            {
+                course.PldUrl = pldUrl;
+            }
             await courseStorage.Update(course);
             return RedirectPermanent($"{SectionPath}?id={course.Id}");
         }
