@@ -55,7 +55,8 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Account_Post(string? username)
         {
-            if (username is null || !Request.HasFormContentType)
+            if (username is null || !Account.HasUsernameValidFormat(username)
+                || !Request.HasFormContentType)
             {
                 return View("Status", ActionStatus.NotSupported);
             }

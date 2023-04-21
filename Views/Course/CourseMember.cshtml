@@ -1,0 +1,30 @@
+﻿@using HomemadeLMS.Models.Domain
+@model CourseMemberVM
+@{
+	ViewData["Title"] = "Course Member";
+
+	var linkItemGroup = new LinkGroup();
+	linkItemGroup.Items.Add(new LinkItem { Href = "/account", Label = "Аккаунт" });
+	linkItemGroup.Items.Add(new LinkItem { Href = "/course", Label = "Курсы" });
+	ViewData["NavbarMenu"] = linkItemGroup;
+}
+
+<p>username: @Model.Member.Username</p>
+<p>role: @Model.Member.Role.ToString()</p>
+@if (Model.Course.CanBeEditedBy(Model.Account)) {
+	<form class="mt-5" method="POST">
+		<div class="d-inline-flex mb-4">
+			<div>
+				<select class="form-control text-center" id="roleCodeInput" name="roleCode">
+					<option value="">Выбрать роль</option>
+					<option value="@CourseRole.Student.ToString()">Студент</option>
+					<option value="@CourseRole.Assistant.ToString()">Ассистент</option>
+					<option value="@CourseRole.Teacher.ToString()">Преподаватель</option>
+				</select>
+			</div>
+		</div>
+		<div class="d-inline-flex mb-4 ms-4">
+			<button type="submit" class="btn btn-secondary">Изменить роль</button>
+		</div>
+	</form>
+}

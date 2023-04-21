@@ -45,7 +45,9 @@
 			<div class="mt-2 mb-5">
 				@foreach (var member in members) {
 					<div class="mt-1">
-						<a href="/account?username=@member.Username">@member.Username</a>
+						<a href="/course/member?courseId=@(Model.Course.Id)&username=@member.Username">
+							@member.Username
+						</a>
 					</div>
 				}
 			</div>

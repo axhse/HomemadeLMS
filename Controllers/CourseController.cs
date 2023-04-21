@@ -35,7 +35,7 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            if (id == 0)
+            if (id <= 0)
             {
                 List<Course> allCourses;
                 if (account.Role == UserRole.Manager)
@@ -137,7 +137,7 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> EditCourse_Post(int id)
         {
-            if (id == 0 || !Request.HasFormContentType)
+            if (id <= 0 || !Request.HasFormContentType)
             {
                 return View("Status", ActionStatus.NotSupported);
             }
@@ -219,7 +219,7 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult CourseMemebrs_Post(int courseId)
         {
-            if (courseId == 0 || !Request.HasFormContentType)
+            if (courseId <= 0 || !Request.HasFormContentType)
             {
                 return View("Status", ActionStatus.NotSupported);
             }
@@ -265,7 +265,7 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> AddMembers_Post(int courseId)
         {
-            if (courseId == 0 || !Request.HasFormContentType)
+            if (courseId <= 0 || !Request.HasFormContentType)
             {
                 return View("Status", ActionStatus.NotSupported);
             }
@@ -344,7 +344,7 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> RemoveMembers_Post(int courseId)
         {
-            if (courseId == 0 || !Request.HasFormContentType)
+            if (courseId <= 0 || !Request.HasFormContentType)
             {
                 return View("Status", ActionStatus.NotSupported);
             }
@@ -396,6 +396,68 @@ namespace HomemadeLMS.Controllers
             return View("MemberChangelog", model);
         }
 
+        [HttpGet]
+        [RequireHttps]
+        [Route(SectionPath + "/member")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> CourseMember_Get(int courseId, string? username)
+        {
+            if (username is null || !Account.HasUsernameValidFormat(username) || courseId <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var course = await courseStorage.Find(courseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var courseMember = await GetCourseMember(courseId, username);
+            if (courseMember is null || !course.CanBeEditedBy(account))
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            return View("CourseMember", new CourseMemberVM(account, course, courseMember));
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(SectionPath + "/member")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> CourseMember_Post(int courseId, string? username)
+        {
+            if (username is null || !Account.HasUsernameValidFormat(username)
+                || courseId <= 0 || !Request.HasFormContentType)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var course = await courseStorage.Find(courseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var courseMember = await GetCourseMember(courseId, username);
+            if (courseMember is null || !course.CanBeEditedBy(account))
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            if (new FormParser(Request.Form).TryGetCourseRole("roleCode", out CourseRole role))
+            {
+                courseMember.Role = role;
+                await courseMemberStorage.Update(courseMember);
+            }
+            return View("CourseMember", new CourseMemberVM(account, course, courseMember));
+        }
+
         protected override string GetHomepagePath() => SectionPath;
 
         private async Task<bool> CanViewCourse(Account account, Course course)
@@ -404,10 +466,15 @@ namespace HomemadeLMS.Controllers
             {
                 return true;
             }
+            return await GetCourseMember(course.Id, account.Username) is not null;
+        }
+
+        private async Task<CourseMember?> GetCourseMember(int courseId, string username)
+        {
             var members = await courseMemberStorage.Select(
-                    member => member.CourseId == course.Id && member.Username == account.Username
+                    member => member.CourseId == courseId && member.Username == username
             );
-            return members.Any();
+            return members.FirstOrDefault();
         }
     }
 }

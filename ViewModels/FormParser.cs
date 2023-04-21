@@ -40,5 +40,20 @@ namespace HomemadeLMS.ViewModels
             value = UserRole.None;
             return false;
         }
+
+        public bool TryGetCourseRole(string key, out CourseRole value)
+        {
+            var roleCode = GetString(key);
+            foreach (var role in Enum.GetValues<CourseRole>())
+            {
+                if (roleCode == role.ToString())
+                {
+                    value = role;
+                    return true;
+                }
+            }
+            value = CourseRole.Student;
+            return false;
+        }
     }
 }
