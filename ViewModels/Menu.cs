@@ -20,7 +20,7 @@ namespace HomemadeLMS.ViewModels
         public LinkCategory LinkCategory { get; init; } = LinkCategory.Regular;
     }
 
-    public class MenuVM
+    public class Menu
     {
         public List<LinkGroup> LinkGroups = new();
     }

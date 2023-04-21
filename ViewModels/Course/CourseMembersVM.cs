@@ -2,9 +2,9 @@
 
 namespace HomemadeLMS.ViewModels
 {
-	public class CourseMembers
+	public class CourseMembersVM
 	{
-		public CourseMembers(Account account, Course course, IEnumerable<CourseMember> members)
+		public CourseMembersVM(Account account, Course course, IEnumerable<CourseMember> members)
 		{
 			Account = account;
             Course = course;

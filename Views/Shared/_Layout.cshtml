@@ -17,16 +17,17 @@
             <div class="container d-flex py-1">
                 @if (ViewData.TryGetValue("PopupMenu", out object? popupMenuObject))
                 {
-                    MenuVM? menuModel = popupMenuObject as MenuVM;
-                    if (menuModel is not null)
+                    Menu? menu = popupMenuObject as Menu;
+                    if (menu is not null)
                     {
                         <div class="btn-group">
                             <button id="popup-menu-button" class="btn dropdown-toggle"
                             data-bs-toggle="dropdown" aria-expanded="false">☰</button>
                             <ul id="popup-menu" class="dropdown-menu">
-                                @foreach (var linkGroup in menuModel.LinkGroups)
+                                @foreach (var linkGroup in menu.LinkGroups)
                                 {
-                                    if (linkGroup != menuModel.LinkGroups[0]) {
+                                    if (linkGroup != menu.LinkGroups[0])
+                                    {
                                         <li class="dropdown-divider"></li>
                                     }
                                     @foreach (var linkItem in linkGroup.Items)

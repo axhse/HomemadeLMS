@@ -2,9 +2,9 @@
 
 namespace HomemadeLMS.ViewModels
 {
-    public class MemberListChangelog
+    public class MemberChangelogVM
     {
-        public MemberListChangelog(Course course)
+        public MemberChangelogVM(Course course)
         {
             Course = course;
         }

@@ -210,7 +210,7 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NoAccess);
             }
             var members = await courseMemberStorage.Select(member => member.CourseId == courseId);
-            return View("CourseMembers", new CourseMembers(account, course, members));
+            return View("CourseMembers", new CourseMembersVM(account, course, members));
         }
 
         [HttpPost]
@@ -289,7 +289,7 @@ namespace HomemadeLMS.Controllers
             accountIdText = Regex.Replace(accountIdText, @"[\s,;]", " ");
             var accountIds = accountIdText.Split(" ", StringSplitOptions.RemoveEmptyEntries)
                                           .ToHashSet();
-            var model = new MemberListChangelog(course);
+            var model = new MemberChangelogVM(course);
             foreach (var accountId in accountIds)
             {
                 var username = Account.GetUsername(accountId);
@@ -308,7 +308,7 @@ namespace HomemadeLMS.Controllers
                     model.AlreadyAddedUsernames.Add(username);
                 }
             }
-            return View("MemberListChangelog", model);
+            return View("MemberChangelog", model);
         }
 
         [HttpGet]
@@ -370,7 +370,7 @@ namespace HomemadeLMS.Controllers
             var accountIds = accountIdText.Split(" ", StringSplitOptions.RemoveEmptyEntries)
                                           .ToHashSet();
 
-            var model = new MemberListChangelog(course);
+            var model = new MemberChangelogVM(course);
             foreach (var accountId in accountIds)
             {
                 var username = Account.GetUsername(accountId);
@@ -393,7 +393,7 @@ namespace HomemadeLMS.Controllers
                 }
                 model.RemovedUsernames.Add(username);
             }
-            return View("MemberListChangelog", model);
+            return View("MemberChangelog", model);
         }
 
         protected override string GetHomepagePath() => SectionPath;

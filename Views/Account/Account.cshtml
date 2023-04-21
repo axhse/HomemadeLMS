@@ -6,7 +6,7 @@
 	var linkItemGroup = new LinkGroup();
 	if (Model.Account.Username == Model.Object.Username)
 	{
-		var popupMenu = new MenuVM();
+		var popupMenu = new Menu();
 		popupMenu.LinkGroups.Add(new());
 		popupMenu.LinkGroups[0].Items.Add(new LinkItem { Href = "/signout", Label = "Выйти", LinkCategory = LinkCategory.Danger });
 		ViewData["PopupMenu"] = popupMenu;
