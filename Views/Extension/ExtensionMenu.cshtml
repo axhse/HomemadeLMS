@@ -1,0 +1,8 @@
+﻿@{
+	ViewData["Title"] = "Дополнения";
+	var navbarMenu = MenuBuilder.GetDefaultNavbarMenu();
+	navbarMenu.Items.RemoveAt(2);
+	ViewData["NavbarMenu"] = navbarMenu;
+}
+
+<a href="/extension/roletest/status">Тест Белбина</a>

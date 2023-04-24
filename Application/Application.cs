@@ -1,6 +1,7 @@
 using HomemadeLMS.Models.Domain;
 using HomemadeLMS.Services.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HomemadeLMS.Application
 {
@@ -61,6 +62,9 @@ namespace HomemadeLMS.Application
             );
             services.AddScoped<IStorage<int, CourseMember>>(
                 _ => new Storage<int, CourseMember>(new CourseMemberContext())
+            );
+            services.AddScoped<IStorage<string, RoleTestResult>>(
+                _ => new Storage<string, RoleTestResult>(new RoleTestResultContext())
             );
             services.AddScoped(_ => new CourseAggregator(new CourseCompositeContext()));
         }

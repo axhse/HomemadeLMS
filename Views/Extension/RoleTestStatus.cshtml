@@ -1,0 +1,38 @@
+﻿@using HomemadeLMS.Models.Domain
+@model RoleTestResult?
+@{
+    ViewData["Title"] = "Тест Белбина";
+	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
+
+    var buttonText = Model is null ? "Пройти тест" : "Перепройти тест";
+}
+
+<p>Тест Белбина используется для определения командных ролей</p>
+
+@if (Model is not null) {
+	var allNamedScore = new []
+	{
+		new {Score = Model.TeamWorkerScore, Name = "Душа команды"},
+		new {Score = Model.CoordinatorScore, Name = "Координатор"},
+		new {Score = Model.ResourceInvestigatorScore, Name = "Исследователь ресурсов"},
+		new {Score = Model.ShaperScore, Name = "Мотиватор"},
+		new {Score = Model.ImplementerScore, Name = "Исполнитель"},
+		new {Score = Model.CompleterScore, Name = "Педант"},
+		new {Score = Model.PlantScore, Name = "Генератор идей"},
+		new {Score = Model.MonitorEvaluatorScore, Name = "Аналитик-стратег"},
+	}.ToList();
+	allNamedScore.Sort((first, second) => -first.Score.CompareTo(second.Score));
+	<div class="mt-5 fw-bold">
+		<p class="mb-4">Текущий результат</p>
+		@foreach (var namedScore in allNamedScore)
+		{
+			<p class="my-1">@($"{namedScore.Name} — {namedScore.Score}")</p>
+		}
+	</div>
+}
+
+<form method="POST">
+	<div class="mt-5">
+		<button type="submit" class="btn btn-secondary">@buttonText</button>
+	</div>
+</form>

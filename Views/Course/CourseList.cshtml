@@ -2,10 +2,9 @@
 @model AccountAndObject<List<Course>>
 @{
 	ViewData["Title"] = "Courses";
-
-	var linkItemGroup = new LinkGroup();
-	linkItemGroup.Items.Add(new LinkItem { Href = "/account", Label = "Аккаунт" });
-	ViewData["NavbarMenu"] = linkItemGroup;
+	var navbarMenu = MenuBuilder.GetDefaultNavbarMenu();
+	navbarMenu.Items.RemoveAt(1);
+	ViewData["NavbarMenu"] = navbarMenu;
 }
 
 <div class="col-12 col-md-10 col-lg-8 col-xl-6" align="center">

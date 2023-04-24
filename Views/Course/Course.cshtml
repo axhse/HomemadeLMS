@@ -2,11 +2,7 @@
 @model AccountAndObject<Course>
 @{
 	ViewData["Title"] = "Course";
-
-	var linkItemGroup = new LinkGroup();
-	linkItemGroup.Items.Add(new LinkItem { Href = "/account", Label = "Аккаунт" });
-	linkItemGroup.Items.Add(new LinkItem { Href = "/course", Label = "Курсы" });
-	ViewData["NavbarMenu"] = linkItemGroup;
+	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
 
 	var course = Model.Object;
 }

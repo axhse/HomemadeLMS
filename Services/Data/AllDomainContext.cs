@@ -19,4 +19,10 @@ namespace HomemadeLMS.Services.Data
         public CourseMemberContext() : base(new CourseMemberConfiguration())
         { }
     }
+
+    public class RoleTestResultContext : GenericContext<RoleTestResult>
+    {
+        public RoleTestResultContext() : base(new RoleTestResultConfiguration())
+        { }
+    }
 }

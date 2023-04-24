@@ -2,11 +2,7 @@
 @model MemberChangelogVM
 @{
 	ViewData["Title"] = "Result";
-
-	var linkItemGroup = new LinkGroup();
-	linkItemGroup.Items.Add(new LinkItem { Href = "/account", Label = "Аккаунт" });
-	linkItemGroup.Items.Add(new LinkItem { Href = "/course", Label = "Курсы" });
-	ViewData["NavbarMenu"] = linkItemGroup;
+	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
 
 	var sortedUsernameLists = new List<string>[] {
 		Model.AddedUsernames,

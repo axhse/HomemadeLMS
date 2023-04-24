@@ -2,11 +2,7 @@
 @model Course
 @{
 	ViewData["Title"] = "Edit Course";
-
-	var linkItemGroup = new LinkGroup();
-	linkItemGroup.Items.Add(new LinkItem { Href = "/account", Label = "Аккаунт" });
-	linkItemGroup.Items.Add(new LinkItem { Href = "/course", Label = "Курсы" });
-	ViewData["NavbarMenu"] = linkItemGroup;
+	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
 }
 
 <div class="col-12 col-md-10 col-lg-8 col-xl-6" align="left">
