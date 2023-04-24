@@ -8,18 +8,16 @@ namespace HomemadeLMS.Services.Data
     {
         public void Configure(EntityTypeBuilder<CourseMember> builder)
         {
-            builder.HasKey(courseMember => courseMember.Uid);
-            builder.Property(courseMember => courseMember.Uid).ValueGeneratedNever();
-            builder.Property(courseMember => courseMember.Uid).HasMaxLength(22 + Account.MaxUsernameSize);
-            builder.HasIndex(courseMember => courseMember.CourseId);
-            builder.HasIndex(courseMember => courseMember.Username);
-            builder.Property(courseMember => courseMember.CourseId).IsRequired();
-            builder.Property(courseMember => courseMember.CourseId).ValueGeneratedNever();
-            builder.Property(courseMember => courseMember.Username).IsRequired();
-            builder.Property(courseMember => courseMember.Username).ValueGeneratedNever();
-            builder.Property(courseMember => courseMember.Username).HasMaxLength(Account.MaxUsernameSize);
-            builder.Property(courseMember => courseMember.Role).IsRequired();
-            builder.ToTable("CourseMember");
+            builder.HasKey(member => member.Uid);
+            builder.HasIndex(member => member.CourseId);
+            builder.HasIndex(member => member.Username);
+            builder.Property(member => member.Uid).ValueGeneratedNever();
+            builder.Property(member => member.Uid).HasMaxLength(22 + Account.MaxUsernameSize);
+            builder.Property(member => member.CourseId).IsRequired();
+            builder.Property(member => member.Username).IsRequired();
+            builder.Property(member => member.Username).HasMaxLength(Account.MaxUsernameSize);
+            builder.Property(member => member.Role).IsRequired();
+            builder.ToTable(nameof(CourseMember));
         }
     }
 }

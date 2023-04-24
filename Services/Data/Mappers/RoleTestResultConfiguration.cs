@@ -8,8 +8,8 @@ namespace HomemadeLMS.Services.Data
     {
         public void Configure(EntityTypeBuilder<RoleTestResult> builder)
         {
-            builder.HasKey(account => account.Username);
-            builder.Property(account => account.Username).ValueGeneratedNever();
+            builder.HasKey(result => result.Username);
+            builder.Property(result => result.Username).ValueGeneratedNever();
             builder.Property(result => result.Username).HasMaxLength(Account.MaxUsernameSize);
             builder.ToTable(nameof(RoleTestResult));
         }
