@@ -1,6 +1,6 @@
 ﻿@{
 	ViewData["Title"] = "Дополнения";
-	var navbarMenu = MenuBuilder.GetDefaultNavbarMenu();
+	var navbarMenu = MenuBuilder.DefaultNavbarMenu;
 	navbarMenu.Items.RemoveAt(2);
 	ViewData["NavbarMenu"] = navbarMenu;
 }

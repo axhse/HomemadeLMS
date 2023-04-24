@@ -15,9 +15,9 @@ namespace HomemadeLMS.ViewModels
 
     public class LinkItem
     {
-        public string Href { get; init; } = string.Empty;
-        public string Label { get; init; } = string.Empty;
-        public LinkCategory LinkCategory { get; init; } = LinkCategory.Regular;
+        public string Href { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+        public LinkCategory LinkCategory { get; set; } = LinkCategory.Regular;
     }
 
     public class Menu

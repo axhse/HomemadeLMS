@@ -2,7 +2,7 @@
 @model AccountAndObject<Course>
 @{
 	ViewData["Title"] = "Курс";
-	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 
 	var course = Model.Object;
 }
@@ -13,7 +13,7 @@
 	</div>
 	@if (DataUtils.IsValuable(course.Description)) {
 		<div class="mt-4">
-			<p>@course.Description</p>
+			<pre class="pre-vertical">@course.Description</pre>
 		</div>
 	}
 	@if (DataUtils.IsValuable(course.SmartLmsUrl))

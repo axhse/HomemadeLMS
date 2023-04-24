@@ -2,7 +2,7 @@
 @model Announcement
 @{
 	ViewData["Title"] = "Редактирование объявления";
-	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 }
 
 <div class="col-12 col-lg-8" align="left">
@@ -20,14 +20,10 @@
 				      rows="15" maxlength="@Announcement.MaxContentSize">@Model.Content</textarea>
 		</div>
 		<div class="mt-4" align="center">
-			<button type="submit" class="btn btn-secondary">
-				Сохранить
-			</button>
+			<button type="submit" class="btn btn-secondary">Сохранить</button>
 		</div>
 	</form>
 	<div class="mt-5" align="center">
-		<a class="link-secondary" href="/course/announcement?id=@Model.Id">
-			Вернуться
-		</a>
+		<a class="link-secondary" href="/course/announcement?id=@Model.Id">Вернуться</a>
 	</div>
 </div>

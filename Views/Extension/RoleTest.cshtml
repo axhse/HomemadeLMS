@@ -1,6 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Тест Белбина";
-    ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
+    ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 
     var allTestContent = new string[][] {
         new string[] {
@@ -105,8 +105,8 @@
                     <div class="d-inline-flex" align="left">
                         <div class="me-2">
                             <input type="number" class="form-control text-center" style="width: 70px;"
-                           id=@(name + "Input") name=@name value="0" min="0" max="10"
-                           oninput=@($"handleScoreInput({blockIndex},{ansIndex})")>
+                                   id=@(name + "Input") name=@name value="0" min="0" max="10"
+                                   oninput="handleScoreInput(@blockIndex,@ansIndex)">
                         </div>
                         <div class="align-self-center">
                             <label for=@(name + "Input")>@content[ansIndex]</label>

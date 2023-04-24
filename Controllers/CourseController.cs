@@ -30,36 +30,83 @@ namespace HomemadeLMS.Controllers
 
         [HttpGet]
         [RequireHttps]
-        [Route(CourseRootPath)]
+        [Route("/courses")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> Course_Get(int id)
+        public async Task<IActionResult> Courses_Get()
         {
             var account = await GetAccount();
             if (account is null)
             {
                 return RedirectPermanent(SignInPath);
             }
+            List<Course> allCourses;
+            if (account.Role == UserRole.Manager)
+            {
+                allCourses = await courseStorage.Select(_ => true);
+            }
+            else
+            {
+                allCourses = await courseAggregator.GetUserCourses(account.Username);
+                var ownedCourses = await courseStorage.Select(
+                    course => course.OwnerUsername == account.Username
+                );
+                bool IsIdSelected(int id) => allCourses.Any(course => course.Id == id);
+                var notSelectedCourses = ownedCourses.Where(course => !IsIdSelected(course.Id));
+                allCourses = allCourses.Concat(notSelectedCourses).ToList();
+            }
+            var model = new AccountAndObject<List<Course>>(account, allCourses);
+            return View("Courses", model);
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route("/courses")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Courses_Post()
+        {
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            if (!account.CanEditCourses)
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+            var course = new Course(account.Username);
+            if (!await courseStorage.TryInsert(course))
+            {
+                return View("Status", ActionStatus.UnknownError);
+            }
+            if (account.Role == UserRole.Teacher)
+            {
+                var courseMember = new CourseMember(
+                    course.Id, account.Username, CourseRole.Teacher
+                );
+                if (!await courseMemberStorage.TryInsert(courseMember))
+                {
+                    return View("Status", ActionStatus.UnknownError);
+                }
+            }
+            return RedirectPermanent($"{CourseRootPath}/edit?id={course.Id}");
+        }
+
+        [HttpGet]
+        [RequireHttps]
+        [Route(CourseRootPath)]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Course_Get(int id)
+        {
             if (id <= 0)
             {
-                List<Course> allCourses;
-                if (account.Role == UserRole.Manager)
-                {
-                    allCourses = await courseStorage.Select(_ => true);
-                }
-                else
-                {
-                    allCourses = await courseAggregator.GetUserCourses(account.Username);
-                    var ownedCourses = await courseStorage.Select(
-                        course => course.OwnerUsername == account.Username
-                    );
-                    bool IsIdSelected(int id) => allCourses.Any(course => course.Id == id);
-                    var notSelectedCourses = ownedCourses.Where(course => !IsIdSelected(course.Id));
-                    allCourses = allCourses.Concat(notSelectedCourses).ToList();
-                }
-                var model = new AccountAndObject<List<Course>>(account, allCourses);
-                return View("CourseList", model);
+                return View("Status", ActionStatus.NotFound);
             }
-            Course? course = await courseStorage.Find(id);
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var course = await courseStorage.Find(id);
             if (course is null)
             {
                 return View("Status", ActionStatus.NotFound);
@@ -75,35 +122,11 @@ namespace HomemadeLMS.Controllers
         [RequireHttps]
         [Route(CourseRootPath)]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> Course_Post(int id)
+        public IActionResult Course_Post(int id)
         {
-            var account = await GetAccount();
-            if (account is null)
+            if (id <= 0)
             {
-                return RedirectPermanent(SignInPath);
-            }
-            if (!account.CanEditCourses)
-            {
-                return View("Status", ActionStatus.NoPermission);
-            }
-            if (id == 0)
-            {
-                var course = new Course(account.Username);
-                if (!await courseStorage.TryInsert(course))
-                {
-                    return View("Status", ActionStatus.UnknownError);
-                }
-                id = course.Id;
-                if (account.Role == UserRole.Teacher)
-                {
-                    var courseMember = new CourseMember(
-                        course.Id, account.Username, CourseRole.Teacher
-                    );
-                    if (!await courseMemberStorage.TryInsert(courseMember))
-                    {
-                        return View("Status", ActionStatus.UnknownError);
-                    }
-                }
+                return View("Status", ActionStatus.NotSupported);
             }
             return RedirectPermanent($"{CourseRootPath}/edit?id={id}");
         }
@@ -114,16 +137,16 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> EditCourse_Get(int id)
         {
+            if (id <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
             var account = await GetAccount();
             if (account is null)
             {
                 return RedirectPermanent(SignInPath);
             }
-            if (id <= 0)
-            {
-                return View("Status", ActionStatus.NotFound);
-            }
-            Course? course = await courseStorage.Find(id);
+            var course = await courseStorage.Find(id);
             if (course is null)
             {
                 return View("Status", ActionStatus.NotFound);
@@ -150,10 +173,10 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            Course? course = await courseStorage.Find(id);
+            var course = await courseStorage.Find(id);
             if (course is null)
             {
-                return View("Status", ActionStatus.NotFound);
+                return View("Status", ActionStatus.NotSupported);
             }
             if (!course.CanBeEditedBy(account))
             {
@@ -195,16 +218,16 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> CourseMemebrs_Get(int courseId)
         {
+            if (courseId <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
             var account = await GetAccount();
             if (account is null)
             {
                 return RedirectPermanent(SignInPath);
             }
-            if (courseId <= 0)
-            {
-                return View("Status", ActionStatus.NotFound);
-            }
-            Course? course = await courseStorage.Find(courseId);
+            var course = await courseStorage.Find(courseId);
             if (course is null)
             {
                 return View("Status", ActionStatus.NotFound);
@@ -214,7 +237,8 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NoAccess);
             }
             var members = await courseMemberStorage.Select(member => member.CourseId == courseId);
-            return View("CourseMembers", new CourseMembersVM(account, course, members));
+            var model = new CourseObject<List<CourseMember>>(account, course, members);
+            return View("CourseMembers", model);
         }
 
         [HttpPost]
@@ -242,16 +266,16 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> AddMembers_Get(int courseId)
         {
+            if (courseId <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
             var account = await GetAccount();
             if (account is null)
             {
                 return RedirectPermanent(SignInPath);
             }
-            if (courseId <= 0)
-            {
-                return View("Status", ActionStatus.NotFound);
-            }
-            Course? course = await courseStorage.Find(courseId);
+            var course = await courseStorage.Find(courseId);
             if (course is null)
             {
                 return View("Status", ActionStatus.NotFound);
@@ -278,10 +302,10 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            Course? course = await courseStorage.Find(courseId);
+            var course = await courseStorage.Find(courseId);
             if (course is null)
             {
-                return View("Status", ActionStatus.NotFound);
+                return View("Status", ActionStatus.NotSupported);
             }
             if (!course.CanBeEditedBy(account))
             {
@@ -321,16 +345,16 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> RemoveMembers_Get(int courseId)
         {
+            if (courseId <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
             var account = await GetAccount();
             if (account is null)
             {
                 return RedirectPermanent(SignInPath);
             }
-            if (courseId <= 0)
-            {
-                return View("Status", ActionStatus.NotFound);
-            }
-            Course? course = await courseStorage.Find(courseId);
+            var course = await courseStorage.Find(courseId);
             if (course is null)
             {
                 return View("Status", ActionStatus.NotFound);
@@ -357,10 +381,10 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            Course? course = await courseStorage.Find(courseId);
+            var course = await courseStorage.Find(courseId);
             if (course is null)
             {
-                return View("Status", ActionStatus.NotFound);
+                return View("Status", ActionStatus.NotSupported);
             }
             if (!course.CanBeEditedBy(account))
             {
@@ -425,7 +449,8 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            return View("CourseMember", new CourseMemberVM(account, course, courseMember));
+            var model = new CourseObject<CourseMember>(account, course, courseMember);
+            return View("CourseMember", model);
         }
 
         [HttpPost]
@@ -459,7 +484,8 @@ namespace HomemadeLMS.Controllers
                 courseMember.Role = role;
                 await courseMemberStorage.Update(courseMember);
             }
-            return View("CourseMember", new CourseMemberVM(account, course, courseMember));
+            var model = new CourseObject<CourseMember>(account, course, courseMember);
+            return View("CourseMember", model);
         }
 
         [HttpGet]
@@ -507,9 +533,9 @@ namespace HomemadeLMS.Controllers
             var course = await courseStorage.Find(courseId);
             if (course is null)
             {
-                return View("Status", ActionStatus.NotFound);
+                return View("Status", ActionStatus.NotSupported);
             }
-            if (!await CanViewCourse(account, course))
+            if (!course.CanBeEditedBy(account))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
@@ -527,14 +553,14 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Announcement_Get(int id)
         {
+            if (id <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
             var account = await GetAccount();
             if (account is null)
             {
                 return RedirectPermanent(SignInPath);
-            }
-            if (id <= 0)
-            {
-                return View("Status", ActionStatus.NotFound);
             }
             var announcement = await announcementStorage.Find(id);
             if (announcement is null)
@@ -580,12 +606,12 @@ namespace HomemadeLMS.Controllers
                 var announcement = await announcementStorage.Find(id);
                 if (announcement is null)
                 {
-                    return View("Status", ActionStatus.NotFound);
+                    return View("Status", ActionStatus.NotSupported);
                 }
                 var course = await courseStorage.Find(announcement.CourseId);
                 if (course is null)
                 {
-                    return View("Status", ActionStatus.NotFound);
+                    return View("Status", ActionStatus.NotSupported);
                 }
                 if (!course.CanBeEditedBy(account))
                 {
@@ -603,14 +629,14 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> EditAnnouncement_Get(int id)
         {
+            if (id <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
             var account = await GetAccount();
             if (account is null)
             {
                 return RedirectPermanent(SignInPath);
-            }
-            if (id <= 0)
-            {
-                return View("Status", ActionStatus.NotFound);
             }
             var announcement = await announcementStorage.Find(id);
             if (announcement is null)
@@ -647,12 +673,12 @@ namespace HomemadeLMS.Controllers
             var announcement = await announcementStorage.Find(id);
             if (announcement is null)
             {
-                return View("Status", ActionStatus.NotFound);
+                return View("Status", ActionStatus.NotSupported);
             }
             var course = await courseStorage.Find(announcement.CourseId);
             if (course is null)
             {
-                return View("Status", ActionStatus.NotFound);
+                return View("Status", ActionStatus.NotSupported);
             }
             if (!course.CanBeEditedBy(account))
             {

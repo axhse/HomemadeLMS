@@ -2,7 +2,7 @@
 @model CourseObject<List<Announcement>>
 @{
 	ViewData["Title"] = "Объявления";
-	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 
 	Model.Object.Sort((first, second) => -first.CreationTime.CompareTo(second.CreationTime));
 }
@@ -11,7 +11,7 @@
 	@if (Model.Course.CanBeEditedBy(Model.Account))
 	{
 		<form method="POST">
-			<div class>
+			<div>
 				<button type="submit" class="btn btn-secondary">+ Добавить объявление</button>
 			</div>
 		</form>
@@ -32,8 +32,6 @@
 		</a>
 	}
 	<div class="mt-5">
-		<a class="link-secondary" href="/course?id=@Model.Course.Id">
-			Вернуться
-		</a>
+		<a class="link-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
 	</div>
 </div>

@@ -3,26 +3,32 @@
 @{
 	ViewData["Title"] = "Аккаунт";
 
-	var linkItemGroup = new LinkGroup();
+	var navbarMenu = MenuBuilder.DefaultNavbarMenu;
 	if (Model.Account.Username == Model.Object.Username)
 	{
 		var popupMenu = new Menu();
 		popupMenu.LinkGroups.Add(new());
 		popupMenu.LinkGroups[0].Items.Add(new LinkItem { Href = "/signout", Label = "Выйти", LinkCategory = LinkCategory.Danger });
 		ViewData["PopupMenu"] = popupMenu;
+		navbarMenu.Items.RemoveAt(0);
 	}
 	else
 	{
-		linkItemGroup.Items.Add(new LinkItem { Href = "/account", Label = "Мой аккаунт" });
+		navbarMenu.Items[0].Label = "Мой аккаунт";
 	}
-	linkItemGroup.Items.Add(new LinkItem { Href = "/course", Label = "Курсы" });
-	linkItemGroup.Items.Add(new LinkItem { Href = "/extension", Label = "Дополнения" });
-	ViewData["NavbarMenu"] = linkItemGroup;
+	ViewData["NavbarMenu"] = navbarMenu;
 
+	var roleName = Model.Object.Role switch
+	{
+		UserRole.Student => "Студент",
+		UserRole.Teacher => "Преподаватель",
+		UserRole.Manager => "Менеджер",
+		_ => string.Empty,
+	};
 }
 
-<p>username: @Model.Object.Username</p>
-<p>role: @Model.Object.Role.ToString()</p>
+<p class="fw-bold">@Model.Object.Username</p>
+<p class="fw-bold">@roleName</p>
 @if (Model.Account.CanChangeRoleOf(Model.Object)) {
 	<form class="mt-5" method="POST">
 		<div class="d-inline-flex mb-4">

@@ -1,8 +1,8 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseMembersVM
+@model CourseObject<List<CourseMember>>
 @{
 	ViewData["Title"] = "Участники";
-	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 
 	var sortedRoles = new CourseRole[] {
 		CourseRole.Teacher,
@@ -26,7 +26,7 @@
 		</form>
 	}
 	@foreach (var role in sortedRoles) {
-		var members = Model.Members.Where(member => member.Role == role);
+		var members = Model.Object.Where(member => member.Role == role);
 		var roleName = role switch
 		{
 			CourseRole.Teacher => "Преподаватели",
@@ -50,8 +50,6 @@
 		} 
 	}
 	<div>
-		<a class="link-secondary" href="/course?id=@Model.Course.Id">
-			Вернуться
-		</a>
+		<a class="link-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
 	</div>
 </div>

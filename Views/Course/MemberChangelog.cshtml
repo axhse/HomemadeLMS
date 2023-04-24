@@ -2,7 +2,7 @@
 @model MemberChangelogVM
 @{
 	ViewData["Title"] = "Результат";
-	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 
 	var sortedUsernameLists = new List<string>[] {
 		Model.AddedUsernames,

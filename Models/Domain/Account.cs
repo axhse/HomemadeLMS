@@ -62,7 +62,7 @@ namespace HomemadeLMS.Models.Domain
             {
                 return string.Empty;
             }
-            accountId = accountId.Trim(' ').ToLower();
+            accountId = accountId.Trim().ToLower();
             if (accountId.EndsWith(EmailAddressBase))
             {
                 return accountId[..^EmailAddressBase.Length];

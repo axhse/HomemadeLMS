@@ -2,7 +2,7 @@
 @model RoleTestResult?
 @{
     ViewData["Title"] = "Тест Белбина";
-	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 
     var buttonText = Model is null ? "Пройти тест" : "Перепройти тест";
 }

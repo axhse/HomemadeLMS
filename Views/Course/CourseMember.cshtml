@@ -1,12 +1,20 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseMemberVM
+@model CourseObject<CourseMember>
 @{
 	ViewData["Title"] = "Участник";
-	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+
+	var roleName = Model.Object.Role switch
+	{
+		CourseRole.Student => "Студент",
+		CourseRole.Assistant => "Ассистент",
+		CourseRole.Teacher => "Преподаватель",
+		_ => string.Empty,
+	};
 }
 
-<p>username: @Model.Member.Username</p>
-<p>role: @Model.Member.Role.ToString()</p>
+<a href="/account?username=@Model.Object.Username">@Model.Object.Username</a>
+<p class="fw-bold mt-3">@roleName</p>
 @if (Model.Course.CanBeEditedBy(Model.Account)) {
 	<form class="mt-5" method="POST">
 		<div class="d-inline-flex mb-4">

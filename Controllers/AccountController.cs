@@ -23,25 +23,24 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Account_Get(string? username)
         {
+            username = Account.GetUsername(username);
+            username ??= string.Empty;
+            if (username != string.Empty && !Account.HasUsernameValidFormat(username))
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
             var requestMaker = await GetAccount();
             if (requestMaker is null)
             {
                 return RedirectPermanent(SignInPath);
             }
             Account? targetAccount;
-            username ??= string.Empty;
-            username = username.Trim().ToLower();
             if (username == string.Empty || username == requestMaker.Username)
             {
                 targetAccount = requestMaker;
             }
             else
             {
-                username = Account.GetUsername(username);
-                if (!Account.HasUsernameValidFormat(username))
-                {
-                    return View("Status", ActionStatus.NotFound);
-                }
                 targetAccount = await accountStorage.Find(username);
                 if (targetAccount is null)
                 {
@@ -67,7 +66,7 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            Account? targetAccount = await accountStorage.Find(username);
+            var targetAccount = await accountStorage.Find(username);
             if (targetAccount is null || !requestMaker.CanChangeRoleOf(targetAccount))
             {
                 return View("Status", ActionStatus.NotSupported);

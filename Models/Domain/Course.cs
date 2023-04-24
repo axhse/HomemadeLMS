@@ -5,8 +5,7 @@
         public const int MaxTitleSize = 200;
         public const int MaxDescriptionSize = 2500;
         public const int MaxUrlSize = 1000;
-
-        private const string DefaulCourseTitle = "New Course";
+        public const string DefaultTitle = "New Course";
 
         private string ownerUsername;
         private string title;
@@ -17,18 +16,24 @@
         public Course(string ownerUsername)
         {
             OwnerUsername = ownerUsername;
-            title = DefaulCourseTitle;
+            title = DefaultTitle;
             this.ownerUsername = OwnerUsername;
         }
 
         public static bool HasTitleValidFormat(string? title)
-            => title is not null && 1 <= title.Length && title.Length <= MaxTitleSize;
+        {
+            title = DataUtils.CleanSpaces(title);
+            return title is not null && title != string.Empty && title.Length <= MaxTitleSize;
+        }
+
+        public static bool HasUrlValidFormat(string? url)
+        {
+            url = DataUtils.GetTrimmed(url);
+            return url is null || url.Length <= MaxUrlSize;
+        }
 
         public static bool HasDescriptionValidFormat(string? description)
             => description is null || description.Length <= MaxDescriptionSize;
-
-        public static bool HasUrlValidFormat(string? url)
-            => url is null || url.Length <= MaxUrlSize;
 
         public int Id { get; set; }
 
@@ -50,11 +55,12 @@
             get => title;
             set
             {
-                if (!HasTitleValidFormat(value))
+                var newTitle = DataUtils.CleanSpaces(value);
+                if (newTitle is null || !HasTitleValidFormat(newTitle))
                 {
                     throw new ArgumentException("Invalid title format.");
                 }
-                title = value;
+                title = newTitle;
             }
         }
 
@@ -76,11 +82,12 @@
             get => smartLmsUrl;
             set
             {
-                if (!HasUrlValidFormat(value))
+                var newUrl = DataUtils.GetTrimmed(value);
+                if (!HasUrlValidFormat(newUrl))
                 {
                     throw new ArgumentException("Invalid smartLmsUrl format.");
                 }
-                smartLmsUrl = value;
+                smartLmsUrl = newUrl;
             }
         }
 
@@ -89,11 +96,12 @@
             get => pldUrl;
             set
             {
-                if (!HasUrlValidFormat(value))
+                var newUrl = DataUtils.GetTrimmed(value);
+                if (!HasUrlValidFormat(newUrl))
                 {
                     throw new ArgumentException("Invalid pldUrl format.");
                 }
-                pldUrl = value;
+                pldUrl = newUrl;
             }
         }
 
