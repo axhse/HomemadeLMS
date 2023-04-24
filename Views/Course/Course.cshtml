@@ -1,13 +1,13 @@
 ﻿@using HomemadeLMS.Models.Domain
 @model AccountAndObject<Course>
 @{
-	ViewData["Title"] = "Course";
+	ViewData["Title"] = "Курс";
 	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
 
 	var course = Model.Object;
 }
 
-<div class="col-12 col-md-10 col-lg-8 col-xl-6" align="center">
+<div class="col-12 col-md-10 col-lg-8 col-xl-6">
 	<div>
 		<h6>@course.Title</h6>
 	</div>

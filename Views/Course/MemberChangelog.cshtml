@@ -1,7 +1,7 @@
 ﻿@using HomemadeLMS.Models.Domain
 @model MemberChangelogVM
 @{
-	ViewData["Title"] = "Result";
+	ViewData["Title"] = "Результат";
 	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
 
 	var sortedUsernameLists = new List<string>[] {
@@ -13,7 +13,7 @@
 	};
 }
 
-<div class="col-12 col-md-10 col-lg-8 col-xl-6" align="center">
+<div class="col-12 col-md-10 col-lg-8 col-xl-6">
 	@foreach (var usernameList in sortedUsernameLists)
 	{
 		var listName = string.Empty;
@@ -45,12 +45,12 @@
 			<div class="mt-2 mb-5">
 				@foreach (var username in usernameList)
 				{
-					<p>@username</p>
+					<p class="mt-0">@username</p>
 				}
 			</div>
 		}
 	}
 	<div>
-		<a class="link-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
+		<a class="link-secondary" href="/course/members/?courseId=@Model.Course.Id">Вернуться</a>
 	</div>
 </div>

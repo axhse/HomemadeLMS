@@ -1,7 +1,7 @@
 ﻿@using HomemadeLMS.Models.Domain
 @model CourseMemberVM
 @{
-	ViewData["Title"] = "Course Member";
+	ViewData["Title"] = "Участник";
 	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
 }
 
@@ -23,4 +23,7 @@
 			<button type="submit" class="btn btn-secondary">Изменить роль</button>
 		</div>
 	</form>
+	<div class="mt-5">
+		<a class="link-secondary" href="/course/members/?courseId=@Model.Course.Id">Все участники</a>
+	</div>
 }

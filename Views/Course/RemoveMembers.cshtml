@@ -1,11 +1,11 @@
 ﻿@using HomemadeLMS.Models.Domain
 @model Course
 @{
-	ViewData["Title"] = "Remove Course Members";
+	ViewData["Title"] = "Удаление участников";
 	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
 }
 
-<div class="col-12 col-md-10 col-lg-8 col-xl-6" align="center">
+<div class="col-12 col-md-10 col-lg-8 col-xl-6">
 	<p>Введите username/email-адреса пользователей списком</p>
 	<p>Разделителями могут быть , ; и пробел/перенос строки/табуляция</p>
 	<p>Размер текста должен быть до 100'000 символов</p>
@@ -21,8 +21,6 @@
 		</div>
 	</form>
 	<div class="mt-5">
-		<a class="link-secondary" href="/course?id=@Model.Id">
-			Вернуться
-		</a>
+		<a class="link-secondary" href="/course/members/?courseId=@Model.Id">Вернуться</a>
 	</div>
 </div>

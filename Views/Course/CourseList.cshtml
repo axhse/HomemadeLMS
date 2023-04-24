@@ -1,13 +1,13 @@
 ﻿@using HomemadeLMS.Models.Domain
 @model AccountAndObject<List<Course>>
 @{
-	ViewData["Title"] = "Courses";
+	ViewData["Title"] = "Курсы";
 	var navbarMenu = MenuBuilder.GetDefaultNavbarMenu();
 	navbarMenu.Items.RemoveAt(1);
 	ViewData["NavbarMenu"] = navbarMenu;
 }
 
-<div class="col-12 col-md-10 col-lg-8 col-xl-6" align="center">
+<div class="col-12 col-md-10 col-lg-8 col-xl-6">
 	<form method="POST">
 		<div>
 			<button type="submit" class="btn btn-secondary">+ Создать курс</button>
