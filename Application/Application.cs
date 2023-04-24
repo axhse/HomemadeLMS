@@ -63,6 +63,9 @@ namespace HomemadeLMS.Application
             services.AddScoped<IStorage<int, CourseMember>>(
                 _ => new Storage<int, CourseMember>(new CourseMemberContext())
             );
+            services.AddScoped<IStorage<int, Announcement>>(
+                _ => new Storage<int, Announcement>(new AnnouncementContext())
+            );
             services.AddScoped<IStorage<string, RoleTestResult>>(
                 _ => new Storage<string, RoleTestResult>(new RoleTestResultContext())
             );

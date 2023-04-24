@@ -28,8 +28,13 @@
 			<a href="@course.PldUrl">Cсылка на ПУД</a>
 		</div>
 	}
-	<div class="mt-4">
-		<a href="/course/members?courseId=@course.Id">Участники</a>
+	<div class="d-inline-flex mt-4">
+		<div>
+			<a href="/course/members?courseId=@course.Id">Участники</a>
+		</div>
+		<div class="ms-5">
+			<a href="/course/announcements?courseId=@course.Id">Объявления</a>
+		</div>
 	</div>
 	@if (course.CanBeEditedBy(Model.Account))
 	{

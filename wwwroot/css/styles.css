@@ -135,3 +135,7 @@ a:hover {
 a:visited {
     color: var(--link-visited-color);
 }
+
+.pre-vertical {
+    white-space: pre-wrap;
+}

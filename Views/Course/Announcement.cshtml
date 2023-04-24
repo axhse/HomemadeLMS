@@ -1,0 +1,35 @@
+﻿@using HomemadeLMS.Models.Domain
+@model CourseObject<Announcement>
+@{
+	ViewData["Title"] = "Объявление";
+	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
+}
+
+<div class="col-12 col-lg-8">
+	<p class="fw-bold">@Model.Object.Title</p>
+	@if (DataUtils.IsValuable(Model.Object.Content)) {
+		<div class="mt-4" align="left">
+			<pre class="pre-vertical">@Model.Object.Content</pre>
+		</div>
+	}
+	@if (Model.Course.CanBeEditedBy(Model.Account))
+	{
+		<form method="POST">
+			<div class="d-inline-flex mt-5">
+				<div>
+					<button type="submit" class="btn btn-secondary" name="actionCode" value="edit">
+						Редактировать
+					</button>
+				</div>
+				<div class="ms-4">
+					<button type="submit" class="btn btn-danger" name="actionCode" value="delete">
+						Удалить
+					</button>
+				</div>
+			</div>
+		</form>
+	}
+	<div class="mt-5">
+		<a href="/course/announcements?courseId=@Model.Course.Id">Все объявления</a>
+	</div>
+</div>

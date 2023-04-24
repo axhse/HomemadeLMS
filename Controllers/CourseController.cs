@@ -12,16 +12,19 @@ namespace HomemadeLMS.Controllers
         public const string CourseRootPath = "/course";
         private readonly IStorage<int, Course> courseStorage;
         private readonly IStorage<int, CourseMember> courseMemberStorage;
+        private readonly IStorage<int, Announcement> announcementStorage;
         private readonly CourseAggregator courseAggregator;
 
         public CourseController(IStorage<string, Account> accountStorage,
             IStorage<int, Course> courseStorage,
             IStorage<int, CourseMember> courseMemberStorage,
+            IStorage<int, Announcement> announcementStorage,
             CourseAggregator courseAggregator) : base(accountStorage)
         {
             SectionRootPath = CourseRootPath;
             this.courseStorage = courseStorage;
             this.courseMemberStorage = courseMemberStorage;
+            this.announcementStorage = announcementStorage;
             this.courseAggregator = courseAggregator;
         }
 
@@ -457,6 +460,217 @@ namespace HomemadeLMS.Controllers
                 await courseMemberStorage.Update(courseMember);
             }
             return View("CourseMember", new CourseMemberVM(account, course, courseMember));
+        }
+
+        [HttpGet]
+        [RequireHttps]
+        [Route(CourseRootPath + "/announcements")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Announcements_Get(int courseId)
+        {
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            if (courseId <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var course = await courseStorage.Find(courseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            if (!await CanViewCourse(account, course))
+            {
+                return View("Status", ActionStatus.NoAccess);
+            }
+            var announcements = await announcementStorage.Select(
+                announcement => announcement.CourseId == courseId
+            );
+            var model = new CourseObject<List<Announcement>>(account, course, announcements);
+            return View("Announcements", model);
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(CourseRootPath + "/announcements")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Announcements_Post(int courseId)
+        {
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var course = await courseStorage.Find(courseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            if (!await CanViewCourse(account, course))
+            {
+                return View("Status", ActionStatus.NoAccess);
+            }
+            var announcement = new Announcement(courseId);
+            if (!await announcementStorage.TryInsert(announcement))
+            {
+                return View("Status", ActionStatus.UnknownError);
+            }
+            return RedirectPermanent($"{CourseRootPath}/announcement/edit?id={announcement.Id}");
+        }
+
+        [HttpGet]
+        [RequireHttps]
+        [Route(CourseRootPath + "/announcement")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Announcement_Get(int id)
+        {
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            if (id <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var announcement = await announcementStorage.Find(id);
+            if (announcement is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var course = await courseStorage.Find(announcement.CourseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            if (!await CanViewCourse(account, course))
+            {
+                return View("Status", ActionStatus.NoAccess);
+            }
+            var model = new CourseObject<Announcement>(account, course, announcement);
+            return View("Announcement", model);
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(CourseRootPath + "/announcement")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Announcement_Post(int id)
+        {
+            if (id <= 0 || !Request.HasFormContentType)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var parser = new FormParser(Request.Form);
+            var actionCode = parser.GetString("actionCode");
+            if (actionCode == "edit")
+            {
+                return RedirectPermanent($"{CourseRootPath}/announcement/edit?id={id}");
+            }
+            if (actionCode == "delete")
+            {
+                var account = await GetAccount();
+                if (account is null)
+                {
+                    return RedirectPermanent(SignInPath);
+                }
+                var announcement = await announcementStorage.Find(id);
+                if (announcement is null)
+                {
+                    return View("Status", ActionStatus.NotFound);
+                }
+                var course = await courseStorage.Find(announcement.CourseId);
+                if (course is null)
+                {
+                    return View("Status", ActionStatus.NotFound);
+                }
+                if (!course.CanBeEditedBy(account))
+                {
+                    return View("Status", ActionStatus.NoPermission);
+                }
+                await announcementStorage.TryDeleteValue(announcement);
+                return RedirectPermanent($"{CourseRootPath}/announcements?courseId={course.Id}");
+            }
+            return View("Status", ActionStatus.NotSupported);
+        }
+
+        [HttpGet]
+        [RequireHttps]
+        [Route(CourseRootPath + "/announcement" + "/edit")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> EditAnnouncement_Get(int id)
+        {
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            if (id <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var announcement = await announcementStorage.Find(id);
+            if (announcement is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var course = await courseStorage.Find(announcement.CourseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            if (!course.CanBeEditedBy(account))
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+            return View("EditAnnouncement", announcement);
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(CourseRootPath + "/announcement" + "/edit")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> EditAnnouncement_Post(int id)
+        {
+            if (id <= 0 || !Request.HasFormContentType)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var announcement = await announcementStorage.Find(id);
+            if (announcement is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var course = await courseStorage.Find(announcement.CourseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            if (!course.CanBeEditedBy(account))
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+            var parser = new FormParser(Request.Form);
+            var title = DataUtils.GetTrimmed(parser.GetString("title"));
+            var content = DataUtils.GetTrimmed(parser.GetString("content"));
+            if (title is not null && Announcement.HasTitleValidFormat(title))
+            {
+                announcement.Title = title;
+            }
+            if (Course.HasDescriptionValidFormat(content))
+            {
+                announcement.Content = content;
+            }
+            await announcementStorage.Update(announcement);
+            return RedirectPermanent($"{CourseRootPath}/announcement?id={announcement.Id}");
         }
 
         private async Task<bool> CanViewCourse(Account account, Course course)

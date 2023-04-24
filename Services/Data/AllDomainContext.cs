@@ -25,4 +25,10 @@ namespace HomemadeLMS.Services.Data
         public RoleTestResultContext() : base(new RoleTestResultConfiguration())
         { }
     }
+
+    public class AnnouncementContext : GenericContext<Announcement>
+    {
+        public AnnouncementContext() : base(new AnnouncementConfiguration())
+        { }
+    }
 }

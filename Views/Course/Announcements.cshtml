@@ -1,0 +1,39 @@
+﻿@using HomemadeLMS.Models.Domain
+@model CourseObject<List<Announcement>>
+@{
+	ViewData["Title"] = "Объявления";
+	ViewData["NavbarMenu"] = MenuBuilder.GetDefaultNavbarMenu();
+
+	Model.Object.Sort((first, second) => -first.CreationTime.CompareTo(second.CreationTime));
+}
+
+<div class="col-12 col-lg-8">
+	@if (Model.Course.CanBeEditedBy(Model.Account))
+	{
+		<form method="POST">
+			<div class>
+				<button type="submit" class="btn btn-secondary">+ Добавить объявление</button>
+			</div>
+		</form>
+	}
+	@foreach (var announcement in Model.Object)
+	{
+		<div class="mt-5"></div>
+		<a class="link-secondary" href="/course/announcement?id=@announcement.Id">
+			<div class="card border-secondary">
+				<div class="card-header">@announcement.Title</div>
+				@if (DataUtils.IsValuable(announcement.Content))
+				{
+					<div class="card-body vertically-filled-div text-start">
+						<pre class="card-text pre-vertical">@announcement.Content</pre>
+					</div>
+				}
+			</div>
+		</a>
+	}
+	<div class="mt-5">
+		<a class="link-secondary" href="/course?id=@Model.Course.Id">
+			Вернуться
+		</a>
+	</div>
+</div>
