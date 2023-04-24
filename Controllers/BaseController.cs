@@ -7,20 +7,19 @@ namespace HomemadeLMS.Controllers
 {
     public class BaseController : Controller
     {
-        protected const string DefaultPath = "/";
+        public const string GlobalRootPath = "/";
+        protected string SectionRootPath = GlobalRootPath;
 
         public IActionResult RedirectToHomepage()
         {
-            return RedirectPermanent(GetHomepagePath());
+            return RedirectPermanent(SectionRootPath);
         }
-
-        protected virtual string GetHomepagePath() => DefaultPath;
     }
 
     public class ControllerWithAccounts : BaseController
     {
-        protected const string SignInPath = "/signin";
-        protected const string SignOutPath = "/signout";
+        public const string SignInPath = "/signin";
+        public const string SignOutPath = "/signout";
 
         protected readonly IStorage<string, Account> accountStorage;
         private Account? currentAccount;

@@ -10,14 +10,16 @@ namespace HomemadeLMS.Controllers
 {
     public class AccountController : ControllerWithAccounts
     {
-        private const string SectionPath = "/account";
+        public const string AccountRootPath = "/account";
 
         public AccountController(IStorage<string, Account> accountStorage) : base(accountStorage)
-        { }
+        {
+            SectionRootPath = AccountRootPath;
+        }
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath)]
+        [Route(AccountRootPath)]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Account_Get(string? username)
         {
@@ -51,7 +53,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpPost]
         [RequireHttps]
-        [Route(SectionPath)]
+        [Route(AccountRootPath)]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Account_Post(string? username)
         {
@@ -120,7 +122,7 @@ namespace HomemadeLMS.Controllers
             var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, username) };
             ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
-            return RedirectPermanent(GetHomepagePath());
+            return RedirectPermanent(AccountRootPath);
         }
 
         [HttpGet]
@@ -132,7 +134,5 @@ namespace HomemadeLMS.Controllers
             await HttpContext.SignOutAsync();
             return RedirectPermanent(SignInPath);
         }
-
-        protected override string GetHomepagePath() => SectionPath;
     }
 }

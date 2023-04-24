@@ -5,13 +5,13 @@ namespace HomemadeLMS.Controllers
 {
     public class HomeController : BaseController
     {
+        public const string HomeRootPath = "/home";
         public const string ErrorPath = "/error";
-        private const string SectionPath = "/home";
 
         [HttpGet]
         [RequireHttps]
-        [Route(DefaultPath)]
-        [Route(SectionPath)]
+        [Route(GlobalRootPath)]
+        [Route(HomeRootPath)]
         public IActionResult Homepage_Get()
         {
             return View("Homepage");

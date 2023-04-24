@@ -9,7 +9,7 @@ namespace HomemadeLMS.Controllers
 {
     public class CourseController : ControllerWithAccounts
     {
-        private const string SectionPath = "/course";
+        public const string CourseRootPath = "/course";
         private readonly IStorage<int, Course> courseStorage;
         private readonly IStorage<int, CourseMember> courseMemberStorage;
         private readonly CourseAggregator courseAggregator;
@@ -19,6 +19,7 @@ namespace HomemadeLMS.Controllers
             IStorage<int, CourseMember> courseMemberStorage,
             CourseAggregator courseAggregator) : base(accountStorage)
         {
+            SectionRootPath = CourseRootPath;
             this.courseStorage = courseStorage;
             this.courseMemberStorage = courseMemberStorage;
             this.courseAggregator = courseAggregator;
@@ -26,7 +27,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath)]
+        [Route(CourseRootPath)]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Course_Get(int id)
         {
@@ -69,7 +70,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpPost]
         [RequireHttps]
-        [Route(SectionPath)]
+        [Route(CourseRootPath)]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Course_Post(int id)
         {
@@ -101,12 +102,12 @@ namespace HomemadeLMS.Controllers
                     }
                 }
             }
-            return RedirectPermanent($"{SectionPath}/edit?id={id}");
+            return RedirectPermanent($"{CourseRootPath}/edit?id={id}");
         }
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath + "/edit")]
+        [Route(CourseRootPath + "/edit")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> EditCourse_Get(int id)
         {
@@ -133,7 +134,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpPost]
         [RequireHttps]
-        [Route(SectionPath + "/edit")]
+        [Route(CourseRootPath + "/edit")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> EditCourse_Post(int id)
         {
@@ -182,12 +183,12 @@ namespace HomemadeLMS.Controllers
                 course.OwnerUsername = ownerUsername;
             }
             await courseStorage.Update(course);
-            return RedirectPermanent($"{SectionPath}?id={course.Id}");
+            return RedirectPermanent($"{CourseRootPath}?id={course.Id}");
         }
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath + "/members")]
+        [Route(CourseRootPath + "/members")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> CourseMemebrs_Get(int courseId)
         {
@@ -215,7 +216,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpPost]
         [RequireHttps]
-        [Route(SectionPath + "/members")]
+        [Route(CourseRootPath + "/members")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult CourseMemebrs_Post(int courseId)
         {
@@ -229,12 +230,12 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            return RedirectPermanent($"{SectionPath}/members/{actionCode}?courseId={courseId}");
+            return RedirectPermanent($"{CourseRootPath}/members/{actionCode}?courseId={courseId}");
         }
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath + "/members/add")]
+        [Route(CourseRootPath + "/members/add")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> AddMembers_Get(int courseId)
         {
@@ -261,7 +262,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpPost]
         [RequireHttps]
-        [Route(SectionPath + "/members/add")]
+        [Route(CourseRootPath + "/members/add")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> AddMembers_Post(int courseId)
         {
@@ -313,7 +314,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath + "/members/remove")]
+        [Route(CourseRootPath + "/members/remove")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> RemoveMembers_Get(int courseId)
         {
@@ -340,7 +341,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpPost]
         [RequireHttps]
-        [Route(SectionPath + "/members/remove")]
+        [Route(CourseRootPath + "/members/remove")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> RemoveMembers_Post(int courseId)
         {
@@ -398,7 +399,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath + "/member")]
+        [Route(CourseRootPath + "/member")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> CourseMember_Get(int courseId, string? username)
         {
@@ -426,7 +427,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpPost]
         [RequireHttps]
-        [Route(SectionPath + "/member")]
+        [Route(CourseRootPath + "/member")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> CourseMember_Post(int courseId, string? username)
         {
@@ -457,8 +458,6 @@ namespace HomemadeLMS.Controllers
             }
             return View("CourseMember", new CourseMemberVM(account, course, courseMember));
         }
-
-        protected override string GetHomepagePath() => SectionPath;
 
         private async Task<bool> CanViewCourse(Account account, Course course)
         {

@@ -2,24 +2,24 @@
 using HomemadeLMS.Services.Data;
 using HomemadeLMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace HomemadeLMS.Controllers
 {
     public class ExtensionController : ControllerWithAccounts
     {
-        private const string SectionPath = "/extension";
+        public const string ExtensionRootPath = "/extension";
         private readonly IStorage<string, RoleTestResult> roleTestResultStorage;
 
         public ExtensionController(IStorage<string, Account> accountStorage,
             IStorage<string, RoleTestResult> roleTestResultStorage) : base(accountStorage)
         {
+            SectionRootPath = ExtensionRootPath;
             this.roleTestResultStorage = roleTestResultStorage;
         }
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath)]
+        [Route(ExtensionRootPath)]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Extension_Get()
         {
@@ -33,7 +33,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath + "/roletest" + "/status")]
+        [Route(ExtensionRootPath + "/roletest" + "/status")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> RoleTestStatus_Get()
         {
@@ -50,16 +50,16 @@ namespace HomemadeLMS.Controllers
 
         [HttpPost]
         [RequireHttps]
-        [Route(SectionPath + "/roletest" + "/status")]
+        [Route(ExtensionRootPath + "/roletest" + "/status")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult RoleTestStatus_Post()
         {
-            return RedirectPermanent(SectionPath + "/roletest");
+            return RedirectPermanent(ExtensionRootPath + "/roletest");
         }
 
         [HttpGet]
         [RequireHttps]
-        [Route(SectionPath + "/roletest")]
+        [Route(ExtensionRootPath + "/roletest")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> RoleTest_Get()
         {
@@ -73,7 +73,7 @@ namespace HomemadeLMS.Controllers
 
         [HttpPost]
         [RequireHttps]
-        [Route(SectionPath + "/roletest")]
+        [Route(ExtensionRootPath + "/roletest")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> RoleTest_Post()
         {
@@ -110,9 +110,7 @@ namespace HomemadeLMS.Controllers
             {
                 await roleTestResultStorage.Update(testResult);
             }
-            return RedirectPermanent(SectionPath + "/roletest" + "/status");
+            return RedirectPermanent(ExtensionRootPath + "/roletest" + "/status");
         }
-
-        protected override string GetHomepagePath() => SectionPath;
     }
 }
