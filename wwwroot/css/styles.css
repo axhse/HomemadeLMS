@@ -1,15 +1,20 @@
 :root {
     --body-text-color: rgb(70, 70, 70);
+    --body-text-secondary-color: rgb(120, 120, 120);
     --body-background-color: rgb(248, 248, 248);
+
+    --link-color: rgb(130, 180, 240);
+    --link-hover-color: rgb(100, 160, 230);
+    --link-visited-color: rgb(130, 130, 230);
 
     --header-navbar-text-color: rgb(60, 60, 60);
     --header-navbar-background-color: rgb(240, 240, 240);
-    --header-navbar-link-color: rgb(150, 200, 240);
-    --header-navbar-link-hover-color: rgb(100, 190, 240);
+    --header-navbar-link-color: var(--link-color);
+    --header-navbar-link-hover-color: var(--link-hover-color);
     --header-navbar-link-hover-background-color: rgb(245, 245, 245);
 
     --popup-menu-button-color: rgb(200, 200, 200);
-    --popup-menu-button-background-color: rgb(220, 220, 220);
+    --popup-menu-button-background-color: rgb(223, 223, 223);
     --popup-menu-button-hover-color: rgb(190, 190, 190);
     --popup-menu-button-hover-background-color: rgb(210, 210, 210);
     --popup-menu-button-focus-color: rgb(190, 190, 190);
@@ -30,10 +35,6 @@
     --footer-link-color: rgb(000, 000, 000);
     --footer-link-hover-color: rgb(000, 000, 000);
     --footer-link-visited-color: rgb(000, 000, 000);
-
-    --link-color: rgb(150, 200, 240);
-    --link-hover-color: rgb(100, 190, 240);
-    --link-visited-color: rgb(150, 150, 240);
 }
 
 
@@ -135,6 +136,42 @@ a:hover {
 a:visited {
     color: var(--link-visited-color);
 }
+
+
+.link-custom-secondary {
+    color: var(--body-text-secondary-color);
+}
+.link-custom-secondary:hover {
+    color: var(--body-text-color);
+}
+.link-custom-secondary:visited {
+    color: var(--body-text-secondary-color);
+}
+
+
+.footer-link {
+    color: var(--body-text-secondary-color);
+    font-weight: normal;
+    text-decoration: underline;
+}
+.footer-link:hover {
+    color: var(--body-text-secondary-color);
+}
+.footer-link:visited {
+    color: var(--body-text-secondary-color);
+}
+
+
+.link-card {
+    color: var(--body-text-color);
+}
+.link-card:hover {
+    color: var(--body-text-color);
+}
+.link-card:visited {
+    color: var(--body-text-secondary-color);
+}
+
 
 .pre-vertical {
     white-space: pre-wrap;
