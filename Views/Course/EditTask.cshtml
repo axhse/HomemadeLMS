@@ -1,0 +1,50 @@
+﻿@using HomemadeLMS.Models.Domain
+@model Homework
+@{
+	ViewData["Title"] = "Редактирование задания";
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+}
+
+<div class="col-12 col-lg-8" align="left">
+	<form method="POST">
+		<div class="form-group mb-5">
+			<label for="titleInput" class="form-label">Название (обязательное поле)</label>
+			<input class="form-control" id="titleInput" name="title"
+				   value="@Model.Title" maxlength="@Announcement.MaxTitleSize">
+		</div>
+		<div class="form-group mt-5">
+			<label for="contentInput" class="form-label">Описание</label>
+			<textarea class="form-control" id="contentInput" name="content"
+				      rows="12" maxlength="@Announcement.MaxContentSize">@Model.Content</textarea>
+		</div>
+		<div class="form-group mt-5">
+			<label for="taskUrlInput" class="form-label">Ссылка на задание</label>
+			<input class="form-control" id="taskUrlInput" name="taskUrl"
+				   value="@Model.TaskUrl" maxlength="@Course.MaxUrlSize">
+		</div>
+		<div class="form-group mt-4">
+			<label for="submitUrlInput" class="form-label">Ссылка для сдачи</label>
+			<input class="form-control" id="submitUrlInput" name="submitUrl"
+				   value="@Model.SubmitUrl" maxlength="@Course.MaxUrlSize">
+		</div>
+		<div class="form-group mt-4">
+			<label for="extraUrlInput" class="form-label">Дополнительная ссылка</label>
+			<input class="form-control" id="extraUrlInput" name="extraUrl"
+				   value="@Model.ExtraUrl" maxlength="@Course.MaxUrlSize">
+		</div>
+		<div class="form-group mt-4">
+			<label for="extraUrlLabelInput" class="form-label">Текст дополнительной ссылки</label>
+			<input class="form-control" id="extraUrlLabelInput" name="extraUrlLabel"
+				   value="@Model.ExtraUrlLabel" maxlength="@Homework.MaxUrlLabelSize">
+		</div>
+		<div class="mt-4">
+			<p>@(Model.IsTeamwork ? "Командное задание" : "Индивидуальное задание")</p>
+		</div>
+		<div class="mt-4" align="center">
+			<button type="submit" class="btn btn-secondary">Сохранить</button>
+		</div>
+	</form>
+	<div class="mt-5" align="center">
+		<a class="link-custom-secondary" href="/course/task?id=@Model.Id">Вернуться</a>
+	</div>
+</div>

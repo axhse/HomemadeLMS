@@ -1,0 +1,53 @@
+﻿@using HomemadeLMS.Models.Domain
+@model CoursePersonalObject<List<PersonalHomework>>
+@{
+	ViewData["Title"] = "Задания";
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+
+	Model.Object.Sort(
+		(first, second) => -first.Homework.CreationTime.CompareTo(second.Homework.CreationTime)
+	);
+}
+
+<div class="col-12 col-md-10 col-lg-8 col-xl-6">
+	@if (Model.CourseMember.CanEditHomeworks)
+	{
+		<form method="POST">
+			<div class="d-inline-flex mb-5">
+				<div>
+					<button type="submit" class="btn btn-secondary" name="actionCode"
+																	value="add-individual">
+						+ Добавить индивидуальное задание
+					</button>
+				</div>
+				<div class="ms-5">
+					<button type="submit" class="btn btn-secondary" name="actionCode" value="add-team">
+						+ Добавить командное задание
+					</button>
+				</div>
+			</div>
+		</form>
+	}
+	@foreach (var personalHomework in Model.Object)
+	{
+		var homework = personalHomework.Homework;
+		var borderStyle = homework.IsDeadlineExpired ? "secondary" :
+						  (personalHomework.HomeworkStatus.IsSubmitted ? "success" : "primary");
+
+		<a class="link-card" href="/course/task?id=@homework.Id">
+			<div class="card border-@borderStyle">
+				<div class="card-header">@homework.Title</div>
+				@if (homework.DeadlineTime is not null)
+				{
+					<div class="card-body vertically-filled-div text-start">
+						<p class="card-text">@homework.DeadlineTime.ToString()</p>
+					</div>
+				}
+			</div>
+		</a>
+		<div class="mt-5"></div>
+	}
+	<div>
+		<a class="link-custom-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
+	</div>
+</div>

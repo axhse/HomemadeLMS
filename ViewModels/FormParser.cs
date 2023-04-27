@@ -55,5 +55,10 @@ namespace HomemadeLMS.ViewModels
             value = CourseRole.Student;
             return false;
         }
+
+        public bool IsChecked(string key)
+        {
+            return GetString(key) is not null;
+        }
     }
 }

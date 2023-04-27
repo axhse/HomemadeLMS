@@ -2,6 +2,7 @@
 {
     public enum CourseRole
     {
+        Spectator,
         Student,
         Assistant,
         Teacher,
@@ -19,8 +20,12 @@
             this.username = Username;
         }
 
+        public static CourseMember BuildSpectator(int courseId, string username)
+            => new(courseId, username, CourseRole.Spectator);
+
         public int CourseId { get; set; }
         public CourseRole Role { get; set; }
+        public int? TeamId { get; set; }
 
         public string Username
         {
@@ -40,5 +45,7 @@
             get => $"{CourseId}:{Username}";
             set { }
         }
+
+        public bool CanEditHomeworks => Role == CourseRole.Teacher;
     }
 }

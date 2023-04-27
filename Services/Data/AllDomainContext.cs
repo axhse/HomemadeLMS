@@ -31,4 +31,16 @@ namespace HomemadeLMS.Services.Data
         public AnnouncementContext() : base(new AnnouncementConfiguration())
         { }
     }
+
+    public class HomeworkContext : GenericContext<Homework>
+    {
+        public HomeworkContext() : base(new HomeworkConfiguration())
+        { }
+    }
+
+    public class HomeworkStatusContext : GenericContext<HomeworkStatus>
+    {
+        public HomeworkStatusContext() : base(new HomeworkStatusConfiguration())
+        { }
+    }
 }

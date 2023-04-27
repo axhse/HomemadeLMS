@@ -21,5 +21,17 @@ namespace HomemadeLMS.Services.Data
                         select course;
             return await query.ToListAsync();
         }
+
+        public async Task<List<PersonalHomework>> GetAllHomeworkWithStatus(
+            int courseId, string subjectId)
+        {
+            var query = from homeworkStatus in context.AllHomeworkStatus
+                            where homeworkStatus.SubjectId == subjectId
+                            join homework in context.AllHomework
+                            on homeworkStatus.HomeworkId equals homework.Id
+                            where homework.CourseId == courseId
+                            select new PersonalHomework(homework, homeworkStatus);
+            return await query.ToListAsync();
+        }
     }
 }

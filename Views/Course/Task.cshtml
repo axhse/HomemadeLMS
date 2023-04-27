@@ -1,0 +1,67 @@
+﻿@using HomemadeLMS.Models.Domain
+@model CoursePersonalObject<PersonalHomework>
+@{
+	ViewData["Title"] = "Задание";
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+
+	var homework = Model.Object.Homework;
+	var homeworkStatus = Model.Object.HomeworkStatus;
+	List<LinkItem> links = new();
+	if (homework.TaskUrl is not null && DataUtils.IsValuable(homework.TaskUrl))
+	{
+		links.Add(new() { Href = homework.TaskUrl, Label = "Cсылка на задание" });
+	}
+	if (homework.SubmitUrl is not null && DataUtils.IsValuable(homework.SubmitUrl))
+	{
+		links.Add(new() { Href = homework.SubmitUrl, Label = "Cсылка для сдачи задания" });
+	}
+	if (homework.ExtraUrl is not null && DataUtils.IsValuable(homework.ExtraUrl)
+		&& homework.ExtraUrlLabel is not null && DataUtils.IsValuable(homework.ExtraUrlLabel))
+	{
+		links.Add(new() { Href = homework.ExtraUrl, Label = homework.ExtraUrlLabel });
+	}
+}
+
+<div class="col-12 col-lg-8">
+	<p class="fw-bold">@homework.Title</p>
+	@if (DataUtils.IsValuable(homework.Content))
+	{
+		<div class="mt-4" align="left">
+			<pre class="pre-vertical">@homework.Content</pre>
+		</div>
+	}
+	@if (links.Any())
+	{
+		<div class="mt-4">
+			@foreach (var link in links)
+			{
+				<div class="my-1">
+					<a href="@link.Href">@link.Label</a>
+				</div>
+			}
+		</div>
+	}
+	@{
+		// TODO: other
+	}
+	@if (Model.CourseMember.CanEditHomeworks)
+	{
+		<form method="POST">
+			<div class="d-inline-flex mt-5">
+				<div>
+					<button type="submit" class="btn btn-secondary" name="actionCode" value="edit">
+						Редактировать
+					</button>
+				</div>
+				<div class="ms-4">
+					<button type="submit" class="btn btn-danger" name="actionCode" value="delete">
+						Удалить
+					</button>
+				</div>
+			</div>
+		</form>
+	}
+	<div class="mt-5">
+		<a href="/course/tasks?courseId=@Model.Course.Id">Все задания</a>
+	</div>
+</div>

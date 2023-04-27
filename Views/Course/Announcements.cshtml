@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseObject<List<Announcement>>
+@model CoursePersonalObject<List<Announcement>>
 @{
 	ViewData["Title"] = "Объявления";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
@@ -8,17 +8,16 @@
 }
 
 <div class="col-12 col-lg-8">
-	@if (Model.Course.CanBeEditedBy(Model.Account))
+	@if (Model.CourseMember.CanEditHomeworks)
 	{
 		<form method="POST">
-			<div>
+			<div class="mb-5">
 				<button type="submit" class="btn btn-secondary">+ Добавить объявление</button>
 			</div>
 		</form>
 	}
 	@foreach (var announcement in Model.Object)
 	{
-		<div class="mt-5"></div>
 		<a class="link-card" href="/course/announcement?id=@announcement.Id">
 			<div class="card border-secondary">
 				<div class="card-header">@announcement.Title</div>
@@ -30,8 +29,9 @@
 				}
 			</div>
 		</a>
+		<div class="mt-5"></div>
 	}
-	<div class="mt-5">
+	<div>
 		<a class="link-custom-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
 	</div>
 </div>

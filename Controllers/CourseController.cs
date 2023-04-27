@@ -13,18 +13,24 @@ namespace HomemadeLMS.Controllers
         private readonly IStorage<int, Course> courseStorage;
         private readonly IStorage<int, CourseMember> courseMemberStorage;
         private readonly IStorage<int, Announcement> announcementStorage;
+        private readonly IStorage<int, Homework> homeworkStorage;
+        private readonly IStorage<string, HomeworkStatus> homeworkStatusStorage;
         private readonly CourseAggregator courseAggregator;
 
         public CourseController(IStorage<string, Account> accountStorage,
             IStorage<int, Course> courseStorage,
             IStorage<int, CourseMember> courseMemberStorage,
             IStorage<int, Announcement> announcementStorage,
+            IStorage<int, Homework> homeworkStorage,
+            IStorage<string, HomeworkStatus> homeworkStatusStorage,
             CourseAggregator courseAggregator) : base(accountStorage)
         {
             SectionRootPath = CourseRootPath;
             this.courseStorage = courseStorage;
             this.courseMemberStorage = courseMemberStorage;
             this.announcementStorage = announcementStorage;
+            this.homeworkStorage = homeworkStorage;
+            this.homeworkStatusStorage = homeworkStatusStorage;
             this.courseAggregator = courseAggregator;
         }
 
@@ -111,7 +117,7 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            if (!await CanViewCourse(account, course))
+            if (!await CanViewCourse(course))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
@@ -232,7 +238,7 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            if (!await CanViewCourse(account, course))
+            if (!await CanViewCourse(course))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
@@ -415,7 +421,7 @@ namespace HomemadeLMS.Controllers
                     model.AlreadyRemovedUsernames.Add(username);
                     continue;
                 }
-                foreach(var courseMember in courseMembers)
+                foreach (var courseMember in courseMembers)
                 {
                     await courseMemberStorage.TryDeleteValue(courseMember);
                 }
@@ -494,28 +500,32 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Announcements_Get(int courseId)
         {
+            if (courseId <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
             var account = await GetAccount();
             if (account is null)
             {
                 return RedirectPermanent(SignInPath);
-            }
-            if (courseId <= 0)
-            {
-                return View("Status", ActionStatus.NotFound);
             }
             var course = await courseStorage.Find(courseId);
             if (course is null)
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            if (!await CanViewCourse(account, course))
+            var courseMember = await GetCourseMember(courseId, account.Username);
+            if (!await CanViewCourse(course, courseMember))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
             var announcements = await announcementStorage.Select(
                 announcement => announcement.CourseId == courseId
             );
-            var model = new CourseObject<List<Announcement>>(account, course, announcements);
+            courseMember ??= CourseMember.BuildSpectator(courseId, account.Username);
+            var model = new CoursePersonalObject<List<Announcement>>(
+                course, courseMember, announcements
+            );
             return View("Announcements", model);
         }
 
@@ -525,6 +535,10 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Announcements_Post(int courseId)
         {
+            if (courseId <= 0)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
             var account = await GetAccount();
             if (account is null)
             {
@@ -535,9 +549,10 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            if (!course.CanBeEditedBy(account))
+            var courseMember = await GetCourseMember(courseId, account.Username);
+            if (courseMember is null || !courseMember.CanEditHomeworks)
             {
-                return View("Status", ActionStatus.NoAccess);
+                return View("Status", ActionStatus.NoPermission);
             }
             var announcement = new Announcement(courseId);
             if (!await announcementStorage.TryInsert(announcement))
@@ -572,11 +587,13 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            if (!await CanViewCourse(account, course))
+            var courseMember = await GetCourseMember(course.Id, account.Username);
+            if (!await CanViewCourse(course, courseMember))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
-            var model = new CourseObject<Announcement>(account, course, announcement);
+            courseMember ??= CourseMember.BuildSpectator(course.Id, account.Username);
+            var model = new CoursePersonalObject<Announcement>(course, courseMember, announcement);
             return View("Announcement", model);
         }
 
@@ -613,7 +630,8 @@ namespace HomemadeLMS.Controllers
                 {
                     return View("Status", ActionStatus.NotSupported);
                 }
-                if (!course.CanBeEditedBy(account))
+                var courseMember = await GetCourseMember(course.Id, account.Username);
+                if (courseMember is null || !courseMember.CanEditHomeworks)
                 {
                     return View("Status", ActionStatus.NoPermission);
                 }
@@ -648,7 +666,8 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            if (!course.CanBeEditedBy(account))
+            var courseMember = await GetCourseMember(course.Id, account.Username);
+            if (courseMember is null || !courseMember.CanEditHomeworks)
             {
                 return View("Status", ActionStatus.NoPermission);
             }
@@ -680,7 +699,8 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            if (!course.CanBeEditedBy(account))
+            var courseMember = await GetCourseMember(course.Id, account.Username);
+            if (courseMember is null || !courseMember.CanEditHomeworks)
             {
                 return View("Status", ActionStatus.NoPermission);
             }
@@ -691,7 +711,7 @@ namespace HomemadeLMS.Controllers
             {
                 announcement.Title = title;
             }
-            if (Course.HasDescriptionValidFormat(content))
+            if (Announcement.HasContentValidFormat(content))
             {
                 announcement.Content = content;
             }
@@ -699,13 +719,313 @@ namespace HomemadeLMS.Controllers
             return RedirectPermanent($"{CourseRootPath}/announcement?id={announcement.Id}");
         }
 
-        private async Task<bool> CanViewCourse(Account account, Course course)
+        [HttpGet]
+        [RequireHttps]
+        [Route(CourseRootPath + "/tasks")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Tasks_Get(int courseId)
         {
-            if (account.Role == UserRole.Manager || account.Username == course.OwnerUsername)
+            if (courseId <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var course = await courseStorage.Find(courseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var courseMember = await GetCourseMember(courseId, account.Username);
+            if (!await CanViewCourse(course, courseMember))
+            {
+                return View("Status", ActionStatus.NoAccess);
+            }
+            courseMember ??= CourseMember.BuildSpectator(course.Id, account.Username);
+            var allPersonalHomework = await GetAllPersonalHomework(courseMember);
+            var model = new CoursePersonalObject<List<PersonalHomework>>(
+                course, courseMember, allPersonalHomework
+            );
+            return View("Tasks", model);
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(CourseRootPath + "/tasks")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Tasks_Post(int courseId)
+        {
+            if (courseId <= 0 || !Request.HasFormContentType)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var parser = new FormParser(Request.Form);
+            var actionCode = parser.GetString("actionCode");
+            if (actionCode != "add-individual" && actionCode != "add-team")
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var course = await courseStorage.Find(courseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var courseMember = await GetCourseMember(courseId, account.Username);
+            if (courseMember is null || !courseMember.CanEditHomeworks)
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+            var isTeamwork = actionCode == "add-team";
+            var homework = new Homework(courseId, isTeamwork);
+            if (!await homeworkStorage.TryInsert(homework))
+            {
+                return View("Status", ActionStatus.UnknownError);
+            }
+            return RedirectPermanent($"{CourseRootPath}/task/edit?id={homework.Id}");
+        }
+
+        [HttpGet]
+        [RequireHttps]
+        [Route(CourseRootPath + "/task")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Task_Get(int id)
+        {
+            if (id <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var homework = await homeworkStorage.Find(id);
+            if (homework is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var course = await courseStorage.Find(homework.CourseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var courseMember = await GetCourseMember(course.Id, account.Username);
+            if (!await CanViewCourse(course, courseMember))
+            {
+                return View("Status", ActionStatus.NoAccess);
+            }
+            HomeworkStatus? homeworkStatus = null;
+            if (courseMember is null)
+            {
+                courseMember ??= CourseMember.BuildSpectator(course.Id, account.Username);
+            }
+            else
+            {
+                string? subjectId = null;
+                if (homework.IsTeamwork)
+                {
+                    int? teamId = courseMember.TeamId;
+                    if (teamId is not null)
+                    {
+                        subjectId = Team.BuildTag((int)teamId);
+                    }
+                }
+                else
+                {
+                    subjectId = account.Username;
+                }
+                if (subjectId is not null)
+                {
+                    var uid = HomeworkStatus.BuildUid(homework.Id, subjectId);
+                    homeworkStatus = await homeworkStatusStorage.Find(uid);
+                }
+            }
+            homeworkStatus ??= new HomeworkStatus(homework.Id, account.Username);
+            var personalHomework = new PersonalHomework(homework, homeworkStatus);
+            var model = new CoursePersonalObject<PersonalHomework>(
+                course, courseMember, personalHomework
+            );
+            return View("Task", model);
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(CourseRootPath + "/task")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Task_Post(int id)
+        {
+            if (id <= 0 || !Request.HasFormContentType)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var parser = new FormParser(Request.Form);
+            var actionCode = parser.GetString("actionCode");
+            if (actionCode == "edit")
+            {
+                return RedirectPermanent($"{CourseRootPath}/task/edit?id={id}");
+            }
+            if (actionCode == "delete")
+            {
+                var account = await GetAccount();
+                if (account is null)
+                {
+                    return RedirectPermanent(SignInPath);
+                }
+                var homework = await homeworkStorage.Find(id);
+                if (homework is null)
+                {
+                    return View("Status", ActionStatus.NotSupported);
+                }
+                var course = await courseStorage.Find(homework.CourseId);
+                if (course is null)
+                {
+                    return View("Status", ActionStatus.NotSupported);
+                }
+                var courseMember = await GetCourseMember(course.Id, account.Username);
+                if (courseMember is null || !courseMember.CanEditHomeworks)
+                {
+                    return View("Status", ActionStatus.NoPermission);
+                }
+                await homeworkStorage.TryDeleteValue(homework);
+                return RedirectPermanent($"{CourseRootPath}/tasks?courseId={course.Id}");
+            }
+            return View("Status", ActionStatus.NotSupported);
+        }
+
+        [HttpGet]
+        [RequireHttps]
+        [Route(CourseRootPath + "/task" + "/edit")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> EditTask_Get(int id)
+        {
+            if (id <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var homework = await homeworkStorage.Find(id);
+            if (homework is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var course = await courseStorage.Find(homework.CourseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var courseMember = await GetCourseMember(course.Id, account.Username);
+            if (courseMember is null || !courseMember.CanEditHomeworks)
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+            return View("EditTask", homework);
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(CourseRootPath + "/task" + "/edit")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> EditTask_Post(int id)
+        {
+            if (id <= 0 || !Request.HasFormContentType)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var homework = await homeworkStorage.Find(id);
+            if (homework is null)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var course = await courseStorage.Find(homework.CourseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var courseMember = await GetCourseMember(course.Id, account.Username);
+            if (courseMember is null || !courseMember.CanEditHomeworks)
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+            var parser = new FormParser(Request.Form);
+            var title = DataUtils.GetTrimmed(parser.GetString("title"));
+            var content = DataUtils.GetTrimmed(parser.GetString("content"));
+            var taskUrl = DataUtils.GetTrimmed(parser.GetString("taskUrl"));
+            var submitUrl = DataUtils.GetTrimmed(parser.GetString("submitUrl"));
+            var extraUrl = DataUtils.GetTrimmed(parser.GetString("extraUrl"));
+            var extraUrlLabel = DataUtils.GetTrimmed(parser.GetString("extraUrlLabel"));
+            if (title is not null && Announcement.HasTitleValidFormat(title))
+            {
+                homework.Title = title;
+            }
+            if (Announcement.HasContentValidFormat(content))
+            {
+                homework.Content = content;
+            }
+            if (Course.HasUrlValidFormat(taskUrl))
+            {
+                homework.TaskUrl = taskUrl;
+            }
+            if (Course.HasUrlValidFormat(taskUrl))
+            {
+                homework.SubmitUrl = submitUrl;
+            }
+            if (Course.HasUrlValidFormat(extraUrl))
+            {
+                homework.ExtraUrl = extraUrl;
+            }
+            if (Homework.HasUrlLabelValidFormat(extraUrlLabel))
+            {
+                homework.ExtraUrlLabel = extraUrlLabel;
+            }
+            // TODO: homework.DeadlineTime
+            await homeworkStorage.Update(homework);
+            return RedirectPermanent($"{CourseRootPath}/task?id={homework.Id}");
+        }
+
+        private async Task<bool> CanViewCourse(Course course)
+        {
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return false;
+            }
+            if (account.Role == UserRole.Manager
+                || account.Role == UserRole.Teacher && account.Username == course.OwnerUsername)
             {
                 return true;
             }
             return await GetCourseMember(course.Id, account.Username) is not null;
+        }
+
+        private async Task<bool> CanViewCourse(Course course, CourseMember? courseMember)
+        {
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return false;
+            }
+            if (account.Role == UserRole.Manager || account.Username == course.OwnerUsername)
+            {
+                return true;
+            }
+            return courseMember is not null;
         }
 
         private async Task<CourseMember?> GetCourseMember(int courseId, string username)
@@ -714,6 +1034,29 @@ namespace HomemadeLMS.Controllers
                     member => member.CourseId == courseId && member.Username == username
             );
             return members.FirstOrDefault();
+        }
+
+        private async Task<List<PersonalHomework>> GetAllPersonalHomework(CourseMember courseMember)
+        {
+            var courseId = courseMember.CourseId;
+            var username = courseMember.Username;
+            var result = await courseAggregator.GetAllHomeworkWithStatus(courseId, username);
+            if (courseMember.TeamId is not null)
+            {
+                var tag = Team.BuildTag(courseId);
+                var allTeamHomework = await courseAggregator.GetAllHomeworkWithStatus(courseId, tag);
+                result = result.Concat(allTeamHomework).ToList();
+            }
+            var allHomework = await homeworkStorage.Select(homework => homework.CourseId == courseId);
+            foreach (var homework in allHomework)
+            {
+                if (!result.Any(personalHomework => personalHomework.Homework.Id == homework.Id))
+                {
+                    var homeworkStatus = new HomeworkStatus(homework.Id, username);
+                    result.Add(new PersonalHomework(homework, homeworkStatus));
+                }
+            }
+            return result;
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseObject<Announcement>
+@model CoursePersonalObject<Announcement>
 @{
 	ViewData["Title"] = "Объявление";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
@@ -12,7 +12,7 @@
 			<pre class="pre-vertical">@Model.Object.Content</pre>
 		</div>
 	}
-	@if (Model.Course.CanBeEditedBy(Model.Account))
+	@if (Model.CourseMember.CanEditHomeworks)
 	{
 		<form method="POST">
 			<div class="d-inline-flex mt-5">

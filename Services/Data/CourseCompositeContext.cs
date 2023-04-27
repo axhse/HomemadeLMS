@@ -10,6 +10,8 @@ namespace HomemadeLMS.Services.Data
 
         public DbSet<Course> Courses { get; set; }
         public DbSet<CourseMember> CourseMembers { get; set; }
+        public DbSet<Homework> AllHomework { get; set; }
+        public DbSet<HomeworkStatus> AllHomeworkStatus { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -21,6 +23,8 @@ namespace HomemadeLMS.Services.Data
         {
             modelBuilder.ApplyConfiguration(new CourseConfiguration());
             modelBuilder.ApplyConfiguration(new CourseMemberConfiguration());
+            modelBuilder.ApplyConfiguration(new HomeworkConfiguration());
+            modelBuilder.ApplyConfiguration(new HomeworkStatusConfiguration());
             base.OnModelCreating(modelBuilder);
         }
     }

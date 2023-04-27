@@ -30,10 +30,13 @@
 	}
 	<div class="d-inline-flex mt-4">
 		<div>
-			<a href="/course/members?courseId=@course.Id">Участники</a>
+			<a href="/course/tasks?courseId=@course.Id">Задания</a>
 		</div>
 		<div class="ms-5">
 			<a href="/course/announcements?courseId=@course.Id">Объявления</a>
+		</div>
+		<div class="ms-5">
+			<a href="/course/members?courseId=@course.Id">Участники</a>
 		</div>
 	</div>
 	@if (course.CanBeEditedBy(Model.Account))
