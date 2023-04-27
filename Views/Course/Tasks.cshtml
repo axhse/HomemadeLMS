@@ -31,16 +31,17 @@
 	@foreach (var personalHomework in Model.Object)
 	{
 		var homework = personalHomework.Homework;
-		var borderStyle = homework.IsDeadlineExpired ? "secondary" :
+		var titleStyle = homework.IsDeadlineExpired ? "secondary" :
 						  (personalHomework.HomeworkStatus.IsSubmitted ? "success" : "primary");
 
 		<a class="link-card" href="/course/task?id=@homework.Id">
-			<div class="card border-@borderStyle">
-				<div class="card-header">@homework.Title</div>
-				@if (homework.DeadlineTime is not null)
+			<div class="card border-secondary">
+				<div class="card-header text-@titleStyle">@homework.Title</div>
+				@if (homework.Deadline is not null)
 				{
+					var deadlineMsk = ((DateTime)homework.Deadline).AddHours(DataUtils.MskHourOffset);
 					<div class="card-body vertically-filled-div text-start">
-						<p class="card-text">@homework.DeadlineTime.ToString()</p>
+						<pre class="card-text">Дедлайн: @deadlineMsk.ToString()</pre>
 					</div>
 				}
 			</div>

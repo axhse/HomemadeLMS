@@ -5,6 +5,7 @@ namespace HomemadeLMS.Models
 	public static class DataUtils
 	{
 		public const char SpaceChar = '\u0020';
+		public const int MskHourOffset = +3;
 		public static readonly int MaxNumericStringSize = long.MinValue.ToString().Length;
 
 		public static string? GetTrimmed(string? text)

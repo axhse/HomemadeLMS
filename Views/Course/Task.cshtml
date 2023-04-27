@@ -23,6 +23,18 @@
 }
 
 <div class="col-12 col-lg-8">
+	@if (homeworkStatus.Mark is not null)
+	{
+		<div class="mb-4">
+			<p class="fw-bold">Оценка: @homeworkStatus.Mark</p>
+			@if (homeworkStatus.EvaluatorUsername is not null)
+			{
+				var username = homeworkStatus.EvaluatorUsername;
+				var url = $"/course/member?courseId={Model.Course.Id}&username={username}";
+				<p>Проверявший: <a href=@url>@username</a></p>
+			}
+		</div>
+	}
 	<p class="fw-bold">@homework.Title</p>
 	@if (DataUtils.IsValuable(homework.Content))
 	{
@@ -41,8 +53,41 @@
 			}
 		</div>
 	}
-	@{
-		// TODO: other
+	@if (homework.Deadline is not null)
+	{
+		var deadlineMsk = ((DateTime)homework.Deadline).AddHours(DataUtils.MskHourOffset);
+		<div class="mt-4">
+			<p>Дедлайн: @deadlineMsk.ToString()</p>
+		</div>
+	}
+	@if (Model.CourseMember.Role == CourseRole.Student)
+	{
+		var submitTime = homeworkStatus.SubmitTime;
+		@if (homeworkStatus.IsSubmitted && submitTime is not null)
+		{
+			var username = homeworkStatus.SubmitUsername;
+			var url = $"/course/member?courseId={Model.Course.Id}&username={username}";
+			var submitTimeMsk = ((DateTime)submitTime).AddHours(DataUtils.MskHourOffset);
+			<p>Отмечено выполненым: <a href=@url>@username</a> @submitTimeMsk.ToString()</p>
+		}
+		<form method="POST">
+			<div class="mt-5">
+				@if (homeworkStatus.IsSubmitted)
+				{
+					<button type="submit" class="btn btn-secondary" name="actionCode"
+							value="mark-as-not-submitted">
+						Отметить невыполненым
+					</button>
+				}
+				else
+				{
+					<button type="submit" class="btn btn-success" name="actionCode"
+							value="mark-as-submitted">
+						Отметить выполненым
+					</button>
+				}
+			</div>
+		</form>
 	}
 	@if (Model.CourseMember.CanEditHomeworks)
 	{

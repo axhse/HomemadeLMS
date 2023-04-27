@@ -29,7 +29,7 @@
         public int Id { get; set; }
         public int CourseId { get; set; }
         public DateTime CreationTime { get; set; }
-        public DateTime? DeadlineTime { get; set; }
+        public DateTime? Deadline { get; set; }
         public bool IsTeamwork { get; init; }
 
         public string Title
@@ -115,6 +115,6 @@
             }
         }
 
-        public bool IsDeadlineExpired => DeadlineTime is not null && DeadlineTime < DateTime.UtcNow;
+        public bool IsDeadlineExpired => Deadline is not null && Deadline < DateTime.UtcNow;
     }
 }

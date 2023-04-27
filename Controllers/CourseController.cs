@@ -872,32 +872,74 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent($"{CourseRootPath}/task/edit?id={id}");
             }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var homework = await homeworkStorage.Find(id);
+            if (homework is null)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var courseMember = await GetCourseMember(homework.CourseId, account.Username);
+            if (courseMember is null)
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
             if (actionCode == "delete")
             {
-                var account = await GetAccount();
-                if (account is null)
-                {
-                    return RedirectPermanent(SignInPath);
-                }
-                var homework = await homeworkStorage.Find(id);
-                if (homework is null)
-                {
-                    return View("Status", ActionStatus.NotSupported);
-                }
-                var course = await courseStorage.Find(homework.CourseId);
-                if (course is null)
-                {
-                    return View("Status", ActionStatus.NotSupported);
-                }
-                var courseMember = await GetCourseMember(course.Id, account.Username);
-                if (courseMember is null || !courseMember.CanEditHomeworks)
+                if (!courseMember.CanEditHomeworks)
                 {
                     return View("Status", ActionStatus.NoPermission);
                 }
                 await homeworkStorage.TryDeleteValue(homework);
-                return RedirectPermanent($"{CourseRootPath}/tasks?courseId={course.Id}");
+                return RedirectPermanent($"{CourseRootPath}/tasks?courseId={homework.CourseId}");
             }
-            return View("Status", ActionStatus.NotSupported);
+            if (actionCode != "mark-as-submitted" && actionCode != "mark-as-not-submitted")
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            string subjectId;
+            if (homework.IsTeamwork)
+            {
+                int? teamId = courseMember.TeamId;
+                if (teamId is null)
+                {
+                    return View("Status", ActionStatus.NotSupported);
+                }
+                subjectId = Team.BuildTag((int)teamId);
+            }
+            else
+            {
+                subjectId = account.Username;
+            }
+            var uid = HomeworkStatus.BuildUid(homework.Id, subjectId);
+            var homeworkStatus = await homeworkStatusStorage.Find(uid);
+            bool hasHomeworkStatus = homeworkStatus is not null;
+            homeworkStatus ??= new HomeworkStatus(homework.Id, subjectId);
+            if (actionCode == "mark-as-submitted")
+            {
+                homeworkStatus.MarkSumbitted(account.Username);
+            }
+            else
+            {
+                homeworkStatus.MarkNotSumbitted();
+            }
+            if (hasHomeworkStatus || !await homeworkStatusStorage.TryInsert(homeworkStatus))
+            {
+                await homeworkStatusStorage.Update(homeworkStatus);
+            }
+            var course = await courseStorage.Find(homework.CourseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var personalHomework = new PersonalHomework(homework, homeworkStatus);
+            var model = new CoursePersonalObject<PersonalHomework>(
+                course, courseMember, personalHomework
+            );
+            return View("Task", model);
         }
 
         [HttpGet]
@@ -994,7 +1036,10 @@ namespace HomemadeLMS.Controllers
             {
                 homework.ExtraUrlLabel = extraUrlLabel;
             }
-            // TODO: homework.DeadlineTime
+            if (parser.TryGetDateTime("deadline", out var deadline))
+            {
+                homework.Deadline = deadline.AddHours(-DataUtils.MskHourOffset);
+            }
             await homeworkStorage.Update(homework);
             return RedirectPermanent($"{CourseRootPath}/task?id={homework.Id}");
         }

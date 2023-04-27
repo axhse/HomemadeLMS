@@ -56,6 +56,9 @@ namespace HomemadeLMS.ViewModels
             return false;
         }
 
+        public bool TryGetDateTime(string key, out DateTime value)
+            => DateTime.TryParse(GetString(key), out value);
+
         public bool IsChecked(string key)
         {
             return GetString(key) is not null;

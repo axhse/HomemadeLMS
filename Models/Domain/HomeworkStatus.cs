@@ -8,6 +8,7 @@
                                                 + UidSeparator.Length + MaxSubjectIdSize;
         private string subjectId;
         private string? submitUsername;
+        private string? evaluatorUsername;
 
         public HomeworkStatus(int homeworkId, string subjectId)
         {
@@ -49,6 +50,19 @@
             }
         }
 
+        public string? EvaluatorUsername
+        {
+            get => evaluatorUsername;
+            set
+            {
+                if (value is not null && !Account.HasUsernameValidFormat(value))
+                {
+                    throw new ArgumentException("Invalid username format.");
+                }
+                evaluatorUsername = value;
+            }
+        }
+
         public string Uid
         {
             get => BuildUid(HomeworkId, SubjectId);
@@ -56,5 +70,17 @@
         }
 
         public bool IsSubmitted => SubmitTime is not null && SubmitUsername is not null;
+
+        public void MarkSumbitted(string username)
+        {
+            SubmitUsername = username;
+            SubmitTime = DateTime.UtcNow;
+        }
+
+        public void MarkNotSumbitted()
+        {
+            SubmitUsername = null;
+            SubmitTime = null;
+        }
     }
 }

@@ -18,6 +18,8 @@ namespace HomemadeLMS.Services.Data
             builder.Property(status => status.SubjectId)
                    .HasMaxLength(HomeworkStatus.MaxSubjectIdSize);
             builder.Property(status => status.SubmitUsername).HasMaxLength(Account.MaxUsernameSize);
+            builder.Property(status => status.EvaluatorUsername)
+                   .HasMaxLength(Account.MaxUsernameSize);
             builder.ToTable(nameof(HomeworkStatus));
         }
     }

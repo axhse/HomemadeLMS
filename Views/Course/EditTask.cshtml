@@ -3,6 +3,14 @@
 @{
 	ViewData["Title"] = "Редактирование задания";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+
+	string deadlineValueAttr = string.Empty;
+	var deadline = Model.Deadline;
+	if (deadline is not null)
+	{
+		var deadlineMsk = ((DateTime)deadline).AddHours(DataUtils.MskHourOffset);
+		deadlineValueAttr += "value=" + deadlineMsk.ToString("s");
+	}
 }
 
 <div class="col-12 col-lg-8" align="left">
@@ -36,6 +44,13 @@
 			<label for="extraUrlLabelInput" class="form-label">Текст дополнительной ссылки</label>
 			<input class="form-control" id="extraUrlLabelInput" name="extraUrlLabel"
 				   value="@Model.ExtraUrlLabel" maxlength="@Homework.MaxUrlLabelSize">
+		</div>
+		<div class="form-group mt-4">
+			<label for="deadlineInput" class="form-label">Дедлайн</label>
+			<div class="d-inline-flex">
+				<input class="form-control" id="deadlineInput" name="deadline"
+					   type="datetime-local" @deadlineValueAttr>
+			</div>
 		</div>
 		<div class="mt-4">
 			<p>@(Model.IsTeamwork ? "Командное задание" : "Индивидуальное задание")</p>
