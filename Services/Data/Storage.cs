@@ -52,19 +52,19 @@ namespace HomemadeLMS.Services.Data
             }
         }
 
-        public Task<List<TEntity>> Select(Expression<Func<TEntity, bool>> selector)
+        public async Task<List<TEntity>> Select(Expression<Func<TEntity, bool>> selector)
         {
             if (selector is null)
             {
-                return Task.FromResult(new List<TEntity>());
+                return new List<TEntity>();
             }
             try
             {
-                return Task.FromResult(context.Items.Where(selector).ToList());
+                return await context.Items.Where(selector).ToListAsync();
             }
             catch (Exception exception)
             {
-                return Task.FromException<List<TEntity>>(new StorageException(exception));
+                throw new StorageException(exception);
             }
         }
 

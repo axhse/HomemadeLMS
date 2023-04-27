@@ -4,8 +4,8 @@
     {
         public const int MaxTitleSize = 500;
         public const int MaxContentSize = 3000;
-        private const string DefaultTitle = "New Announcement";
 
+        private const string DefaultTitle = "New Announcement";
         private string title;
         private string? content;
 

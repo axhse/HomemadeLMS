@@ -11,7 +11,8 @@
 	<div>
 		<h6>@course.Title</h6>
 	</div>
-	@if (DataUtils.IsValuable(course.Description)) {
+	@if (DataUtils.IsValuable(course.Description))
+	{
 		<div class="mt-4">
 			<pre class="pre-vertical">@course.Description</pre>
 		</div>

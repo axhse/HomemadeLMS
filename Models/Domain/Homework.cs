@@ -3,8 +3,8 @@
 	public class Homework
     {
         public const int MaxUrlLabelSize = 200;
-        private const string DefaultTitle = "New Task";
 
+        private const string DefaultTitle = "New Task";
         private string title;
         private string? content;
         private string? taskUrl;

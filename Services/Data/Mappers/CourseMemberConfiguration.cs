@@ -12,7 +12,7 @@ namespace HomemadeLMS.Services.Data
             builder.HasIndex(member => member.CourseId);
             builder.HasIndex(member => member.Username);
             builder.Property(member => member.Uid).ValueGeneratedNever();
-            builder.Property(member => member.Uid).HasMaxLength(22 + Account.MaxUsernameSize);
+            builder.Property(member => member.Uid).HasMaxLength(CourseMember.MaxUidSize);
             builder.Property(member => member.CourseId).IsRequired();
             builder.Property(member => member.Username).IsRequired();
             builder.Property(member => member.Username).HasMaxLength(Account.MaxUsernameSize);

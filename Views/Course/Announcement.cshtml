@@ -7,7 +7,8 @@
 
 <div class="col-12 col-lg-8">
 	<p class="fw-bold">@Model.Object.Title</p>
-	@if (DataUtils.IsValuable(Model.Object.Content)) {
+	@if (DataUtils.IsValuable(Model.Object.Content))
+	{
 		<div class="mt-4" align="left">
 			<pre class="pre-vertical">@Model.Object.Content</pre>
 		</div>

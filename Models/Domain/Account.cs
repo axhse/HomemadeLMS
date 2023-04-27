@@ -25,7 +25,6 @@ namespace HomemadeLMS.Models.Domain
         private string passwordHash;
         private string? headUsername;
 
-        /// <exception cref="ArgumentException"></exception>
         public Account(string username, string passwordHash, UserRole role, string? headUsername)
         {
             Username = username;
@@ -37,7 +36,6 @@ namespace HomemadeLMS.Models.Domain
             this.passwordHash = PasswordHash;
         }
 
-        /// <exception cref="ArgumentException"></exception>
         public Account(string accountId, string password)
         {
             SetAccountId(accountId);
@@ -87,7 +85,6 @@ namespace HomemadeLMS.Models.Domain
 
         public UserRole Role { get; set; } = UserRole.None;
 
-        /// <exception cref="ArgumentException"></exception>
         public string Username
         {
             get => username;
@@ -101,7 +98,6 @@ namespace HomemadeLMS.Models.Domain
             }
         }
 
-        /// <exception cref="ArgumentException"></exception>
         public string PasswordHash
         {
             get => passwordHash;
@@ -115,7 +111,6 @@ namespace HomemadeLMS.Models.Domain
             }
         }
 
-        /// <exception cref="ArgumentException"></exception>
         public string? HeadUsername
         {
             get => headUsername;
@@ -132,7 +127,6 @@ namespace HomemadeLMS.Models.Domain
         public string EmailAddress => Username + EmailAddressBase;
         public bool CanEditCourses => Role == UserRole.Teacher || Role == UserRole.Manager;
 
-        /// <exception cref="ArgumentException"></exception>
         public void SetPassword(string password)
         {
             if (!HasPasswordValidFormat(password))
@@ -142,7 +136,6 @@ namespace HomemadeLMS.Models.Domain
             PasswordHash = CalculateHash(password);
         }
 
-        /// <exception cref="ArgumentException"></exception>
         public void SetAccountId(string accountId)
         {
             Username = GetUsername(accountId);

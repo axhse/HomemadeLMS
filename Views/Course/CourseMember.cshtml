@@ -15,7 +15,8 @@
 
 <a href="/account?username=@Model.Object.Username">@Model.Object.Username</a>
 <p class="fw-bold mt-3">@roleName</p>
-@if (Model.Course.CanBeEditedBy(Model.Account)) {
+@if (Model.Course.CanBeEditedBy(Model.Account))
+{
 	<form class="mt-5" method="POST">
 		<div class="d-inline-flex mb-4">
 			<div>

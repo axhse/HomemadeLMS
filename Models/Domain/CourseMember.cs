@@ -10,6 +10,10 @@
 
     public class CourseMember
     {
+        public const string UidSeparator = ":";
+        public static readonly int MaxUidSize = DataUtils.MaxNumericStringSize
+                                                + UidSeparator.Length + Account.MaxUsernameSize;
+
         private string username;
 
         public CourseMember(int courseId, string username, CourseRole role)
@@ -22,6 +26,9 @@
 
         public static CourseMember BuildSpectator(int courseId, string username)
             => new(courseId, username, CourseRole.Spectator);
+
+        public static string BuildUid(int courseId, string username)
+            => $"{courseId}{UidSeparator}{username}";
 
         public int CourseId { get; set; }
         public CourseRole Role { get; set; }
@@ -42,7 +49,7 @@
 
         public string Uid
         {
-            get => $"{CourseId}:{Username}";
+            get => BuildUid(CourseId, Username);
             set { }
         }
 

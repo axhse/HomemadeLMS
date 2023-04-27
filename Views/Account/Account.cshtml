@@ -29,7 +29,8 @@
 
 <p class="fw-bold">@Model.Object.Username</p>
 <p class="fw-bold">@roleName</p>
-@if (Model.Account.CanChangeRoleOf(Model.Object)) {
+@if (Model.Account.CanChangeRoleOf(Model.Object))
+{
 	<form class="mt-5" method="POST">
 		<div class="d-inline-flex mb-4">
 			<div>

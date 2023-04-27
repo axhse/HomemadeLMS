@@ -18,6 +18,7 @@
     {
         public const int BlockCount = 7;
         public const int AnsCount = 8;
+
         private string username;
 
         public RoleTestResult(string username)
