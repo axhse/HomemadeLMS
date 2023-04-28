@@ -70,6 +70,7 @@
         }
 
         public bool IsSubmitted => SubmitTime is not null && SubmitUsername is not null;
+        public bool IsEvaluated => Mark is not null && EvaluatorUsername is not null;
 
         public void MarkSumbitted(string username)
         {
@@ -81,6 +82,18 @@
         {
             SubmitUsername = null;
             SubmitTime = null;
+        }
+
+        public void Evaluate(int mark, string evaluatorUsername)
+        {
+            Mark = mark;
+            EvaluatorUsername = evaluatorUsername;
+        }
+
+        public void ResetEvaluation()
+        {
+            Mark = null;
+            EvaluatorUsername = null;
         }
     }
 }

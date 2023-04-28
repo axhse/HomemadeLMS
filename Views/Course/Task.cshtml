@@ -106,6 +106,12 @@
 			</div>
 		</form>
 	}
+	@if (Model.CourseMember.CanEvaluateHomeworks)
+	{
+		<div class="mt-5">
+			<a href="/course/marks?taskId=@homework.Id">Оценки</a>
+		</div>
+	}
 	<div class="mt-5">
 		<a href="/course/tasks?courseId=@Model.Course.Id">Все задания</a>
 	</div>

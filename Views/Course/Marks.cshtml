@@ -1,0 +1,68 @@
+﻿@using HomemadeLMS.Models.Domain
+@model HomeworkWithAllStatus
+@{
+	ViewData["Title"] = "Оценки";
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+
+	Model.AllStatus.Sort((first, second) => first.SubjectId.CompareTo(second.SubjectId));
+	var homework = Model.Homework;
+}
+
+<div class="col-12 col-md-10 col-lg-8 col-xl-6" align="left">
+	<form method="POST">
+		<div class="mb-5" align="center">
+			<button id="submitButton" type="submit" class="btn btn-success fw-bold" hidden>
+				Сохранить все изменения
+			</button>
+		</div>
+		@foreach (var status in Model.AllStatus)
+		{
+			<div class="my-1"></div>
+			var inputName = $"mark{status.SubjectId}";
+			Team.TryGetId(status.SubjectId, out var teamId);
+			var url = homework.IsTeamwork ? $"/course/team?id={teamId}"
+					  : $"/course/member?courseId={homework.CourseId}&username={status.SubjectId}";
+			<div class="d-inline-flex">
+				<a href=@url>@status.SubjectId</a>
+			</div>
+			<div class="d-inline-flex ms-5">
+				<div>
+					<select class="form-control text-center" id="markInput" name=@inputName
+					        oninput="showSubmitButton()">
+						<option value="" selected></option>
+						<option value="reset">Сбросить</option>
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10">10</option>
+					</select>
+				</div>
+			</div>
+			@if (status.IsEvaluated)
+			{
+				<div class="d-inline-flex ms-5">
+					<label class="fw-bold">@status.Mark</label>
+				</div>
+				<div class="d-inline-flex ms-3">
+					<label>(@status.EvaluatorUsername)</label>
+				</div>
+			}
+		}
+	</form>
+	<div class="mt-5" align="center">
+		<a class="link-custom-secondary" href="/course/task?id=@Model.Homework.Id">Вернуться</a>
+	</div>
+</div>
+
+<script type="text/javascript">
+	function showSubmitButton() {
+		document.getElementById("submitButton").hidden = false;
+    }
+</script>

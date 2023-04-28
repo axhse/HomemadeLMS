@@ -54,5 +54,8 @@
         }
 
         public bool CanEditHomeworks => Role == CourseRole.Teacher;
+        public bool CanSubmitHomeworks => Role == CourseRole.Student;
+        public bool CanEvaluateHomeworks
+            => Role == CourseRole.Assistant || Role == CourseRole.Teacher;
     }
 }

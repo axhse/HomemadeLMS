@@ -13,6 +13,7 @@
         }
 
 		public static string BuildTag(int teamId) => $"{TagStarting}{teamId}";
+		public static bool TryGetId(string? tag, out int id) => int.TryParse(tag, out id);
 
         public int Id { get; set; }
 		public string Tag => BuildTag(Id);

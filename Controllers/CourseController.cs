@@ -1044,6 +1044,85 @@ namespace HomemadeLMS.Controllers
             return RedirectPermanent($"{CourseRootPath}/task?id={homework.Id}");
         }
 
+        [HttpGet]
+        [RequireHttps]
+        [Route(CourseRootPath + "/marks")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Marks_Get(int taskId)
+        {
+            if (taskId <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var homework = await homeworkStorage.Find(taskId);
+            if (homework is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var courseMember = await GetCourseMember(homework.CourseId, account.Username);
+            if (courseMember is null || !courseMember.CanEvaluateHomeworks)
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+            var allStatus = await GetAllHomeworkStatus(homework);
+            return View("Marks", new HomeworkWithAllStatus(homework, allStatus));
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(CourseRootPath + "/marks")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Marks_Post(int taskId)
+        {
+            if (taskId <= 0 || !Request.HasFormContentType)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var homework = await homeworkStorage.Find(taskId);
+            if (homework is null)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var courseMember = await GetCourseMember(homework.CourseId, account.Username);
+            if (courseMember is null || !courseMember.CanEvaluateHomeworks)
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+            var allStatus = await GetAllHomeworkStatus(homework);
+            var parser = new FormParser(Request.Form);
+            foreach (var status in allStatus)
+            {
+                var markKey = $"mark{status.SubjectId}";
+                if (parser.GetString(markKey) == "reset")
+                {
+                    status.ResetEvaluation();
+                }
+                else if (parser.TryGetInt(markKey, out var mark))
+                {
+                    status.Evaluate(mark, account.Username);
+                }
+                else
+                {
+                    continue;
+                }
+                if (status.IsSubmitted || !await homeworkStatusStorage.TryInsert(status))
+                {
+                    await homeworkStatusStorage.Update(status);
+                }
+            }
+            return View("Marks", new HomeworkWithAllStatus(homework, allStatus));
+        }
+
         private async Task<bool> CanViewCourse(Course course)
         {
             var account = await GetAccount();
@@ -1102,6 +1181,34 @@ namespace HomemadeLMS.Controllers
                 }
             }
             return result;
+        }
+
+        private async Task<List<HomeworkStatus>> GetAllHomeworkStatus(Homework homework)
+        {
+            List<HomeworkStatus> allStatus;
+            if (homework.IsTeamwork)
+            {
+                // TODO: find all teams and status
+                allStatus = new();
+            }
+            else
+            {
+                allStatus = await homeworkStatusStorage.Select(
+                    homeworkStatus => homeworkStatus.HomeworkId == homework.Id
+                );
+                var allMembers = await courseMemberStorage.Select(
+                    courseMember => courseMember.CourseId == homework.CourseId
+                );
+                var completers = allMembers.Where(member => member.CanSubmitHomeworks).ToList();
+                foreach (var member in completers)
+                {
+                    if (allStatus.All(status => status.SubjectId != member.Username))
+                    {
+                        allStatus.Add(new HomeworkStatus(homework.Id, member.Username));
+                    }
+                }
+            }
+            return allStatus;
         }
     }
 }
