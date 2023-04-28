@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseObject<List<CourseMember>>
+@model CourseAndObject<List<CourseMember>>
 @{
 	ViewData["Title"] = "Участники";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
@@ -12,7 +12,7 @@
 }
 
 <div class="col-12 col-md-10 col-lg-8 col-xl-6">
-	@if (Model.Course.CanBeEditedBy(Model.Account))
+	@if (Model.IsCourseEditable)
 	{
 		<form method="POST">
 			<button type="submit" class="btn btn-secondary" name="actionCode" value="add">

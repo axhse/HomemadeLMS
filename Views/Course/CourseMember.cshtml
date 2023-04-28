@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseObject<CourseMember>
+@model CourseAndObject<CourseMember>
 @{
 	ViewData["Title"] = "Участник";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
@@ -15,7 +15,7 @@
 
 <p><a href="/account?username=@Model.Object.Username">@Model.Object.Username</a></p>
 <p class="fw-bold">@roleName</p>
-@if (Model.Course.CanBeEditedBy(Model.Account))
+@if (Model.IsCourseEditable)
 {
 	<div class="mt-5"></div>
 	<form method="POST">

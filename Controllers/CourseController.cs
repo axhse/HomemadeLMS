@@ -243,7 +243,7 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NoAccess);
             }
             var members = await courseMemberStorage.Select(member => member.CourseId == courseId);
-            var model = new CourseObject<List<CourseMember>>(account, course, members);
+            var model = new CourseAndObject<List<CourseMember>>(account, course, members);
             return View("CourseMembers", model);
         }
 
@@ -455,7 +455,7 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            var model = new CourseObject<CourseMember>(account, course, courseMember);
+            var model = new CourseAndObject<CourseMember>(account, course, courseMember);
             return View("CourseMember", model);
         }
 
@@ -490,7 +490,7 @@ namespace HomemadeLMS.Controllers
                 courseMember.Role = role;
                 await courseMemberStorage.Update(courseMember);
             }
-            var model = new CourseObject<CourseMember>(account, course, courseMember);
+            var model = new CourseAndObject<CourseMember>(account, course, courseMember);
             return View("CourseMember", model);
         }
 
@@ -523,9 +523,7 @@ namespace HomemadeLMS.Controllers
                 announcement => announcement.CourseId == courseId
             );
             courseMember ??= CourseMember.BuildSpectator(courseId, account.Username);
-            var model = new CoursePersonalObject<List<Announcement>>(
-                course, courseMember, announcements
-            );
+            var model = new CourseMemberAndObject<List<Announcement>>(courseMember, announcements);
             return View("Announcements", model);
         }
 
@@ -593,7 +591,7 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NoAccess);
             }
             courseMember ??= CourseMember.BuildSpectator(course.Id, account.Username);
-            var model = new CoursePersonalObject<Announcement>(course, courseMember, announcement);
+            var model = new CourseMemberAndObject<Announcement>(courseMember, announcement);
             return View("Announcement", model);
         }
 
@@ -746,8 +744,8 @@ namespace HomemadeLMS.Controllers
             }
             courseMember ??= CourseMember.BuildSpectator(course.Id, account.Username);
             var allPersonalHomework = await GetAllPersonalHomework(courseMember);
-            var model = new CoursePersonalObject<List<PersonalHomework>>(
-                course, courseMember, allPersonalHomework
+            var model = new CourseMemberAndObject<List<PersonalHomework>>(
+                courseMember, allPersonalHomework
             );
             return View("Tasks", model);
         }
@@ -850,9 +848,7 @@ namespace HomemadeLMS.Controllers
             }
             homeworkStatus ??= new HomeworkStatus(homework.Id, account.Username);
             var personalHomework = new PersonalHomework(homework, homeworkStatus);
-            var model = new CoursePersonalObject<PersonalHomework>(
-                course, courseMember, personalHomework
-            );
+            var model = new CourseMemberAndObject<PersonalHomework>(courseMember, personalHomework);
             return View("Task", model);
         }
 
@@ -936,9 +932,7 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NotSupported);
             }
             var personalHomework = new PersonalHomework(homework, homeworkStatus);
-            var model = new CoursePersonalObject<PersonalHomework>(
-                course, courseMember, personalHomework
-            );
+            var model = new CourseMemberAndObject<PersonalHomework>(courseMember, personalHomework);
             return View("Task", model);
         }
 
@@ -1174,7 +1168,7 @@ namespace HomemadeLMS.Controllers
             var allHomework = await homeworkStorage.Select(homework => homework.CourseId == courseId);
             foreach (var homework in allHomework)
             {
-                if (!result.Any(personalHomework => personalHomework.Homework.Id == homework.Id))
+                if (result.All(personalHomework => personalHomework.Homework.Id != homework.Id))
                 {
                     var homeworkStatus = new HomeworkStatus(homework.Id, username);
                     result.Add(new PersonalHomework(homework, homeworkStatus));

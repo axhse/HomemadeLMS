@@ -2,17 +2,18 @@
 
 namespace HomemadeLMS.ViewModels
 {
-    public class CourseObject<TObject>
+    public class CourseAndObject<TObject>
     {
-        public CourseObject(Account account, Course course, TObject obj)
+        public CourseAndObject(Account account, Course course, TObject obj)
         {
-            Account = account;
             Course = course;
             Object = obj;
+            IsCourseEditable = course.CanBeEditedBy(account);
         }
 
-        public Account Account { get; private set; }
         public Course Course { get; private set; }
         public TObject Object { get; private set; }
+
+        public bool IsCourseEditable { get; private set; }
     }
 }

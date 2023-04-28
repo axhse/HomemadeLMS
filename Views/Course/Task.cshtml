@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CoursePersonalObject<PersonalHomework>
+@model CourseMemberAndObject<PersonalHomework>
 @{
 	ViewData["Title"] = "Задание";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
@@ -29,7 +29,7 @@
 		@if (homeworkStatus.EvaluatorUsername is not null)
 		{
 			var username = homeworkStatus.EvaluatorUsername;
-			var url = $"/course/member?courseId={Model.Course.Id}&username={username}";
+			var url = $"/course/member?courseId={Model.CourseId}&username={username}";
 
 			<label class="ms-5">(выставлена <a href=@url>@username</a>)</label>
 		}
@@ -67,7 +67,7 @@
 		@if (homeworkStatus.IsSubmitted && homeworkStatus.SubmitTime is not null)
 		{
 			var username = homeworkStatus.SubmitUsername;
-			var url = $"/course/member?courseId={Model.Course.Id}&username={username}";
+			var url = $"/course/member?courseId={Model.CourseId}&username={username}";
 			var submitTimeMsk = ((DateTime)homeworkStatus.SubmitTime).AddHours(DataUtils.MskHourOffset);
 
 			<label>Отмечено выполненым: <a href=@url>@username</a> @submitTimeMsk.ToString()</label>
@@ -108,5 +108,5 @@
 		<a href="/course/marks?taskId=@homework.Id">Оценки</a>
 	}
 	<div class="mt-5"></div>
-	<a href="/course/tasks?courseId=@Model.Course.Id">Все задания</a>
+	<a href="/course/tasks?courseId=@Model.CourseId">Все задания</a>
 </div>

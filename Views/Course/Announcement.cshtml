@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CoursePersonalObject<Announcement>
+@model CourseMemberAndObject<Announcement>
 @{
 	ViewData["Title"] = "Объявление";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
@@ -27,5 +27,5 @@
 		</form>
 	}
 	<div class="mt-5"></div>
-	<a href="/course/announcements?courseId=@Model.Course.Id">Все объявления</a>
+	<a href="/course/announcements?courseId=@Model.CourseId">Все объявления</a>
 </div>

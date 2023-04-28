@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CoursePersonalObject<List<Announcement>>
+@model CourseMemberAndObject<List<Announcement>>
 @{
 	ViewData["Title"] = "Объявления";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
@@ -30,5 +30,5 @@
 		</a>
 		<div class="mt-5"></div>
 	}
-	<a class="link-custom-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
+	<a class="link-custom-secondary" href="/course?id=@Model.CourseId">Вернуться</a>
 </div>
