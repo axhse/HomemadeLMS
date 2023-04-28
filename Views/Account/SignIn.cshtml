@@ -8,28 +8,24 @@
 }
 
 <form method="POST">
-	<div class="d-inline-flex mb-4">
-		<div class="align-self-center">
-			<label for="roleCodeInput">Роль</label>
-		</div>
-		<div class="ms-2">
-			<select class="form-control text-center" id="roleCodeInput" name="roleCode">
+	<div class="d-inline-flex">
+		<label class="align-self-center">Роль</label>
+		<div class="ms-2"></div>
+		<div>
+			<select class="form-control text-center" name="roleCode">
 				<option value="@UserRole.Student.ToString()" selected>Студент</option>
 				<option value="@UserRole.Teacher.ToString()">Преподаватель</option>
 				<option value="@UserRole.Manager.ToString()">Менеджер</option>
 			</select>
 		</div>
-	</div>
-	<div class="d-inline-flex mb-4 ms-4">
-		<div class="align-self-center">
-			<label for="idInput">ID</label>
+		<div class="ms-4"></div>
+		<label class="align-self-center">ID</label>
+		<div class="ms-2"></div>
+		<div>
+			<input type="number" class="form-control text-center" name="id"
+				   min="1" max="1000000000" value="1">
 		</div>
-		<div class="ms-2">
-			<input type="number" class="form-control text-center" id="idInput" name="id"
-				   value="1" min="1" max="1000000000">
-		</div>
-	</div>
-	<div class="d-inline-flex mb-4 ms-4">
+		<div class="ms-4"></div>
 		<button type="submit" class="btn btn-secondary">Продолжить</button>
 	</div>
 </form>

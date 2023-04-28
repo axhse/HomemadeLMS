@@ -25,94 +25,88 @@
 <div class="col-12 col-lg-8">
 	@if (homeworkStatus.Mark is not null)
 	{
-		<div class="mb-4">
-			<p class="fw-bold">Оценка: @homeworkStatus.Mark</p>
-			@if (homeworkStatus.EvaluatorUsername is not null)
-			{
-				var username = homeworkStatus.EvaluatorUsername;
-				var url = $"/course/member?courseId={Model.Course.Id}&username={username}";
-				<p>Проверявший: <a href=@url>@username</a></p>
-			}
-		</div>
+		<label class="fw-bold">Оценка: @homeworkStatus.Mark</label>
+		@if (homeworkStatus.EvaluatorUsername is not null)
+		{
+			var username = homeworkStatus.EvaluatorUsername;
+			var url = $"/course/member?courseId={Model.Course.Id}&username={username}";
+
+			<label class="ms-5">(выставлена <a href=@url>@username</a>)</label>
+		}
+		<div class="mt-5"></div>
 	}
-	<p class="fw-bold">@homework.Title</p>
+	<h6>@homework.Title</h6>
 	@if (DataUtils.IsValuable(homework.Content))
 	{
-		<div class="mt-4" align="left">
+		<div class="mt-4"></div>
+		<div class="d-inline-flex" align="left">
 			<pre class="pre-vertical">@homework.Content</pre>
 		</div>
 	}
 	@if (links.Any())
 	{
-		<div class="mt-4">
-			@foreach (var link in links)
-			{
-				<div class="my-1">
-					<a href="@link.Href">@link.Label</a>
-				</div>
-			}
-		</div>
+		<div class="mt-4"></div>
+		@foreach (var link in links)
+		{
+			<div class="my-1"></div>
+			<a href="@link.Href">@link.Label</a>
+		}
 	}
 	@if (homework.Deadline is not null)
 	{
 		var deadlineMsk = ((DateTime)homework.Deadline).AddHours(DataUtils.MskHourOffset);
-		<div class="mt-4">
-			<p>Дедлайн: @deadlineMsk.ToString()</p>
-		</div>
+
+		<div class="mt-4"></div>
+		<label>Дедлайн: @deadlineMsk.ToString()</label>
 	}
-	@if (Model.CourseMember.Role == CourseRole.Student)
+	<div class="mt-4"></div>
+	<label>@(homework.IsTeamwork ? "Командное задание" : "Индивидуальное задание")</label>
+	@if (Model.CourseMember.CanSubmitHomeworks)
 	{
-		var submitTime = homeworkStatus.SubmitTime;
-		@if (homeworkStatus.IsSubmitted && submitTime is not null)
+		<div class="mt-5"></div>
+		@if (homeworkStatus.IsSubmitted && homeworkStatus.SubmitTime is not null)
 		{
 			var username = homeworkStatus.SubmitUsername;
 			var url = $"/course/member?courseId={Model.Course.Id}&username={username}";
-			var submitTimeMsk = ((DateTime)submitTime).AddHours(DataUtils.MskHourOffset);
-			<p>Отмечено выполненым: <a href=@url>@username</a> @submitTimeMsk.ToString()</p>
+			var submitTimeMsk = ((DateTime)homeworkStatus.SubmitTime).AddHours(DataUtils.MskHourOffset);
+
+			<label>Отмечено выполненым: <a href=@url>@username</a> @submitTimeMsk.ToString()</label>
+			<div class="mt-4"></div>
 		}
 		<form method="POST">
-			<div class="mt-5">
-				@if (homeworkStatus.IsSubmitted)
-				{
-					<button type="submit" class="btn btn-secondary" name="actionCode"
-							value="mark-as-not-submitted">
-						Отметить невыполненым
-					</button>
-				}
-				else
-				{
-					<button type="submit" class="btn btn-success" name="actionCode"
-							value="mark-as-submitted">
-						Отметить выполненым
-					</button>
-				}
-			</div>
+			@if (homeworkStatus.IsSubmitted)
+			{
+				<button type="submit" class="btn btn-secondary" name="actionCode"
+						value="mark-as-not-submitted">
+					Отметить невыполненым
+				</button>
+			}
+			else
+			{
+				<button type="submit" class="btn btn-success" name="actionCode"
+						value="mark-as-submitted">
+					Отметить выполненым
+				</button>
+			}
 		</form>
 	}
 	@if (Model.CourseMember.CanEditHomeworks)
 	{
+		<div class="mt-5"></div>
 		<form method="POST">
-			<div class="d-inline-flex mt-5">
-				<div>
-					<button type="submit" class="btn btn-secondary" name="actionCode" value="edit">
-						Редактировать
-					</button>
-				</div>
-				<div class="ms-4">
-					<button type="submit" class="btn btn-danger" name="actionCode" value="delete">
-						Удалить
-					</button>
-				</div>
-			</div>
+			<button type="submit" class="btn btn-secondary" name="actionCode" value="edit">
+				Редактировать
+			</button>
+			<button type="submit" class="btn btn-danger" name="actionCode" value="delete">
+				Удалить
+			</button>
 		</form>
 	}
 	@if (Model.CourseMember.CanEvaluateHomeworks)
 	{
-		<div class="mt-5">
-			<a href="/course/marks?taskId=@homework.Id">Оценки</a>
-		</div>
+		<div class="mt-4"></div>
+		<a href="/course/marks?taskId=@homework.Id">Оценки</a>
 	}
-	<div class="mt-5">
-		<a href="/course/tasks?courseId=@Model.Course.Id">Все задания</a>
-	</div>
+	<div class="mt-5"></div>
+	<a href="/course/tasks?courseId=@Model.Course.Id">Все задания</a>
 </div>

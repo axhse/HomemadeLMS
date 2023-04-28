@@ -15,14 +15,13 @@
 	@if (Model.Course.CanBeEditedBy(Model.Account))
 	{
 		<form method="POST">
-			<div class="mb-5">
-				<button type="submit" class="btn btn-secondary" name="actionCode" value="add">
-					Добавить
-				</button>
-				<button type="submit" class="btn btn-secondary" name="actionCode" value="remove">
-					Удалить
-				</button>
-			</div>
+			<button type="submit" class="btn btn-secondary" name="actionCode" value="add">
+				Добавить
+			</button>
+			<button type="submit" class="btn btn-secondary" name="actionCode" value="remove">
+				Удалить
+			</button>
+			<div class="mt-5"></div>
 		</form>
 	}
 	@foreach (var role in sortedRoles) {
@@ -34,22 +33,18 @@
 			CourseRole.Student => "Студенты",
 			_ => string.Empty,
 		};
+
 		@if (members.Any()) {
-			<div>
-				<p class="fw-bold">@members.Count()  @roleName</p>
-			</div>
-			<div class="mt-2 mb-5">
-				@foreach (var member in members) {
-					<div class="mt-0">
-						<a href="/course/member?courseId=@(Model.Course.Id)&username=@member.Username">
-							@member.Username
-						</a>
-					</div>
-				}
-			</div>
+			<label class="fw-bold">@roleName (@members.Count())</label>
+			<div class="mt-3"></div>
+			@foreach (var member in members) {
+				var url = $"/course/member?courseId={Model.Course.Id}&username={member.Username}";
+
+				<div></div>
+				<a href=@url>@member.Username</a>
+			}
+			<div class="mt-5"></div>
 		} 
 	}
-	<div>
-		<a class="link-custom-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
-	</div>
+	<a class="link-custom-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
 </div>

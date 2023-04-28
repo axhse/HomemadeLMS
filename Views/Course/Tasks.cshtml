@@ -13,19 +13,13 @@
 	@if (Model.CourseMember.CanEditHomeworks)
 	{
 		<form method="POST">
-			<div class="d-inline-flex mb-5">
-				<div>
-					<button type="submit" class="btn btn-secondary" name="actionCode"
-																	value="add-individual">
-						+ Добавить индивидуальное задание
-					</button>
-				</div>
-				<div class="ms-5">
-					<button type="submit" class="btn btn-secondary" name="actionCode" value="add-team">
-						+ Добавить командное задание
-					</button>
-				</div>
-			</div>
+			<button type="submit" class="btn btn-secondary mt-1" name="actionCode" value="add-individual">
+				+ Добавить индивидуальное задание
+			</button>
+			<button type="submit" class="btn btn-secondary mt-1" name="actionCode" value="add-team">
+				+ Добавить командное задание
+			</button>
+			<div class="mt-5"></div>
 		</form>
 	}
 	@foreach (var personalHomework in Model.Object)
@@ -48,7 +42,5 @@
 		</a>
 		<div class="mt-5"></div>
 	}
-	<div>
-		<a class="link-custom-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
-	</div>
+	<a class="link-custom-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
 </div>

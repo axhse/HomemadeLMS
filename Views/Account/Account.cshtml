@@ -31,18 +31,18 @@
 <p class="fw-bold">@roleName</p>
 @if (Model.Account.CanChangeRoleOf(Model.Object))
 {
-	<form class="mt-5" method="POST">
-		<div class="d-inline-flex mb-4">
+	<div class="mt-5"></div>
+	<form method="POST">
+		<div class="d-inline-flex">
 			<div>
-				<select class="form-control text-center" id="roleCodeInput" name="roleCode">
+				<select class="form-control text-center" name="roleCode">
 					<option value="">Выбрать роль</option>
 					<option value="@UserRole.Student.ToString()">Студент</option>
 					<option value="@UserRole.Teacher.ToString()">Преподаватель</option>
 					<option value="@UserRole.Manager.ToString()">Менеджер</option>
 				</select>
 			</div>
-		</div>
-		<div class="d-inline-flex mb-4 ms-4">
+			<div class="ms-4"></div>
 			<button type="submit" class="btn btn-secondary">Изменить роль</button>
 		</div>
 	</form>

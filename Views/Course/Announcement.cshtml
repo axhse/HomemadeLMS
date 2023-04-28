@@ -6,31 +6,26 @@
 }
 
 <div class="col-12 col-lg-8">
-	<p class="fw-bold">@Model.Object.Title</p>
+	<h6 class="fw-bold">@Model.Object.Title</h6>
 	@if (DataUtils.IsValuable(Model.Object.Content))
 	{
-		<div class="mt-4" align="left">
+		<div class="mt-4"></div>
+		<div class="d-inline-flex" align="left">
 			<pre class="pre-vertical">@Model.Object.Content</pre>
 		</div>
 	}
 	@if (Model.CourseMember.CanEditHomeworks)
 	{
+		<div class="mt-5"></div>
 		<form method="POST">
-			<div class="d-inline-flex mt-5">
-				<div>
-					<button type="submit" class="btn btn-secondary" name="actionCode" value="edit">
-						Редактировать
-					</button>
-				</div>
-				<div class="ms-4">
-					<button type="submit" class="btn btn-danger" name="actionCode" value="delete">
-						Удалить
-					</button>
-				</div>
-			</div>
+			<button type="submit" class="btn btn-secondary" name="actionCode" value="edit">
+				Редактировать
+			</button>
+			<button type="submit" class="btn btn-danger" name="actionCode" value="delete">
+				Удалить
+			</button>
 		</form>
 	}
-	<div class="mt-5">
-		<a href="/course/announcements?courseId=@Model.Course.Id">Все объявления</a>
-	</div>
+	<div class="mt-5"></div>
+	<a href="/course/announcements?courseId=@Model.Course.Id">Все объявления</a>
 </div>

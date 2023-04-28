@@ -13,17 +13,13 @@
 	@if (Model.Account.CanEditCourses)
 	{
 		<form method="POST">
-			<div class="mb-5">
-				<button type="submit" class="btn btn-secondary">+ Создать курс</button>
-			</div>
+			<button type="submit" class="btn btn-secondary">+ Создать курс</button>
 		</form>
+		<div class="mt-5"></div>
 	}
-	<div>
-		@foreach (var course in Model.Object)
-		{
-			<div class="mt-2">
-				<a href="/course?id=@course.Id">@course.Title</a>
-			</div>
-		}
-	</div>
+	@foreach (var course in Model.Object)
+	{
+		<div class="mt-2"></div>
+		<a href="/course?id=@course.Id">@course.Title</a>
+	}
 </div>

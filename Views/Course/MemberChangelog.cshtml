@@ -37,20 +37,18 @@
 		{
 			listName = "Некорректные идентификаторы (никаких действий)";
 		}
+
 		@if (usernameList.Any())
 		{
-			<div>
-				<p class="fw-bold">@usernameList.Count  @listName</p>
-			</div>
-			<div class="mt-2 mb-5">
-				@foreach (var username in usernameList)
-				{
-					<p class="mt-0">@username</p>
-				}
-			</div>
+			<label class="fw-bold">@listName (@usernameList.Count)</label>
+			<div class="mt-3"></div>
+			@foreach (var username in usernameList)
+			{
+				<div></div>
+				<label>@username</label>
+			}
+			<div class="mt-5"></div>
 		}
 	}
-	<div>
-		<a class="link-custom-secondary" href="/course/members/?courseId=@Model.Course.Id">Вернуться</a>
-	</div>
+	<a class="link-custom-secondary" href="/course/members/?courseId=@Model.Course.Id">Вернуться</a>
 </div>

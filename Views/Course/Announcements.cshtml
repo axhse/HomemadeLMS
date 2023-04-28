@@ -11,10 +11,9 @@
 	@if (Model.CourseMember.CanEditHomeworks)
 	{
 		<form method="POST">
-			<div class="mb-5">
-				<button type="submit" class="btn btn-secondary">+ Добавить объявление</button>
-			</div>
+			<button type="submit" class="btn btn-secondary">+ Добавить объявление</button>
 		</form>
+		<div class="mt-5"></div>
 	}
 	@foreach (var announcement in Model.Object)
 	{
@@ -31,7 +30,5 @@
 		</a>
 		<div class="mt-5"></div>
 	}
-	<div>
-		<a class="link-custom-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
-	</div>
+	<a class="link-custom-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
 </div>

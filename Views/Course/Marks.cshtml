@@ -8,27 +8,24 @@
 	var homework = Model.Homework;
 }
 
-<div class="col-12 col-md-10 col-lg-8 col-xl-6" align="left">
+<div class="col-12" align="left">
 	<form method="POST">
-		<div class="mb-5" align="center">
-			<button id="submitButton" type="submit" class="btn btn-success fw-bold" hidden>
-				Сохранить все изменения
-			</button>
+		<div id="submissionBlock" align="center" hidden>
+			<button type="submit" class="btn btn-success fw-bold">Сохранить все изменения</button>
+			<div class="mt-5"></div>
 		</div>
 		@foreach (var status in Model.AllStatus)
 		{
-			<div class="my-1"></div>
 			var inputName = $"mark{status.SubjectId}";
 			Team.TryGetId(status.SubjectId, out var teamId);
 			var url = homework.IsTeamwork ? $"/course/team?id={teamId}"
 					  : $"/course/member?courseId={homework.CourseId}&username={status.SubjectId}";
+
+			<div class="mt-1"></div>
 			<div class="d-inline-flex">
-				<a href=@url>@status.SubjectId</a>
-			</div>
-			<div class="d-inline-flex ms-5">
-				<div>
-					<select class="form-control text-center" id="markInput" name=@inputName
-					        oninput="showSubmitButton()">
+				<div class="align-self-center">
+					<select class="form-control text-center mark-input" name=@inputName
+							oninput="showSubmissionBlock()">
 						<option value="" selected></option>
 						<option value="reset">Сбросить</option>
 						<option value="0">0</option>
@@ -44,16 +41,16 @@
 						<option value="10">10</option>
 					</select>
 				</div>
+				<div class="ms-5"></div>
+				<a class="align-self-center" href=@url>@status.SubjectId</a>
+				@if (status.IsEvaluated)
+				{
+					<div class="ms-5"></div>
+					<label class="align-self-center fw-bold">@status.Mark</label>
+					<div class="ms-3"></div>
+					<label class="align-self-center">(@status.EvaluatorUsername)</label>
+				}
 			</div>
-			@if (status.IsEvaluated)
-			{
-				<div class="d-inline-flex ms-5">
-					<label class="fw-bold">@status.Mark</label>
-				</div>
-				<div class="d-inline-flex ms-3">
-					<label>(@status.EvaluatorUsername)</label>
-				</div>
-			}
 		}
 	</form>
 	<div class="mt-5" align="center">
@@ -62,7 +59,7 @@
 </div>
 
 <script type="text/javascript">
-	function showSubmitButton() {
-		document.getElementById("submitButton").hidden = false;
+	function showSubmissionBlock() {
+		document.getElementById("submissionBlock").hidden = false;
     }
 </script>

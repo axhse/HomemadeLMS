@@ -41,6 +41,81 @@
 body {
     color: var(--body-text-color);
     background-color: var(--body-background-color);
+    word-wrap: anywhere;
+}
+
+
+a {
+    color: var(--link-color);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--link-hover-color);
+}
+
+a:visited {
+    color: var(--link-visited-color);
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+    color: var(--footer-text-color);
+    background-color: var(--footer-background-color);
+}
+
+
+.link-custom-secondary {
+    color: var(--body-text-secondary-color);
+}
+.link-custom-secondary:hover {
+    color: var(--body-text-color);
+}
+.link-custom-secondary:visited {
+    color: var(--body-text-secondary-color);
+}
+
+
+.footer-link {
+    color: var(--body-text-secondary-color);
+    font-weight: normal;
+    text-decoration: underline;
+}
+.footer-link:hover {
+    color: var(--body-text-secondary-color);
+}
+.footer-link:visited {
+    color: var(--body-text-secondary-color);
+}
+
+
+.link-card {
+    color: var(--body-text-color);
+}
+.link-card:hover {
+    color: var(--body-text-color);
+}
+.link-card:visited {
+    color: var(--body-text-secondary-color);
+}
+
+
+.pre-vertical {
+    white-space: pre-wrap;
+}
+
+
+.score-input {
+    width: 70px;
+}
+
+.mark-input {
+    width: 100px;
 }
 
 
@@ -116,63 +191,4 @@ body {
 }
 #popup-menu .popup-menu-link-important {
     color: var(--popup-menu-link-important-color);
-}
-
-
-#footer {
-    color: var(--footer-text-color);
-    background-color: var(--footer-background-color);
-}
-
-
-a {
-    color: var(--link-color);
-    font-weight: bold;
-    text-decoration: none;
-}
-a:hover {
-    color: var(--link-hover-color);
-}
-a:visited {
-    color: var(--link-visited-color);
-}
-
-
-.link-custom-secondary {
-    color: var(--body-text-secondary-color);
-}
-.link-custom-secondary:hover {
-    color: var(--body-text-color);
-}
-.link-custom-secondary:visited {
-    color: var(--body-text-secondary-color);
-}
-
-
-.footer-link {
-    color: var(--body-text-secondary-color);
-    font-weight: normal;
-    text-decoration: underline;
-}
-.footer-link:hover {
-    color: var(--body-text-secondary-color);
-}
-.footer-link:visited {
-    color: var(--body-text-secondary-color);
-}
-
-
-.link-card {
-    color: var(--body-text-color);
-}
-.link-card:hover {
-    color: var(--body-text-color);
-}
-.link-card:visited {
-    color: var(--body-text-secondary-color);
-}
-
-
-.pre-vertical {
-    white-space: pre-wrap;
 }

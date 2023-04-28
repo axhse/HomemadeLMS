@@ -10,18 +10,12 @@
 	<p>Разделителями могут быть , ; и пробел/перенос строки/табуляция</p>
 	<p>Размер текста должен быть до 100'000 символов</p>
 	<p>Все пользователи добавляются с ролью студента курса</p>
+	<div class="mt-5"></div>
 	<form method="POST">
-		<div class="form-group mt-4">
-			<textarea class="form-control" id="accountIdTextInput" name="accountIdText"
-				      rows="8" maxlength="100000"></textarea>
-		</div>
-		<div class="mt-4">
-			<button type="submit" class="btn btn-secondary">
-				Добавить участников
-			</button>
-		</div>
+		<textarea class="form-control" name="accountIdText" rows="8" maxlength="100000"></textarea>
+		<div class="mt-4"></div>
+		<button type="submit" class="btn btn-secondary">Добавить участников</button>
 	</form>
-	<div class="mt-5">
-		<a class="link-custom-secondary" href="/course/members/?courseId=@Model.Id">Вернуться</a>
-	</div>
+	<div class="mt-5"></div>
+	<a class="link-custom-secondary" href="/course/members/?courseId=@Model.Id">Вернуться</a>
 </div>

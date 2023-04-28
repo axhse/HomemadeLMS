@@ -13,26 +13,25 @@
 	};
 }
 
-<a href="/account?username=@Model.Object.Username">@Model.Object.Username</a>
-<p class="fw-bold mt-3">@roleName</p>
+<p><a href="/account?username=@Model.Object.Username">@Model.Object.Username</a></p>
+<p class="fw-bold">@roleName</p>
 @if (Model.Course.CanBeEditedBy(Model.Account))
 {
-	<form class="mt-5" method="POST">
-		<div class="d-inline-flex mb-4">
+	<div class="mt-5"></div>
+	<form method="POST">
+		<div class="d-inline-flex">
 			<div>
-				<select class="form-control text-center" id="roleCodeInput" name="roleCode">
+				<select class="form-control text-center" name="roleCode">
 					<option value="">Выбрать роль</option>
 					<option value="@CourseRole.Student.ToString()">Студент</option>
 					<option value="@CourseRole.Assistant.ToString()">Ассистент</option>
 					<option value="@CourseRole.Teacher.ToString()">Преподаватель</option>
 				</select>
 			</div>
-		</div>
-		<div class="d-inline-flex mb-4 ms-4">
+			<div class="ms-4"></div>
 			<button type="submit" class="btn btn-secondary">Изменить роль</button>
 		</div>
 	</form>
-	<div class="mt-5">
-		<a href="/course/members/?courseId=@Model.Course.Id">Все участники</a>
-	</div>
+	<div class="mt-5"></div>
+	<a href="/course/members/?courseId=@Model.Course.Id">Все участники</a>
 }

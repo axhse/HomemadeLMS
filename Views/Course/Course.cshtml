@@ -8,44 +8,35 @@
 }
 
 <div class="col-12 col-md-10 col-lg-8 col-xl-6">
-	<div>
-		<h6>@course.Title</h6>
-	</div>
+	<h6>@course.Title</h6>
 	@if (DataUtils.IsValuable(course.Description))
 	{
-		<div class="mt-4">
+		<div class="mt-4"></div>
+		<div class="d-inline-flex" align="left">
 			<pre class="pre-vertical">@course.Description</pre>
 		</div>
 	}
 	@if (DataUtils.IsValuable(course.SmartLmsUrl))
 	{
-		<div class="mt-4">
-			<a href="@course.SmartLmsUrl">Cсылка на курс в SmartLMS</a>
-		</div>
+		<div class="mt-4"></div>
+		<a href="@course.SmartLmsUrl">Cсылка на курс в SmartLMS</a>
 	}
 	@if (DataUtils.IsValuable(course.PldUrl))
 	{
-		<div class="mt-@(DataUtils.IsValuable(course.SmartLmsUrl) ? 2 : 4)">
-			<a href="@course.PldUrl">Cсылка на ПУД</a>
-		</div>
+		var marginSize = (DataUtils.IsValuable(course.SmartLmsUrl) ? 2 : 4);
+
+		<div class="mt-@marginSize"></div>
+		<a href="@course.PldUrl">Cсылка на ПУД</a>
 	}
-	<div class="d-inline-flex mt-4">
-		<div>
-			<a href="/course/tasks?courseId=@course.Id">Задания</a>
-		</div>
-		<div class="ms-5">
-			<a href="/course/announcements?courseId=@course.Id">Объявления</a>
-		</div>
-		<div class="ms-5">
-			<a href="/course/members?courseId=@course.Id">Участники</a>
-		</div>
-	</div>
+	<div class="mt-5"></div>
+	<a href="/course/tasks?courseId=@course.Id">Задания</a>
+	<a class="ms-5" href="/course/announcements?courseId=@course.Id">Объявления</a>
+	<a class="ms-5" href="/course/members?courseId=@course.Id">Участники</a>
 	@if (course.CanBeEditedBy(Model.Account))
 	{
+		<div class="mt-5"></div>
 		<form method="POST">
-			<div class="mt-5">
-				<button type="submit" class="btn btn-secondary">Редактировать</button>
-			</div>
+			<button type="submit" class="btn btn-secondary">Редактировать</button>
 		</form>
 	}
 </div>

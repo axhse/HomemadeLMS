@@ -8,7 +8,6 @@
 }
 
 <p>Тест Белбина используется для определения командных ролей</p>
-
 @if (Model is not null)
 {
 	var allNamedScore = new []
@@ -23,17 +22,19 @@
 		new {Score = Model.MonitorEvaluatorScore, Name = "Аналитик-стратег"},
 	}.ToList();
 	allNamedScore.Sort((first, second) => -first.Score.CompareTo(second.Score));
-	<div class="mt-5 fw-bold">
-		<p class="mb-4">Текущий результат</p>
+
+	<div class="mt-5"></div>
+	<div class="fw-bold">
+		<label>Текущий результат</label>
+		<div class="mt-4"></div>
 		@foreach (var namedScore in allNamedScore)
 		{
-			<p class="my-1">@($"{namedScore.Name} — {namedScore.Score}")</p>
+			<div class="mt-1"></div>
+			<label>@($"{namedScore.Name} — {namedScore.Score}")</label>
 		}
 	</div>
 }
-
+<div class="mt-5"></div>
 <form method="POST">
-	<div class="mt-5">
-		<button type="submit" class="btn btn-secondary">@buttonText</button>
-	</div>
+	<button type="submit" class="btn btn-secondary">@buttonText</button>
 </form>
