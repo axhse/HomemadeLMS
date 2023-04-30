@@ -48,15 +48,6 @@ namespace HomemadeLMS.Controllers
             return View("RoleTestStatus", testResults.FirstOrDefault());
         }
 
-        [HttpPost]
-        [RequireHttps]
-        [Route(ExtensionRootPath + "/roletest" + "/status")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult RoleTestStatus_Post()
-        {
-            return RedirectPermanent(ExtensionRootPath + "/roletest");
-        }
-
         [HttpGet]
         [RequireHttps]
         [Route(ExtensionRootPath + "/roletest")]

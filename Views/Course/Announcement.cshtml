@@ -16,14 +16,12 @@
 	}
 	@if (Model.CourseMember.CanEditHomeworks)
 	{
+		var editionUrl = $"/course/announcement/edit?id={Model.Object.Id}";
+
 		<div class="mt-5"></div>
 		<form method="POST">
-			<button type="submit" class="btn btn-secondary" name="actionCode" value="edit">
-				Редактировать
-			</button>
-			<button type="submit" class="btn btn-danger" name="actionCode" value="delete">
-				Удалить
-			</button>
+			<a class="btn btn-secondary" href=@editionUrl>Редактировать</a>
+			<button type="submit" class="btn btn-danger">Удалить</button>
 		</form>
 	}
 	<div class="mt-5"></div>

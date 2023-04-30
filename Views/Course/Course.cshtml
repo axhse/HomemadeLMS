@@ -35,8 +35,6 @@
 	@if (course.CanBeEditedBy(Model.Account))
 	{
 		<div class="mt-5"></div>
-		<form method="POST">
-			<button type="submit" class="btn btn-secondary">Редактировать</button>
-		</form>
+		<a class="btn btn-secondary" href="/course/edit?id=@Model.Object.Id">Редактировать</a>
 	}
 </div>

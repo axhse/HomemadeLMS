@@ -37,11 +37,13 @@
     --footer-link-visited-color: rgb(000, 000, 000);
 }
 
+* {
+    word-wrap: anywhere;
+}
 
 body {
     color: var(--body-text-color);
     background-color: var(--body-background-color);
-    word-wrap: anywhere;
 }
 
 
@@ -59,7 +61,8 @@ a:visited {
     color: var(--link-visited-color);
 }
 
-.footer {
+
+footer {
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -67,6 +70,32 @@ a:visited {
     line-height: 60px;
     color: var(--footer-text-color);
     background-color: var(--footer-background-color);
+}
+
+footer a {
+    color: var(--body-text-secondary-color);
+    font-weight: normal;
+    text-decoration: underline;
+}
+footer a:hover {
+    color: var(--body-text-secondary-color);
+}
+footer a:visited {
+    color: var(--body-text-secondary-color);
+}
+
+
+a.btn {
+    color: white;
+}
+a.btn-info {
+    color: black;
+}
+a.btn-light {
+    color: red;
+}
+a.btn-warning {
+    color: red;
 }
 
 
@@ -77,19 +106,6 @@ a:visited {
     color: var(--body-text-color);
 }
 .link-custom-secondary:visited {
-    color: var(--body-text-secondary-color);
-}
-
-
-.footer-link {
-    color: var(--body-text-secondary-color);
-    font-weight: normal;
-    text-decoration: underline;
-}
-.footer-link:hover {
-    color: var(--body-text-secondary-color);
-}
-.footer-link:visited {
     color: var(--body-text-secondary-color);
 }
 

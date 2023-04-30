@@ -124,19 +124,6 @@ namespace HomemadeLMS.Controllers
             return View("Course", new AccountAndObject<Course>(account, course));
         }
 
-        [HttpPost]
-        [RequireHttps]
-        [Route(CourseRootPath)]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Course_Post(int id)
-        {
-            if (id <= 0)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            return RedirectPermanent($"{CourseRootPath}/edit?id={id}");
-        }
-
         [HttpGet]
         [RequireHttps]
         [Route(CourseRootPath + "/edit")]
@@ -245,25 +232,6 @@ namespace HomemadeLMS.Controllers
             var members = await courseMemberStorage.Select(member => member.CourseId == courseId);
             var model = new CourseAndObject<List<CourseMember>>(account, course, members);
             return View("CourseMembers", model);
-        }
-
-        [HttpPost]
-        [RequireHttps]
-        [Route(CourseRootPath + "/members")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult CourseMemebrs_Post(int courseId)
-        {
-            if (courseId <= 0 || !Request.HasFormContentType)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            var parser = new FormParser(Request.Form);
-            var actionCode = parser.GetString("actionCode");
-            if (actionCode != "add" && actionCode != "remove")
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            return RedirectPermanent($"{CourseRootPath}/members/{actionCode}?courseId={courseId}");
         }
 
         [HttpGet]
@@ -601,42 +569,32 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Announcement_Post(int id)
         {
-            if (id <= 0 || !Request.HasFormContentType)
+            if (id <= 0)
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            var parser = new FormParser(Request.Form);
-            var actionCode = parser.GetString("actionCode");
-            if (actionCode == "edit")
+            var account = await GetAccount();
+            if (account is null)
             {
-                return RedirectPermanent($"{CourseRootPath}/announcement/edit?id={id}");
+                return RedirectPermanent(SignInPath);
             }
-            if (actionCode == "delete")
+            var announcement = await announcementStorage.Find(id);
+            if (announcement is null)
             {
-                var account = await GetAccount();
-                if (account is null)
-                {
-                    return RedirectPermanent(SignInPath);
-                }
-                var announcement = await announcementStorage.Find(id);
-                if (announcement is null)
-                {
-                    return View("Status", ActionStatus.NotSupported);
-                }
-                var course = await courseStorage.Find(announcement.CourseId);
-                if (course is null)
-                {
-                    return View("Status", ActionStatus.NotSupported);
-                }
-                var courseMember = await GetCourseMember(course.Id, account.Username);
-                if (courseMember is null || !courseMember.CanEditHomeworks)
-                {
-                    return View("Status", ActionStatus.NoPermission);
-                }
-                await announcementStorage.TryDeleteValue(announcement);
-                return RedirectPermanent($"{CourseRootPath}/announcements?courseId={course.Id}");
+                return View("Status", ActionStatus.NotSupported);
             }
-            return View("Status", ActionStatus.NotSupported);
+            var course = await courseStorage.Find(announcement.CourseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var courseMember = await GetCourseMember(course.Id, account.Username);
+            if (courseMember is null || !courseMember.CanEditHomeworks)
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+            await announcementStorage.TryDeleteValue(announcement);
+            return RedirectPermanent($"{CourseRootPath}/announcements?courseId={course.Id}");
         }
 
         [HttpGet]
@@ -864,10 +822,6 @@ namespace HomemadeLMS.Controllers
             }
             var parser = new FormParser(Request.Form);
             var actionCode = parser.GetString("actionCode");
-            if (actionCode == "edit")
-            {
-                return RedirectPermanent($"{CourseRootPath}/task/edit?id={id}");
-            }
             var account = await GetAccount();
             if (account is null)
             {
