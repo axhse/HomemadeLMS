@@ -1,0 +1,82 @@
+﻿@using HomemadeLMS.Models.Domain
+@model TeamEditionVM
+@{
+	ViewData["Title"] = "Редактирование команды";
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+
+	var team = Model.Team;
+	var leaderUsername = team.LeaderUsername;
+	var members = Model.Members;
+	members.Sort((first, second) => first.Username.CompareTo(second.Username));
+	members = members.Where(member => member.Username == leaderUsername)
+					 .Concat(members.Where(member => member.Username != leaderUsername))
+					 .ToList();
+}
+
+<div class="col-12 col-lg-8">
+	@foreach (var member in members)
+	{
+		var url = $"/course/member?courseId={team.CourseId}&username={member.Username}";
+
+		<div class="mt-1"></div>
+		<a href=@url>@member.Username</a>
+		@if (member.Username == leaderUsername)
+		{
+			<label class="ms-3">(лидер)</label>
+		}
+	}
+	<div class="mt-5"></div>
+
+	<form method="POST">
+		@if (Model.Members.Any())
+		{
+			<div class="mt-5"></div>
+			<div class="d-inline-flex">
+				<label class="align-self-center">Удалить участника</label>
+				<div class="ms-3"></div>
+				<div class="align-self-center">
+					<select id="removedUsernameInput" class="form-control text-center"
+							name="removedUsername" oninput="showRemovingBlock()">
+						<option value="" selected>Выбрать</option>
+						@foreach (var member in members)
+						{
+							<option value="@member.Username">@member.Username</option>
+						}
+					</select>
+				</div>
+				<div id="removingBlock" class="ms-5" hidden>
+					<button type="submit" class="btn btn-secondary" name="actionCode" value="remove">
+						Удалить
+					</button>
+				</div>
+			</div>
+		}
+
+		<div class="mt-5"></div>
+		<div class="d-inline-flex">
+			<label class="align-self-center">Добавить участника</label>
+			<div class="ms-3"></div>
+			<div>
+				<input class="form-control" name="addedUsername" placeholder="username"
+					   maxlength="@Account.MaxUsernameSize" oninput="showAddingBlock()">
+			</div>
+			<div id="addingBlock" class="ms-5" hidden>
+				<button type="submit" class="btn btn-secondary" name="actionCode" value="add">
+					Добавить
+				</button>
+			</div>
+		</div>
+	</form>
+	<div class="mt-5"></div>
+	<a class="link-custom-secondary" href="/course/team?id=@team.Id">Вернуться</a>
+</div>
+
+<script type="text/javascript">
+	function showAddingBlock() {
+		document.getElementById("addingBlock").hidden = false;
+	}
+
+	function showRemovingBlock() {
+		document.getElementById("removingBlock").hidden = false;
+	}
+</script>

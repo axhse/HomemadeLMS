@@ -30,8 +30,12 @@
 	}
 	<div class="mt-5"></div>
 	<a href="/course/tasks?courseId=@course.Id">Задания</a>
-	<a class="ms-5" href="/course/announcements?courseId=@course.Id">Объявления</a>
-	<a class="ms-5" href="/course/members?courseId=@course.Id">Участники</a>
+	<a class="ms-4" href="/course/announcements?courseId=@course.Id">Объявления</a>
+	<a class="ms-4" href="/course/members?courseId=@course.Id">Участники</a>
+	@if (course.HasTeams)
+	{
+		<a class="ms-4" href="/course/teams?courseId=@course.Id">Команды</a>
+	}
 	@if (course.CanBeEditedBy(Model.Account))
 	{
 		<div class="mt-5"></div>

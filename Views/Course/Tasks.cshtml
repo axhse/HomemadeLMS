@@ -10,7 +10,7 @@
 }
 
 <div class="col-12 col-md-10 col-lg-8 col-xl-6">
-	@if (Model.CourseMember.CanEditHomeworks)
+	@if (Model.CourseMember.IsTeacher)
 	{
 		<form method="POST">
 			<button type="submit" class="btn btn-secondary mt-1" name="actionCode" value="add-individual">

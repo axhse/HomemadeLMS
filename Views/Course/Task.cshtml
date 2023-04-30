@@ -61,7 +61,7 @@
 	}
 	<div class="mt-4"></div>
 	<label>@(homework.IsTeamwork ? "Командное задание" : "Индивидуальное задание")</label>
-	@if (Model.CourseMember.CanSubmitHomeworks)
+	@if (Model.CourseMember.IsStudent)
 	{
 		<div class="mt-5"></div>
 		@if (homeworkStatus.IsSubmitted && homeworkStatus.SubmitTime is not null)
@@ -90,7 +90,7 @@
 			}
 		</form>
 	}
-	@if (Model.CourseMember.CanEditHomeworks)
+	@if (Model.CourseMember.IsTeacher)
 	{
 		<div class="mt-5"></div>
 		<form method="POST">
@@ -100,7 +100,7 @@
 			</button>
 		</form>
 	}
-	@if (Model.CourseMember.CanEvaluateHomeworks)
+	@if (!Model.CourseMember.IsStudent)
 	{
 		<div class="mt-4"></div>
 		<a href="/course/marks?taskId=@homework.Id">Оценки</a>

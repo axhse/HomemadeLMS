@@ -1,5 +1,17 @@
 ﻿namespace HomemadeLMS.Models.Domain
 {
+    public class CourseMemberAndAccount
+    {
+        public CourseMemberAndAccount(CourseMember courseMember, Account? account = null)
+        {
+            CourseMember = courseMember;
+            Account = account;
+        }
+
+        public Account? Account { get; private set; }
+        public CourseMember CourseMember { get; private set; }
+    }
+
     public class PersonalHomework
     {
         public PersonalHomework(Homework homework, HomeworkStatus homeworkStatus)

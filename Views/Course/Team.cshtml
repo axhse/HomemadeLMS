@@ -1,0 +1,66 @@
+﻿@using HomemadeLMS.Models.Domain
+@model TeamVM
+@{
+	ViewData["Title"] = "Команда";
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+
+	var team = Model.Team;
+	var leaderUsername = team.LeaderUsername;
+	var members = Model.Members;
+	members.Sort((first, second) => first.CourseMember.Username.CompareTo(second.CourseMember.Username));
+	members = members.Where(member => member.CourseMember.Username == leaderUsername)
+					 .Concat(members.Where(member => member.CourseMember.Username != leaderUsername))
+					 .ToList();
+	var canChangeTeam =  Model.CourseMember.CanChangeTeam(Model.Course);
+	var canEditTeam =  Model.CourseMember.CanEditTeam(Model.Course, Model.Team);
+}
+
+<div class="col-12 col-lg-8">
+	<h6 class="fw-bold">@team.Name</h6>
+	<div class="mt-3"></div>
+	<label class="text-success fw-bold">@team.Tag</label>
+	<div class="mt-5"></div>
+	@foreach (var member in members)
+	{
+		var url = $"/course/member?courseId={team.CourseId}&username={member.CourseMember.Username}";
+
+		<div class="mt-1"></div>
+		<a href=@url>@member.CourseMember.Username</a>
+		@if (member.CourseMember.Username == leaderUsername)
+		{
+			<label class="ms-3">(лидер)</label>
+			<div class="mt-4"></div>
+		}
+	}
+	<div class="mt-5"></div>
+	@if (canChangeTeam || canEditTeam)
+	{
+		<div class="mt-5"></div>
+		<form method="POST">
+			@if (canChangeTeam)
+			{
+				@if (Model.CourseMember.TeamId == team.Id)
+				{
+					<button type="submit" class="btn btn-secondary" name="actionCode" value="leave">
+						Уйти из команды
+					</button>
+				}
+				else
+				{
+					<button type="submit" class="btn btn-secondary" name="actionCode" value="join">
+						Присоединиться
+					</button>
+				}
+			}
+			@if (canEditTeam)
+			{
+				<a class="btn btn-secondary" href="/course/team/edit?id=@team.Id">Редактировать</a>
+				<button type="submit" class="btn btn-danger" name="actionCode" value="delete">
+					Удалить
+				</button>
+			}
+		</form>
+	}
+	<div class="mt-5"></div>
+	<a href="/course/teams?courseId=@Model.Course.Id">Все команды</a>
+</div>

@@ -8,7 +8,7 @@
 }
 
 <div class="col-12 col-lg-8">
-	@if (Model.CourseMember.CanEditHomeworks)
+	@if (Model.CourseMember.IsTeacher)
 	{
 		<form method="POST">
 			<button type="submit" class="btn btn-secondary">+ Добавить объявление</button>

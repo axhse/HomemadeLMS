@@ -53,9 +53,15 @@
             set { }
         }
 
-        public bool CanEditHomeworks => Role == CourseRole.Teacher;
-        public bool CanSubmitHomeworks => Role == CourseRole.Student;
-        public bool CanEvaluateHomeworks
-            => Role == CourseRole.Assistant || Role == CourseRole.Teacher;
+        public bool IsTeacher => Role == CourseRole.Teacher;
+        public bool IsStudent => Role == CourseRole.Student;
+
+        public bool CanCreateTeam(Course course) => !IsStudent || !course.IsTeamStateLocked;
+
+        public bool CanEditTeam(Course course, Team team) => !IsStudent
+            || (team.LeaderUsername == Username && !course.IsTeamStateLocked);
+
+        public bool CanChangeTeam(Course course) => IsStudent
+            && course.HasTeams && !course.IsTeamStateLocked;
     }
 }

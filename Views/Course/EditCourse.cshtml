@@ -30,6 +30,30 @@
 		<input class="form-control" name="ownerUsername"
 			   value="@Model.OwnerUsername" maxlength="@Account.MaxUsernameSize">
 
+		<div class="mt-4"></div>
+		<div class="d-inline-flex">
+			<div class="ms-3"></div>
+			<div>
+				<input id="hasTeamsInput" type="checkbox" class="form-check-input"
+					   name="hasTeams" @(Model.HasTeams ? "checked" : "")>
+			</div>
+			<div class="ms-2"></div>
+			<label for="hasTeamsInput">Командный курс</label>
+		</div>
+
+		<div class="mt-1"></div>
+		<div class="d-inline-flex">
+			<div class="ms-3"></div>
+			<div>
+				<input id="isTeamStateLockedInput" type="checkbox" class="form-check-input"
+					   name="isTeamStateLocked" @(Model.IsTeamStateLocked ? "checked" : "")>
+			</div>
+			<div class="ms-2"></div>
+			<label for="isTeamStateLockedInput">
+				Зафиксировать существующие команды (не смогут быть изменены студентами)
+			</label>
+		</div>
+
 		<div class="mt-5" align="center">
 			<button type="submit" class="btn btn-secondary">Сохранить</button>
 		</div>

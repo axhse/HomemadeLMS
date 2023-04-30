@@ -43,4 +43,10 @@ namespace HomemadeLMS.Services.Data
         public HomeworkStatusContext() : base(new HomeworkStatusConfiguration())
         { }
     }
+
+    public class TeamContext : GenericContext<Team>
+    {
+        public TeamContext() : base(new TeamConfiguration())
+        { }
+    }
 }

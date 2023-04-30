@@ -20,6 +20,8 @@ namespace HomemadeLMS.Services.Data
             builder.Property(course => course.SmartLmsUrl).HasConversion<StringHexConverter>();
             builder.Property(course => course.PldUrl).HasMaxLength(2 * Course.MaxUrlSize);
             builder.Property(course => course.PldUrl).HasConversion<StringHexConverter>();
+            builder.Property(course => course.HasTeams).IsRequired();
+            builder.Property(course => course.IsTeamStateLocked).IsRequired();
             builder.ToTable(nameof(Course));
         }
     }

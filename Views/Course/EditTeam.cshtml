@@ -1,0 +1,47 @@
+﻿@using HomemadeLMS.Models.Domain
+@model TeamEditionVM
+@{
+	ViewData["Title"] = "Редактирование команды";
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+
+	var team = Model.Team;
+	Model.Members.Sort((first, second) => first.Username.CompareTo(second.Username));
+}
+
+<div class="col-12 col-md-10 col-lg-8 col-xl-6">
+	<form method="POST">
+		<label class="form-label">Название (обязательное поле)</label>
+		<input class="form-control" name="name" value="@team.Name" maxlength="@Team.MaxNameSize">
+
+		@if (Model.Members.Any())
+		{
+			<div class="mt-4"></div>
+			<div class="d-inline-flex">
+				<label class="align-self-center">Лидер</label>
+				<div class="ms-3"></div>
+				<div class="align-self-center">
+					<select class="form-control text-center" name="leaderUsername">
+						@foreach (var member in Model.Members)
+						{
+							@if (member.Username == team.LeaderUsername)
+							{
+								<option value="@member.Username" selected>@member.Username</option>
+							}
+							else
+							{
+								<option value="@member.Username">@member.Username</option>
+							}
+						}
+					</select>
+				</div>
+			</div>
+		}
+
+		<div class="mt-5"></div>
+		<button type="submit" class="btn btn-secondary">Сохранить</button>
+	</form>
+	<div class="mt-5"></div>
+	<a href="/course/team/members?teamId=@team.Id">Добавить/удалить участников</a>
+	<div class="mt-5"></div>
+	<a class="link-custom-secondary" href="/course/team?id=@team.Id">Вернуться</a>
+</div>

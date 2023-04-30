@@ -14,7 +14,7 @@
 			<pre class="pre-vertical">@Model.Object.Content</pre>
 		</div>
 	}
-	@if (Model.CourseMember.CanEditHomeworks)
+	@if (Model.CourseMember.IsTeacher)
 	{
 		var editionUrl = $"/course/announcement/edit?id={Model.Object.Id}";
 

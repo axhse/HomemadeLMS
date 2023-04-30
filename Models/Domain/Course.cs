@@ -36,6 +36,8 @@
             => description is null || description.Length <= MaxDescriptionSize;
 
         public int Id { get; set; }
+        public bool HasTeams { get; set; } = false;
+        public bool IsTeamStateLocked { get; set; } = false;
 
         public string OwnerUsername
         {

@@ -1,0 +1,47 @@
+﻿@using HomemadeLMS.Models.Domain
+@model TeamsVM
+@{
+	ViewData["Title"] = "Команды";
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+
+	var username = Model.CourseMember.Username;
+	var teams = Model.Teams;
+	var members = Model.MembersWithoutTeam;
+	teams.Sort((first, second) => first.Id.CompareTo(second.Id));
+	members.Sort((first, second) => first.Username.CompareTo(second.Username));
+}
+
+<div class="col-12 col-md-10 col-lg-8 col-xl-6">
+	@if (Model.CourseMember.CanCreateTeam(Model.Course))
+	{
+		<form method="POST">
+			<button type="submit" class="btn btn-secondary">+ Создать команду</button>
+		</form>
+		<div class="mt-5"></div>
+	}
+	@if (teams.Any())
+	{
+		<h6>Команды</h6>
+		<div class="mt-4"></div>
+		@foreach (var team in teams)
+		{
+			<div class="mt-1"></div>
+			<a href="/course/team?id=@team.Id">@team.Name</a>
+		}
+		<div class="mt-5"></div>
+	}
+	@if (members.Any())
+	{
+		<h6>Участники без команды</h6>
+		<div class="mt-4"></div>
+		@foreach (var member in members)
+		{
+			var url = $"/course/member?courseId={member.CourseId}&username={member.Username}";
+
+			<div class="mt-1"></div>
+			<a href=@url>@member.Username</a>
+		}
+		<div class="mt-5"></div>
+	}
+	<a class="link-custom-secondary" href="/course?id=@Model.Course.Id">Вернуться</a>
+</div>
