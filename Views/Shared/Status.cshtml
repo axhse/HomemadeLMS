@@ -8,6 +8,8 @@
 		ActionStatus.NotFound => "Not Found",
 		_ => "Error",
 	};
+	var passwordFormatDesc = $"Ошибка — пароль должен быть от {Account.MinPasswordSize}"
+						     + $" до {Account.MaxPasswordSize} символов";
 	var statusDescription = Model switch
 	{
 		ActionStatus.InternalError => "Ошибка сервера",
@@ -17,6 +19,10 @@
 		ActionStatus.NotFound => "Ресурс не существует",
 		ActionStatus.NotSupported => "Действие не может быть выполнено",
 		ActionStatus.UnknownError => "Неизвестная ошибка",
+
+		ActionStatus.PasswordConfirmationError => "Ошибка — введенные пароли не совпадают",
+		ActionStatus.PasswordInvalidFormat => passwordFormatDesc,
+
 		_ => "",
 	};
 

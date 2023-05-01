@@ -14,9 +14,12 @@ namespace HomemadeLMS.Models.Domain
 
     public class Account
     {
+        public const int MaxNameSize = 200;
         public const int MaxPasswordSize = 50;
+        public const int MaxTelegramUsernameSize = 32;
         public const int MaxUsernameSize = 100;
         public const int MinPasswordSize = 8;
+        public const int MinTelegramUsernameSize = 5;
         public const int MinUsernameSize = 1;
         public const int PasswordHashSize = 64;
 
@@ -24,6 +27,8 @@ namespace HomemadeLMS.Models.Domain
         private string passwordHash;
         private string username;
         private string? headUsername;
+        private string? name;
+        private string? telegramUsername;
 
         public Account(string username, string passwordHash, UserRole role, string? headUsername)
         {
@@ -80,8 +85,17 @@ namespace HomemadeLMS.Models.Domain
         public static bool HasPasswordValidFormat(string? password)
             => password is not null && MinPasswordSize <= password.Length && password.Length <= MaxPasswordSize;
 
+        public static bool HasTelegramUsernameValidFormat(string? username)
+            => username is not null && Regex.IsMatch(username, $"^[A-Za-z0-9_]{{{MinTelegramUsernameSize},{MaxTelegramUsernameSize}}}$");
+
         public static bool HasUsernameValidFormat(string? username)
             => username is not null && Regex.IsMatch(username, $"^[a-z0-9_.]{{{MinUsernameSize},{MaxUsernameSize}}}$");
+
+        public static bool HasNameValidFormat(string? name)
+        {
+            name = DataUtils.CleanSpaces(name);
+            return name is null || name.Length <= MaxNameSize;
+        }
 
         public UserRole Role { get; set; } = UserRole.None;
 
@@ -121,6 +135,33 @@ namespace HomemadeLMS.Models.Domain
                     throw new ArgumentException("Invalid username format.");
                 }
                 headUsername = value;
+            }
+        }
+
+        public string? Name
+        {
+            get => name;
+            set
+            {
+                var newName = DataUtils.CleanSpaces(value);
+                if (!HasNameValidFormat(newName))
+                {
+                    throw new ArgumentException("Invalid name format.");
+                }
+                name = newName;
+            }
+        }
+
+        public string? TelegramUsername
+        {
+            get => telegramUsername;
+            set
+            {
+                if (value is not null && !HasTelegramUsernameValidFormat(value))
+                {
+                    throw new ArgumentException("Invalid telegram username format.");
+                }
+                telegramUsername = value;
             }
         }
 

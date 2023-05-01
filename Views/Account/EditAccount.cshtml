@@ -1,0 +1,74 @@
+﻿@using HomemadeLMS.Models.Domain
+@model AccountAndObject<Account>
+@{
+	ViewData["Title"] = "Редактирование аккаунта";
+	var navbarMenu = MenuBuilder.DefaultNavbarMenu;
+
+	var currentRole = Model.Object.Role;
+}
+
+<div class="col-12 col-md-10 col-lg-8 col-xl-6">
+	<form method="POST">
+		@if (Model.Account.Username == Model.Object.Username)
+		{
+			<div align="left">
+				<label class="form-label">Имя</label>
+				<input class="form-control" maxlength="@Account.MaxNameSize"
+					   name="name" value="@Model.Object.Name">
+
+				<div class="mt-5"></div>
+				<label class="form-label">Telegram</label>
+				<input class="form-control" maxlength="@Account.MaxTelegramUsernameSize"
+					   name="telegramUsername" value="@Model.Object.TelegramUsername">
+			</div>
+		}
+		else
+		{
+			<div class="d-inline-flex">
+				<label class="align-self-center">Роль</label>
+				<div class="ms-3"></div>
+				<div class="align-self-center">
+					<select class="form-control text-center" name="roleCode">
+						@if (currentRole == UserRole.Student)
+						{
+							<option value="@UserRole.Student.ToString()" selected>
+								Студент
+							</option>
+						}
+						else
+						{
+							<option value="@UserRole.Student.ToString()">Студент</option>
+						}
+						@if (currentRole == UserRole.Teacher)
+						{
+							<option value="@UserRole.Teacher.ToString()" selected>
+								Преподаватель
+							</option>
+						}
+						else
+						{
+							<option value="@UserRole.Teacher.ToString()">
+								Преподаватель
+							</option>
+						}
+						@if (currentRole == UserRole.Manager)
+						{
+							<option value="@UserRole.Manager.ToString()" selected>
+								Менеджер
+							</option>
+						}
+						else
+						{
+							<option value="@UserRole.Manager.ToString()">Менеджер</option>
+						}
+					</select>
+				</div>
+			</div>
+		}
+		
+		<div class="mt-5"></div>
+		<button type="submit" class="btn btn-secondary">Сохранить</button>
+	</form>
+	<div class="mt-5"></div>
+	<a class="link-custom-secondary" href="/account?username=@Model.Object.Username">Вернуться</a>
+</div>

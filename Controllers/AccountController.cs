@@ -1,4 +1,5 @@
-﻿using HomemadeLMS.Models.Domain;
+﻿using HomemadeLMS.Models;
+using HomemadeLMS.Models.Domain;
 using HomemadeLMS.Services.Data;
 using HomemadeLMS.ViewModels;
 using Microsoft.AspNetCore.Authentication;
@@ -50,14 +51,100 @@ namespace HomemadeLMS.Controllers
             return View("Account", new AccountAndObject<Account>(requestMaker, targetAccount));
         }
 
+        [HttpGet]
+        [RequireHttps]
+        [Route(AccountRootPath + "/changepassword")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Account_ChangePassword_Get()
+        {
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            return View("ChangePassword");
+        }
+
         [HttpPost]
         [RequireHttps]
-        [Route(AccountRootPath)]
+        [Route(AccountRootPath + "/changepassword")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> Account_Post(string? username)
+        public async Task<IActionResult> Account_ChangePassword_Post()
         {
-            if (username is null || !Account.HasUsernameValidFormat(username)
-                || !Request.HasFormContentType)
+            if (!Request.HasFormContentType)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var parser = new FormParser(Request.Form);
+            var newPassword = parser.GetString("password");
+            var passwordConfirmation = parser.GetString("confirmation");
+            if (!Account.HasPasswordValidFormat(newPassword))
+            {
+                return View("Status", ActionStatus.PasswordInvalidFormat);
+            }
+            if (newPassword != passwordConfirmation)
+            {
+                return View("Status", ActionStatus.PasswordConfirmationError);
+            }
+            return RedirectPermanent(AccountRootPath);
+        }
+
+        [HttpGet]
+        [RequireHttps]
+        [Route(AccountRootPath + "/edit")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Account_Edit_Get(string? username)
+        {
+            username = Account.GetUsername(username);
+            username ??= string.Empty;
+            if (username != string.Empty && !Account.HasUsernameValidFormat(username))
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var requestMaker = await GetAccount();
+            if (requestMaker is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            Account? targetAccount;
+            if (username == string.Empty || username == requestMaker.Username)
+            {
+                targetAccount = requestMaker;
+            }
+            else
+            {
+                targetAccount = await accountStorage.Find(username);
+                if (targetAccount is null)
+                {
+                    return View("Status", ActionStatus.NotFound);
+                }
+            }
+            if (requestMaker.Username != targetAccount.Username
+                && !requestMaker.CanChangeRoleOf(targetAccount))
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+            return View("EditAccount", new AccountAndObject<Account>(requestMaker, targetAccount));
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(AccountRootPath + "/edit")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Account_Edit_Post(string? username)
+        {
+            if (!Request.HasFormContentType)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            username = Account.GetUsername(username);
+            username ??= string.Empty;
+            if (username != string.Empty && !Account.HasUsernameValidFormat(username))
             {
                 return View("Status", ActionStatus.NotSupported);
             }
@@ -66,18 +153,50 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            var targetAccount = await accountStorage.Find(username);
-            if (targetAccount is null || !requestMaker.CanChangeRoleOf(targetAccount))
+            Account? targetAccount;
+            if (username == string.Empty || username == requestMaker.Username)
             {
-                return View("Status", ActionStatus.NotSupported);
+                targetAccount = requestMaker;
             }
-            if (new FormParser(Request.Form).TryGetUserRole("roleCode", out UserRole role))
+            else
             {
-                targetAccount.Role = role;
-                targetAccount.HeadUsername = role == UserRole.Manager ? requestMaker.Username : null;
-                await accountStorage.Update(targetAccount);
+                targetAccount = await accountStorage.Find(username);
+                if (targetAccount is null)
+                {
+                    return View("Status", ActionStatus.NotSupported);
+                }
             }
-            return View("Account", new AccountAndObject<Account>(requestMaker, targetAccount));
+            if (requestMaker.Username != targetAccount.Username
+                && !requestMaker.CanChangeRoleOf(targetAccount))
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+
+            var parser = new FormParser(Request.Form);
+            if (requestMaker == targetAccount)
+            {
+                var name = DataUtils.CleanSpaces(parser.GetString("name"));
+                var telegramUsername = DataUtils.GetTrimmed(parser.GetString("telegramUsername"));
+                if (Account.HasNameValidFormat(name))
+                {
+                    targetAccount.Name = name;
+                }
+                if (Account.HasTelegramUsernameValidFormat(telegramUsername))
+                {
+                    targetAccount.TelegramUsername = telegramUsername;
+                }
+            }
+            else if (requestMaker.CanChangeRoleOf(targetAccount))
+            {
+                if (parser.TryGetUserRole("roleCode", out UserRole role))
+                {
+                    targetAccount.Role = role;
+                    targetAccount.HeadUsername = role == UserRole.Manager
+                                                 ? requestMaker.Username : null;
+                }
+            }
+            await accountStorage.Update(targetAccount);
+            return RedirectPermanent($"{AccountRootPath}?username={targetAccount.Username}");
         }
 
         [HttpGet]

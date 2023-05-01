@@ -9,5 +9,8 @@ namespace HomemadeLMS.ViewModels
         NotFound,
         NotSupported,
         UnknownError,
+
+        PasswordConfirmationError,
+        PasswordInvalidFormat,
     }
 }
