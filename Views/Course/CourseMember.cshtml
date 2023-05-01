@@ -1,10 +1,12 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseAndObject<CourseMember>
+@model CourseAndObject<MemberInfo>
 @{
 	ViewData["Title"] = "Участник";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 
-	var roleName = Model.Object.Role switch
+	var otherAccount = Model.Object.Account;
+	var otherMember = Model.Object.Member;
+	var roleName = otherMember.Role switch
 	{
 		CourseRole.Student => "Студент",
 		CourseRole.Assistant => "Ассистент",
@@ -13,8 +15,18 @@
 	};
 }
 
-<p><a href="/account?username=@Model.Object.Username">@Model.Object.Username</a></p>
-<p class="fw-bold">@roleName</p>
+@if (otherAccount is not null && otherAccount.Name is not null)
+{
+	<h6 class="fw-bold">@otherAccount.Name</h6>
+	<div class="mt-5"></div>
+	<label>Адрес почты: @otherAccount.EmailAddress</label>
+	<div class="mt-3"></div>
+	<label>Телеграм: <label class="text-success fw-bold">@otherAccount.TelegramUsername</label></label>
+	<div class="mt-4"></div>
+}
+<label>Аккаунт: <a href="/account?username=@otherMember.Username">@otherMember.Username</a></label>
+<div class="mt-4"></div>
+<label>@roleName</label>
 @if (Model.IsCourseEditable)
 {
 	<div class="mt-5"></div>

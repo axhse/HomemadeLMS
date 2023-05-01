@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseAndObject<List<CourseMember>>
+@model CourseAndObject<List<MemberInfo>>
 @{
 	ViewData["Title"] = "Участники";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
@@ -19,7 +19,8 @@
 		<div class="mt-5"></div>
 	}
 	@foreach (var role in sortedRoles) {
-		var members = Model.Object.Where(member => member.Role == role);
+		var allCurrentInfo = Model.Object.Where(info => info.Member.Role == role).ToList();
+		allCurrentInfo.Sort(Comparators.ByNameThenByUsername);
 		var roleName = role switch
 		{
 			CourseRole.Teacher => "Преподаватели",
@@ -28,13 +29,20 @@
 			_ => string.Empty,
 		};
 
-		@if (members.Any()) {
-			<label class="fw-bold">@roleName (@members.Count())</label>
+		@if (allCurrentInfo.Any()) {
+			<label class="fw-bold">@roleName (@allCurrentInfo.Count())</label>
 			<div class="mt-3"></div>
-			@foreach (var member in members) {
+			@foreach (var memberInfo in allCurrentInfo)
+			{
+				var member = memberInfo.Member;
+				var name = memberInfo.Account?.Name;
 				var url = $"/course/member?courseId={Model.Course.Id}&username={member.Username}";
 
 				<div></div>
+				@if (name is not null)
+				{
+					<label class="me-4">@name</label>
+				}
 				<a href=@url>@member.Username</a>
 			}
 			<div class="mt-5"></div>

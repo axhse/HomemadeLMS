@@ -6,9 +6,9 @@
 
 	var username = Model.Member.Username;
 	var teams = Model.Teams;
-	var members = Model.SingleStudents;
+	var allMemberInfo = Model.SingleStudents;
 	teams.Sort((first, second) => first.Id.CompareTo(second.Id));
-	members.Sort((first, second) => first.Username.CompareTo(second.Username));
+	allMemberInfo.Sort(Comparators.ByNameThenByUsername);
 }
 
 <div class="col-12 col-md-10 col-lg-8 col-xl-6">
@@ -30,15 +30,21 @@
 		}
 		<div class="mt-5"></div>
 	}
-	@if (members.Any())
+	@if (allMemberInfo.Any())
 	{
-		<h6>Участники без команды</h6>
+		<h6>Без команды</h6>
 		<div class="mt-4"></div>
-		@foreach (var member in members)
+		@foreach (var memberInfo in allMemberInfo)
 		{
+			var member = memberInfo.Member;
+			var name = memberInfo.Account?.Name;
 			var url = $"/course/member?courseId={member.CourseId}&username={member.Username}";
 
 			<div class="mt-1"></div>
+			@if (name is not null)
+			{
+				<label class="me-4">@name</label>
+			}
 			<a href=@url>@member.Username</a>
 		}
 		<div class="mt-5"></div>

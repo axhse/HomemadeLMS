@@ -12,12 +12,10 @@ namespace HomemadeLMS.Controllers
     public class AccountController : ControllerWithAccounts
     {
         public const string AccountRootPath = "/account";
-        private IStorage<string, Account> accountStorage;
 
         public AccountController(IStorage<string, Account> accountStorage) : base(accountStorage)
         {
             SectionRootPath = AccountRootPath;
-            this.accountStorage = accountStorage;
         }
 
         [HttpGet]

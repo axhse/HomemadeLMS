@@ -8,8 +8,9 @@ namespace HomemadeLMS.Services.Data
         public CompositeContext() : base()
         { }
 
+        public DbSet<Account> Accounts { get; set; }
         public DbSet<Course> Courses { get; set; }
-        public DbSet<CourseMember> CourseMembers { get; set; }
+        public DbSet<CourseMember> Members { get; set; }
         public DbSet<Homework> AllHomework { get; set; }
         public DbSet<HomeworkStatus> AllHomeworkStatus { get; set; }
 
@@ -21,6 +22,7 @@ namespace HomemadeLMS.Services.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new AccountConfiguration());
             modelBuilder.ApplyConfiguration(new CourseConfiguration());
             modelBuilder.ApplyConfiguration(new CourseMemberConfiguration());
             modelBuilder.ApplyConfiguration(new HomeworkConfiguration());

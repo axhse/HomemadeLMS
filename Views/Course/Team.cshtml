@@ -7,9 +7,9 @@
 	var team = Model.Team;
 	var leaderUsername = team.LeaderUsername;
 	var members = Model.AllMemberInfo;
-	members.Sort((first, second) => first.CourseMember.Username.CompareTo(second.CourseMember.Username));
-	members = members.Where(member => member.CourseMember.Username == leaderUsername)
-					 .Concat(members.Where(member => member.CourseMember.Username != leaderUsername))
+	members.Sort(Comparators.ByNameThenByUsername);
+	members = members.Where(member => member.Member.Username == leaderUsername)
+					 .Concat(members.Where(member => member.Member.Username != leaderUsername))
 					 .ToList();
 	var canChangeTeam =  Model.Member.CanChangeTeam(Model.Course);
 	var canEditTeam =  Model.Member.CanEditTeam(Model.Course, Model.Team);
@@ -22,13 +22,14 @@
 	<div class="mt-5"></div>
 	@foreach (var member in members)
 	{
-		var url = $"/course/member?courseId={team.CourseId}&username={member.CourseMember.Username}";
+		var name = member.Account?.Name;
+		var url = $"/course/member?courseId={team.CourseId}&username={member.Member.Username}";
 
 		<div class="mt-1"></div>
-		<a href=@url>@member.CourseMember.Username</a>
-		@if (member.CourseMember.Username == leaderUsername)
+		<a href=@url>@(name is null ? member.Member.Username : name)</a>
+		@if (member.Member.Username == leaderUsername)
 		{
-			<label class="ms-3">(лидер)</label>
+			<label class="ms-4 fw-bold">лидер</label>
 			<div class="mt-4"></div>
 		}
 	}

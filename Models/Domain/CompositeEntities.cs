@@ -19,13 +19,13 @@
 
     public class MemberInfo
     {
-        public MemberInfo(CourseMember courseMember, Account? account = null)
+        public MemberInfo(CourseMember member, Account? account = null)
         {
-            CourseMember = courseMember;
+            Member = member;
             Account = account;
         }
 
-        public CourseMember CourseMember { get; private set; }
+        public CourseMember Member { get; private set; }
         public Account? Account { get; private set; }
     }
 

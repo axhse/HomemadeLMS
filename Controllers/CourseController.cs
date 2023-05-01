@@ -448,8 +448,16 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NoAccess);
             }
-            var members = await GetCourseMembers(courseId);
-            var model = new CourseAndObject<List<CourseMember>>(account, course, members);
+            var allMemberInfo = await entityAggregator.GetCourseMemberInfo(courseId);
+            var courseMembers = await GetCourseMembers(courseId);
+            foreach (var courseMember in courseMembers)
+            {
+                if (allMemberInfo.All(info => info.Member.Username != courseMember.Username))
+                {
+                    allMemberInfo.Add(new(courseMember));
+                }
+            }
+            var model = new CourseAndObject<List<MemberInfo>>(account, course, allMemberInfo);
             return View("CourseMembers", model);
         }
 
@@ -644,7 +652,9 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NoAccess);
             }
-            var model = new CourseAndObject<CourseMember>(account, course, otherMember);
+            var otherAccount = await accountStorage.Find(otherMember.Username);
+            var memberInfo = new MemberInfo(otherMember, otherAccount);
+            var model = new CourseAndObject<MemberInfo>(account, course, memberInfo);
             return View("CourseMember", model);
         }
 
@@ -685,7 +695,9 @@ namespace HomemadeLMS.Controllers
                 otherMember.TeamId = null;
                 await memberStorage.Update(otherMember);
             }
-            var model = new CourseAndObject<CourseMember>(account, course, otherMember);
+            var otherAccount = await accountStorage.Find(otherMember.Username);
+            var memberInfo = new MemberInfo(otherMember, otherAccount);
+            var model = new CourseAndObject<MemberInfo>(account, course, memberInfo);
             return View("CourseMember", model);
         }
 
@@ -1130,7 +1142,18 @@ namespace HomemadeLMS.Controllers
             await FixTeamIds(members, teams);
             var singleStudents
                 = members.Where(member => member.TeamId is null && member.IsStudent).ToList();
-            var model = new TeamsVM(course, member, teams, singleStudents);
+            var allCourseInfo = await entityAggregator.GetCourseMemberInfo(courseId);
+            allCourseInfo = allCourseInfo.Where(
+                info => info.Member.TeamId is null && info.Member.IsStudent
+            ).ToList();
+            foreach (var student in singleStudents)
+            {
+                if (allCourseInfo.All(info => info.Member.Username != student.Username))
+                {
+                    allCourseInfo.Add(new(student));
+                }
+            }
+            var model = new TeamsVM(course, member, teams, allCourseInfo);
             return View("Teams", model);
         }
 

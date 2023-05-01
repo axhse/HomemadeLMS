@@ -11,7 +11,7 @@ namespace HomemadeLMS.ViewModels
         }
 
         public TeamsVM(Course course, CourseMember member,
-            List<Team> teams, List<CourseMember> singleStudents) : this(course, member)
+            List<Team> teams, List<MemberInfo> singleStudents) : this(course, member)
         {
             Teams = teams;
             SingleStudents = singleStudents;
@@ -19,7 +19,7 @@ namespace HomemadeLMS.ViewModels
 
         public Course Course { get; private set; }
         public CourseMember Member { get; private set; }
-        public List<CourseMember> SingleStudents { get; set; } = new();
+        public List<MemberInfo> SingleStudents { get; set; } = new();
         public List<Team> Teams { get; set; } = new();
     }
 }

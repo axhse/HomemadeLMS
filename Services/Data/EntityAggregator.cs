@@ -24,12 +24,22 @@ namespace HomemadeLMS.Services.Data
             return await query.ToListAsync();
         }
 
+        public async Task<List<MemberInfo>> GetCourseMemberInfo(int courseId)
+        {
+            var query = from member in context.Members
+                        where member.CourseId == courseId
+                        join account in context.Accounts
+                        on member.Username equals account.Username
+                        select new MemberInfo(member, account);
+            return await query.ToListAsync();
+        }
+
         public async Task<List<Course>> GetUserCourses(string username)
         {
-            var query = from courseMember in context.CourseMembers
-                        where courseMember.Username == username
+            var query = from member in context.Members
+                        where member.Username == username
                         join course in context.Courses
-                        on courseMember.CourseId equals course.Id
+                        on member.CourseId equals course.Id
                         select course;
             return await query.ToListAsync();
         }
