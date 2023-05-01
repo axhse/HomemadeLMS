@@ -2,8 +2,8 @@
 {
 	public class Announcement
     {
-        public const int MaxTitleSize = 500;
         public const int MaxContentSize = 3000;
+        public const int MaxTitleSize = 500;
 
         private const string DefaultTitle = "New Announcement";
         private string title;
@@ -16,17 +16,17 @@
             CreationTime = DateTime.UtcNow;
         }
 
+        public static bool HasContentValidFormat(string? content)
+            => content is null || content.Length <= MaxContentSize;
+
         public static bool HasTitleValidFormat(string? title)
         {
             title = DataUtils.CleanSpaces(title);
             return title is not null && title != string.Empty && title.Length <= MaxTitleSize;
         }
 
-        public static bool HasContentValidFormat(string? content)
-            => content is null || content.Length <= MaxContentSize;
-
-        public int Id { get; set; }
         public int CourseId { get; set; }
+        public int Id { get; set; }
         public DateTime CreationTime { get; set; }
 
         public string Title

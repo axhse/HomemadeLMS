@@ -1,9 +1,9 @@
 ﻿namespace HomemadeLMS.Models.Domain
 {
 	public class Team
-	{
-		public const string TagStarting = "#t";
-		public const int MaxNameSize = 100;
+    {
+        public const int MaxNameSize = 100;
+        public const string TagStarting = "#t";
 		public static readonly int TagSize = TagStarting.Length + DataUtils.MaxNumericStringSize;
 
         private const string DefaultName = "New Team";
@@ -29,8 +29,6 @@
 				   && int.TryParse(tag[TagStarting.Length..], out var _);
         }
 
-        public static string BuildTag(int teamId) => $"{TagStarting}{teamId}";
-
 		public static bool TryGetId(string? tag, out int id)
 		{
 			id = 0;
@@ -41,8 +39,10 @@
 			return int.TryParse(tag[TagStarting.Length..], out id);
         }
 
-        public int Id { get; set; }
+        public static string BuildTag(int teamId) => $"{TagStarting}{teamId}";
+
         public int CourseId { get; set; }
+        public int Id { get; set; }
 
         public string Name
         {

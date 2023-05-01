@@ -84,7 +84,7 @@ namespace HomemadeLMS.Controllers
         [RequireHttps]
         [Route(SignInPath)]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Signin_Get()
+        public IActionResult SignIn_Get()
         {
             return View("SignIn");
         }
@@ -93,7 +93,7 @@ namespace HomemadeLMS.Controllers
         [RequireHttps]
         [Route(SignInPath)]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> Signin_Post()
+        public async Task<IActionResult> SignIn_Post()
         {
             if (!Request.HasFormContentType)
             {

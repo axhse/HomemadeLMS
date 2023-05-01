@@ -3,18 +3,14 @@
 namespace HomemadeLMS.Models
 {
 	public static class DataUtils
-	{
-		public const char SpaceChar = '\u0020';
-		public const int MskHourOffset = +3;
+    {
+        public const int MskHourOffset = +3;
+        public const char SpaceChar = '\u0020';
 		public static readonly int MaxNumericStringSize = long.MinValue.ToString().Length;
 
-		public static string? GetTrimmed(string? text)
-		{
-			if (text is null)
-			{
-				return null;
-			}
-			return text.Trim();
+        public static bool IsValuable(string? text)
+        {
+            return text is not null && text.Trim() != string.Empty;
         }
 
         public static string? CleanSpaces(string? text)
@@ -23,15 +19,19 @@ namespace HomemadeLMS.Models
             {
                 return null;
             }
-			text = text.Trim();
+            text = text.Trim();
             text = Regex.Replace(text, "[\t\r\n\f]", string.Empty);
             text = Regex.Replace(text, $"{SpaceChar}{{2,}}", $"{SpaceChar}");
-			return text;
+            return text;
         }
 
-        public static bool IsValuable(string? text)
+        public static string? GetTrimmed(string? text)
 		{
-			return text is not null && text.Trim() != string.Empty;
-		}
+			if (text is null)
+			{
+				return null;
+			}
+			return text.Trim();
+        }
 	}
 }

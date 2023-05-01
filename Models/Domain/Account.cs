@@ -6,23 +6,23 @@ namespace HomemadeLMS.Models.Domain
 {
     public enum UserRole
     {
+        Manager,
         None,
         Student,
         Teacher,
-        Manager,
     }
 
     public class Account
     {
-        public const int MinUsernameSize = 1;
+        public const int MaxPasswordSize = 50;
         public const int MaxUsernameSize = 100;
         public const int MinPasswordSize = 8;
-        public const int MaxPasswordSize = 50;
+        public const int MinUsernameSize = 1;
         public const int PasswordHashSize = 64;
 
         private const string EmailAddressBase = "@edu.hse.ru";
-        private string username;
         private string passwordHash;
+        private string username;
         private string? headUsername;
 
         public Account(string username, string passwordHash, UserRole role, string? headUsername)
@@ -45,29 +45,6 @@ namespace HomemadeLMS.Models.Domain
             passwordHash = PasswordHash;
         }
 
-        public static bool HasPasswordHashValidFormat(string? passwordHash)
-            => passwordHash is not null && Regex.IsMatch(passwordHash, $"^[A-F0-9]{{{PasswordHashSize}}}$");
-
-        public static bool HasPasswordValidFormat(string? password)
-            => password is not null && MinPasswordSize <= password.Length && password.Length <= MaxPasswordSize;
-
-        public static bool HasUsernameValidFormat(string? username)
-            => username is not null && Regex.IsMatch(username, $"^[a-z0-9_.]{{{MinUsernameSize},{MaxUsernameSize}}}$");
-
-        public static string GetUsername(string? accountId)
-        {
-            if (accountId is null)
-            {
-                return string.Empty;
-            }
-            accountId = accountId.Trim().ToLower();
-            if (accountId.EndsWith(EmailAddressBase))
-            {
-                return accountId[..^EmailAddressBase.Length];
-            }
-            return accountId;
-        }
-
         public static string CalculateHash(string text)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(text);
@@ -83,20 +60,30 @@ namespace HomemadeLMS.Models.Domain
             return Convert.ToHexString(bytes);
         }
 
-        public UserRole Role { get; set; } = UserRole.None;
-
-        public string Username
+        public static string GetUsername(string? accountId)
         {
-            get => username;
-            set
+            if (accountId is null)
             {
-                if (!HasUsernameValidFormat(value))
-                {
-                    throw new ArgumentException("Invalid username format.");
-                }
-                username = value;
+                return string.Empty;
             }
+            accountId = accountId.Trim().ToLower();
+            if (accountId.EndsWith(EmailAddressBase))
+            {
+                return accountId[..^EmailAddressBase.Length];
+            }
+            return accountId;
         }
+
+        public static bool HasPasswordHashValidFormat(string? passwordHash)
+            => passwordHash is not null && Regex.IsMatch(passwordHash, $"^[A-F0-9]{{{PasswordHashSize}}}$");
+
+        public static bool HasPasswordValidFormat(string? password)
+            => password is not null && MinPasswordSize <= password.Length && password.Length <= MaxPasswordSize;
+
+        public static bool HasUsernameValidFormat(string? username)
+            => username is not null && Regex.IsMatch(username, $"^[a-z0-9_.]{{{MinUsernameSize},{MaxUsernameSize}}}$");
+
+        public UserRole Role { get; set; } = UserRole.None;
 
         public string PasswordHash
         {
@@ -108,6 +95,19 @@ namespace HomemadeLMS.Models.Domain
                     throw new ArgumentException("Invalid passwordHash format.");
                 }
                 passwordHash = value;
+            }
+        }
+
+        public string Username
+        {
+            get => username;
+            set
+            {
+                if (!HasUsernameValidFormat(value))
+                {
+                    throw new ArgumentException("Invalid username format.");
+                }
+                username = value;
             }
         }
 
@@ -124,8 +124,13 @@ namespace HomemadeLMS.Models.Domain
             }
         }
 
-        public string EmailAddress => Username + EmailAddressBase;
         public bool CanEditCourses => Role == UserRole.Teacher || Role == UserRole.Manager;
+        public string EmailAddress => Username + EmailAddressBase;
+
+        public void SetAccountId(string accountId)
+        {
+            Username = GetUsername(accountId);
+        }
 
         public void SetPassword(string password)
         {
@@ -134,11 +139,6 @@ namespace HomemadeLMS.Models.Domain
                 throw new ArgumentException("Invalid username format.");
             }
             PasswordHash = CalculateHash(password);
-        }
-
-        public void SetAccountId(string accountId)
-        {
-            Username = GetUsername(accountId);
         }
 
         public bool CanChangeRoleOf(Account other)

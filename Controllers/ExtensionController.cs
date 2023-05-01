@@ -33,23 +33,6 @@ namespace HomemadeLMS.Controllers
 
         [HttpGet]
         [RequireHttps]
-        [Route(ExtensionRootPath + "/roletest" + "/status")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> RoleTestStatus_Get()
-        {
-            var account = await GetAccount();
-            if (account is null)
-            {
-                return RedirectPermanent(SignInPath);
-            }
-            var testResults = await roleTestResultStorage.Select(
-                result => result.Username == account.Username
-            );
-            return View("RoleTestStatus", testResults.FirstOrDefault());
-        }
-
-        [HttpGet]
-        [RequireHttps]
         [Route(ExtensionRootPath + "/roletest")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> RoleTest_Get()
@@ -102,6 +85,23 @@ namespace HomemadeLMS.Controllers
                 await roleTestResultStorage.Update(testResult);
             }
             return RedirectPermanent(ExtensionRootPath + "/roletest" + "/status");
+        }
+
+        [HttpGet]
+        [RequireHttps]
+        [Route(ExtensionRootPath + "/roletest" + "/status")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> RoleTest_Status_Get()
+        {
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var testResults = await roleTestResultStorage.Select(
+                result => result.Username == account.Username
+            );
+            return View("RoleTestStatus", testResults.FirstOrDefault());
         }
     }
 }

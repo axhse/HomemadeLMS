@@ -21,25 +21,9 @@ namespace HomemadeLMS.ViewModels
             return values[0];
         }
 
-        public bool TryGetInt(string key, out int value)
-        {
-            return int.TryParse(GetString(key), out value);
-        }
+        public bool IsChecked(string key) => GetString(key) is not null;
 
-        public bool TryGetUserRole(string key, out UserRole value)
-        {
-            var roleCode = GetString(key);
-            foreach (var role in Enum.GetValues<UserRole>())
-            {
-                if (roleCode == role.ToString())
-                {
-                    value = role;
-                    return true;
-                }
-            }
-            value = UserRole.None;
-            return false;
-        }
+        public bool TryGetInt(string key, out int value) => int.TryParse(GetString(key), out value);
 
         public bool TryGetCourseRole(string key, out CourseRole value)
         {
@@ -59,9 +43,19 @@ namespace HomemadeLMS.ViewModels
         public bool TryGetDateTime(string key, out DateTime value)
             => DateTime.TryParse(GetString(key), out value);
 
-        public bool IsChecked(string key)
+        public bool TryGetUserRole(string key, out UserRole value)
         {
-            return GetString(key) is not null;
+            var roleCode = GetString(key);
+            foreach (var role in Enum.GetValues<UserRole>())
+            {
+                if (roleCode == role.ToString())
+                {
+                    value = role;
+                    return true;
+                }
+            }
+            value = UserRole.None;
+            return false;
         }
     }
 }

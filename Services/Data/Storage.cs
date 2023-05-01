@@ -68,28 +68,7 @@ namespace HomemadeLMS.Services.Data
             }
         }
 
-        public async Task<bool> TryDelete(TPrimaryKey key)
-        {
-            if (key is null)
-            {
-                return false;
-            }
-            try
-            {
-                TEntity? entity = await context.Items.FindAsync(key);
-                if (entity is null)
-                {
-                    return false;
-                }
-                return await TryDeleteValue(entity);
-            }
-            catch (Exception exception)
-            {
-                throw new StorageException(exception);
-            }
-        }
-
-        public async Task<bool> TryDeleteValue(TEntity entity)
+        public async Task<bool> TryDelete(TEntity entity)
         {
             EntityEntry<TEntity>? entry = null;
             if (entity is null)
@@ -145,11 +124,6 @@ namespace HomemadeLMS.Services.Data
             {
                 throw new StorageException(exception);
             }
-        }
-
-        public async Task<bool> TryInsert(TPrimaryKey key, TEntity entity)
-        {
-            return await TryInsert(entity);
         }
 
         public async Task Update(TEntity entity)

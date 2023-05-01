@@ -16,9 +16,8 @@
 
     public class RoleTestResult
     {
-        public const int BlockCount = 7;
         public const int AnsCount = 8;
-
+        public const int BlockCount = 7;
         private string username;
 
         public RoleTestResult(string username)
@@ -27,14 +26,14 @@
             this.username = Username;
         }
 
-        public int TeamWorkerScore { get; set; }
+        public int CompleterScore { get; set; }
         public int CoordinatorScore { get; set; }
+        public int ImplementerScore { get; set; }
+        public int MonitorEvaluatorScore { get; set; }
+        public int PlantScore { get; set; }
         public int ResourceInvestigatorScore { get; set; }
         public int ShaperScore { get; set; }
-        public int ImplementerScore { get; set; }
-        public int CompleterScore { get; set; }
-        public int PlantScore { get; set; }
-        public int MonitorEvaluatorScore { get; set; }
+        public int TeamWorkerScore { get; set; }
 
         public string Username
         {
@@ -49,10 +48,8 @@
             }
         }
 
-        public static bool IsScoreValid(int score)
-            => 0 <= score && score <= 10 && score != 1;
-
         public static bool IsBlockTotalScoreValid(int score) => score == 10;
+        public static bool IsScoreValid(int score) => 0 <= score && score <= 10 && score != 1;
 
         public void AddScore(int blockIndex, int ansIndex, int score)
         {
@@ -123,13 +120,25 @@
 
                 _ => TeamRole.TeamWorker,
             };
-            if (role == TeamRole.TeamWorker)
+            if (role == TeamRole.Completer)
             {
-                TeamWorkerScore += score;
+                CompleterScore += score;
             }
             if (role == TeamRole.Coordinator)
             {
                 CoordinatorScore += score;
+            }
+            if (role == TeamRole.Implementer)
+            {
+                ImplementerScore += score;
+            }
+            if (role == TeamRole.MonitorEvaluator)
+            {
+                MonitorEvaluatorScore += score;
+            }
+            if (role == TeamRole.Plant)
+            {
+                PlantScore += score;
             }
             if (role == TeamRole.ResourceInvestigator)
             {
@@ -139,21 +148,9 @@
             {
                 ShaperScore += score;
             }
-            if (role == TeamRole.Implementer)
+            if (role == TeamRole.TeamWorker)
             {
-                ImplementerScore += score;
-            }
-            if (role == TeamRole.Completer)
-            {
-                CompleterScore += score;
-            }
-            if (role == TeamRole.Plant)
-            {
-                PlantScore += score;
-            }
-            if (role == TeamRole.MonitorEvaluator)
-            {
-                MonitorEvaluatorScore += score;
+                TeamWorkerScore += score;
             }
         }
     }

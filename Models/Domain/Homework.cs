@@ -7,17 +7,17 @@
         private const string DefaultTitle = "New Task";
         private string title;
         private string? content;
-        private string? taskUrl;
-        private string? submitUrl;
         private string? extraUrl;
         private string? extraUrlLabel;
+        private string? submitUrl;
+        private string? taskUrl;
 
         public Homework(int courseId, bool isTeamwork)
         {
             title = DefaultTitle;
             CourseId = courseId;
-            CreationTime = DateTime.UtcNow;
             IsTeamwork = isTeamwork;
+            CreationTime = DateTime.UtcNow;
         }
 
         public static bool HasUrlLabelValidFormat(string? urlLabel)
@@ -26,11 +26,11 @@
             return urlLabel is null || urlLabel.Length <= MaxUrlLabelSize;
         }
 
-        public int Id { get; set; }
+        public bool IsTeamwork { get; init; }
         public int CourseId { get; set; }
+        public int Id { get; set; }
         public DateTime CreationTime { get; set; }
         public DateTime? Deadline { get; set; }
-        public bool IsTeamwork { get; init; }
 
         public string Title
         {
@@ -59,34 +59,6 @@
             }
         }
 
-        public string? TaskUrl
-        {
-            get => taskUrl;
-            set
-            {
-                var newUrl = DataUtils.GetTrimmed(value);
-                if (!Course.HasUrlValidFormat(newUrl))
-                {
-                    throw new ArgumentException("Invalid taskUrl format.");
-                }
-                taskUrl = newUrl;
-            }
-        }
-
-        public string? SubmitUrl
-        {
-            get => submitUrl;
-            set
-            {
-                var newUrl = DataUtils.GetTrimmed(value);
-                if (!Course.HasUrlValidFormat(newUrl))
-                {
-                    throw new ArgumentException("Invalid submitUrl format.");
-                }
-                submitUrl = newUrl;
-            }
-        }
-
         public string? ExtraUrl
         {
             get => extraUrl;
@@ -112,6 +84,34 @@
                     throw new ArgumentException("Invalid extraUrlLabel format.");
                 }
                 extraUrlLabel = value;
+            }
+        }
+
+        public string? SubmitUrl
+        {
+            get => submitUrl;
+            set
+            {
+                var newUrl = DataUtils.GetTrimmed(value);
+                if (!Course.HasUrlValidFormat(newUrl))
+                {
+                    throw new ArgumentException("Invalid submitUrl format.");
+                }
+                submitUrl = newUrl;
+            }
+        }
+
+        public string? TaskUrl
+        {
+            get => taskUrl;
+            set
+            {
+                var newUrl = DataUtils.GetTrimmed(value);
+                if (!Course.HasUrlValidFormat(newUrl))
+                {
+                    throw new ArgumentException("Invalid taskUrl format.");
+                }
+                taskUrl = newUrl;
             }
         }
 

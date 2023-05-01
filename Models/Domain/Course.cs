@@ -2,23 +2,26 @@
 {
     public class Course
     {
-        public const int MaxTitleSize = 200;
         public const int MaxDescriptionSize = 2500;
+        public const int MaxTitleSize = 200;
         public const int MaxUrlSize = 1000;
         public const string DefaultTitle = "New Course";
 
         private string ownerUsername;
         private string title;
         private string? description;
-        private string? smartLmsUrl;
         private string? pldUrl;
+        private string? smartLmsUrl;
 
         public Course(string ownerUsername)
         {
-            OwnerUsername = ownerUsername;
             title = DefaultTitle;
+            OwnerUsername = ownerUsername;
             this.ownerUsername = OwnerUsername;
         }
+
+        public static bool HasDescriptionValidFormat(string? description)
+            => description is null || description.Length <= MaxDescriptionSize;
 
         public static bool HasTitleValidFormat(string? title)
         {
@@ -32,12 +35,9 @@
             return url is null || url.Length <= MaxUrlSize;
         }
 
-        public static bool HasDescriptionValidFormat(string? description)
-            => description is null || description.Length <= MaxDescriptionSize;
-
-        public int Id { get; set; }
         public bool HasTeams { get; set; } = false;
         public bool IsTeamStateLocked { get; set; } = false;
+        public int Id { get; set; }
 
         public string OwnerUsername
         {
@@ -79,20 +79,6 @@
             }
         }
 
-        public string? SmartLmsUrl
-        {
-            get => smartLmsUrl;
-            set
-            {
-                var newUrl = DataUtils.GetTrimmed(value);
-                if (!HasUrlValidFormat(newUrl))
-                {
-                    throw new ArgumentException("Invalid smartLmsUrl format.");
-                }
-                smartLmsUrl = newUrl;
-            }
-        }
-
         public string? PldUrl
         {
             get => pldUrl;
@@ -104,6 +90,20 @@
                     throw new ArgumentException("Invalid pldUrl format.");
                 }
                 pldUrl = newUrl;
+            }
+        }
+
+        public string? SmartLmsUrl
+        {
+            get => smartLmsUrl;
+            set
+            {
+                var newUrl = DataUtils.GetTrimmed(value);
+                if (!HasUrlValidFormat(newUrl))
+                {
+                    throw new ArgumentException("Invalid smartLmsUrl format.");
+                }
+                smartLmsUrl = newUrl;
             }
         }
 

@@ -8,6 +8,12 @@ namespace HomemadeLMS.Services.Data
         { }
     }
 
+    public class AnnouncementContext : GenericContext<Announcement>
+    {
+        public AnnouncementContext() : base(new AnnouncementConfiguration())
+        { }
+    }
+
     public class CourseContext : GenericContext<Course>
     {
         public CourseContext() : base(new CourseConfiguration())
@@ -20,18 +26,6 @@ namespace HomemadeLMS.Services.Data
         { }
     }
 
-    public class RoleTestResultContext : GenericContext<RoleTestResult>
-    {
-        public RoleTestResultContext() : base(new RoleTestResultConfiguration())
-        { }
-    }
-
-    public class AnnouncementContext : GenericContext<Announcement>
-    {
-        public AnnouncementContext() : base(new AnnouncementConfiguration())
-        { }
-    }
-
     public class HomeworkContext : GenericContext<Homework>
     {
         public HomeworkContext() : base(new HomeworkConfiguration())
@@ -41,6 +35,12 @@ namespace HomemadeLMS.Services.Data
     public class HomeworkStatusContext : GenericContext<HomeworkStatus>
     {
         public HomeworkStatusContext() : base(new HomeworkStatusConfiguration())
+        { }
+    }
+
+    public class RoleTestResultContext : GenericContext<RoleTestResult>
+    {
+        public RoleTestResultContext() : base(new RoleTestResultConfiguration())
         { }
     }
 

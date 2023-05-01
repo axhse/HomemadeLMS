@@ -10,16 +10,10 @@ namespace HomemadeLMS.Services.Data
 
         Task<List<TValue>> Select(Expression<Func<TValue, bool>> selector);
 
-        Task<bool> TryDelete(Tkey key);
-
-        Task<bool> TryDeleteValue(TValue value);
+        Task<bool> TryDelete(TValue value);
 
         Task<bool> TryInsert(TValue value);
 
-        Task<bool> TryInsert(Tkey key, TValue value);
-
         Task Update(TValue value);
-
-        Task Update(Tkey key, TValue value);
     }
 }

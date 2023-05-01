@@ -2,9 +2,9 @@
 {
     public enum CourseRole
     {
+        Assistant,
         Spectator,
         Student,
-        Assistant,
         Teacher,
     }
 
@@ -13,7 +13,6 @@
         public const string UidSeparator = ":";
         public static readonly int MaxUidSize = DataUtils.MaxNumericStringSize
                                                 + UidSeparator.Length + Account.MaxUsernameSize;
-
         private string username;
 
         public CourseMember(int courseId, string username, CourseRole role)
@@ -24,15 +23,21 @@
             this.username = Username;
         }
 
-        public static CourseMember BuildSpectator(int courseId, string username)
-            => new(courseId, username, CourseRole.Spectator);
-
         public static string BuildUid(int courseId, string username)
             => $"{courseId}{UidSeparator}{username}";
 
+        public static CourseMember BuildSpectator(int courseId, string username)
+            => new(courseId, username, CourseRole.Spectator);
+
         public int CourseId { get; set; }
-        public CourseRole Role { get; set; }
         public int? TeamId { get; set; }
+        public CourseRole Role { get; set; }
+
+        public string Uid
+        {
+            get => BuildUid(CourseId, Username);
+            set { }
+        }
 
         public string Username
         {
@@ -47,21 +52,15 @@
             }
         }
 
-        public string Uid
-        {
-            get => BuildUid(CourseId, Username);
-            set { }
-        }
-
-        public bool IsTeacher => Role == CourseRole.Teacher;
         public bool IsStudent => Role == CourseRole.Student;
+        public bool IsTeacher => Role == CourseRole.Teacher;
+
+        public bool CanChangeTeam(Course course) => IsStudent
+            && course.HasTeams && !course.IsTeamStateLocked;
 
         public bool CanCreateTeam(Course course) => !IsStudent || !course.IsTeamStateLocked;
 
         public bool CanEditTeam(Course course, Team team) => !IsStudent
             || (team.LeaderUsername == Username && !course.IsTeamStateLocked);
-
-        public bool CanChangeTeam(Course course) => IsStudent
-            && course.HasTeams && !course.IsTeamStateLocked;
     }
 }

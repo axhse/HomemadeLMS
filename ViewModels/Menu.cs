@@ -2,10 +2,10 @@ namespace HomemadeLMS.ViewModels
 {
     public enum LinkCategory
     {
-        Regular,
         Danger,
         Highlighted,
         Important,
+        Regular,
     }
 
     public class LinkGroup

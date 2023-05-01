@@ -13,7 +13,6 @@ namespace HomemadeLMS.ViewModels
 
         public Course Course { get; private set; }
         public TObject Object { get; private set; }
-
         public bool IsCourseEditable { get; private set; }
     }
 }

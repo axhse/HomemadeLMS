@@ -1,6 +1,7 @@
 using HomemadeLMS.Models.Domain;
 using HomemadeLMS.Services.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HomemadeLMS.Application
@@ -54,29 +55,29 @@ namespace HomemadeLMS.Application
         private static void ConfigureDomainServices(
             IServiceCollection services)
         {
-            services.AddScoped<IStorage<string, Account>>(
-                _ => new Storage<string, Account>(new AccountContext())
+            services.AddScoped<IStorage<int, Announcement>>(
+                _ => new Storage<int, Announcement>(new AnnouncementContext())
             );
             services.AddScoped<IStorage<int, Course>>(
                 _ => new Storage<int, Course>(new CourseContext())
             );
-            services.AddScoped<IStorage<string, CourseMember>>(
-                _ => new Storage<string, CourseMember>(new CourseMemberContext())
-            );
-            services.AddScoped<IStorage<int, Announcement>>(
-                _ => new Storage<int, Announcement>(new AnnouncementContext())
-            );
             services.AddScoped<IStorage<int, Homework>>(
                 _ => new Storage<int, Homework>(new HomeworkContext())
+            );
+            services.AddScoped<IStorage<int, Team>>(
+                _ => new Storage<int, Team>(new TeamContext())
+            );
+            services.AddScoped<IStorage<string, Account>>(
+                _ => new Storage<string, Account>(new AccountContext())
+            );
+            services.AddScoped<IStorage<string, CourseMember>>(
+                _ => new Storage<string, CourseMember>(new CourseMemberContext())
             );
             services.AddScoped<IStorage<string, HomeworkStatus>>(
                 _ => new Storage<string, HomeworkStatus>(new HomeworkStatusContext())
             );
             services.AddScoped<IStorage<string, RoleTestResult>>(
                 _ => new Storage<string, RoleTestResult>(new RoleTestResultContext())
-            );
-            services.AddScoped<IStorage<int, Team>>(
-                _ => new Storage<int, Team>(new TeamContext())
             );
             services.AddScoped(_ => new CourseAggregator(new CourseCompositeContext()));
         }
