@@ -1,18 +1,21 @@
 namespace HomemadeLMS.Application
 {
-    public struct AppConfig
+    public class AppConfig
     {
-        public AppConfig(BuilderConfig builderConfig, DatabaseConfig databaseConfig)
+        public AppConfig(BuilderConfig builderConfig, DatabaseConfig databaseConfig,
+                         ServiceConfig serviceConfig)
         {
             BuilderConfig = builderConfig;
             DatabaseConfig = databaseConfig;
+            ServiceConfig = serviceConfig;
         }
 
         public BuilderConfig BuilderConfig { get; set; }
         public DatabaseConfig DatabaseConfig { get; set; }
+        public ServiceConfig ServiceConfig { get; set; }
     }
 
-    public struct BuilderConfig
+    public class BuilderConfig
     {
         public BuilderConfig()
         {
@@ -30,7 +33,24 @@ namespace HomemadeLMS.Application
         public bool IsHttpsForced { get; set; }
     }
 
-    public struct DatabaseConfig
+    public class ServiceConfig
+    {
+        private string? managerToken;
+
+        public ServiceConfig(string? managerToken = null)
+        {
+            this.managerToken = managerToken;
+        }
+
+        public string? ManagerToken => managerToken;
+
+        public void DeleteManagerToken()
+        {
+            managerToken = null;
+        }
+    }
+
+    public class DatabaseConfig
     {
         public DatabaseConfig(string connectionString)
         {
@@ -65,7 +85,11 @@ namespace HomemadeLMS.Application
             var connectionString = databaseConfigRoot.GetValue<string>("ConnectionString");
             var databaseConfig = new DatabaseConfig(connectionString);
 
-            return new AppConfig(builderConfig, databaseConfig);
+            var serviceConfigRoot = configRoot.GetSection("Service");
+            var managerToken = serviceConfigRoot.GetValue<string?>("ManagerToken");
+            var serviceConfig = new ServiceConfig(managerToken);
+
+            return new AppConfig(builderConfig, databaseConfig, serviceConfig);
         }
     }
 }

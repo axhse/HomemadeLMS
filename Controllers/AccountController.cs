@@ -12,10 +12,12 @@ namespace HomemadeLMS.Controllers
     public class AccountController : ControllerWithAccounts
     {
         public const string AccountRootPath = "/account";
+        private IStorage<string, Account> accountStorage;
 
         public AccountController(IStorage<string, Account> accountStorage) : base(accountStorage)
         {
             SectionRootPath = AccountRootPath;
+            this.accountStorage = accountStorage;
         }
 
         [HttpGet]
@@ -197,6 +199,32 @@ namespace HomemadeLMS.Controllers
             }
             await accountStorage.Update(targetAccount);
             return RedirectPermanent($"{AccountRootPath}?username={targetAccount.Username}");
+        }
+
+        [HttpGet]
+        [RequireHttps]
+        [Route(AccountRootPath + "/promote")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Promote_Get(string? token)
+        {
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var managerToken = Program.AppConfig.ServiceConfig.ManagerToken;
+            if (managerToken is null)
+            {
+                return View("Status", ActionStatus.HasNoToken);
+            }
+            if (managerToken != token)
+            {
+                return View("Status", ActionStatus.InvalidToken);
+            }
+            account.Role = UserRole.Manager;
+            await accountStorage.Update(account);
+            Program.AppConfig.ServiceConfig.DeleteManagerToken();
+            return RedirectPermanent(AccountRootPath);
         }
 
         [HttpGet]

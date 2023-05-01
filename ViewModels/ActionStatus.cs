@@ -12,5 +12,8 @@ namespace HomemadeLMS.ViewModels
 
         PasswordConfirmationError,
         PasswordInvalidFormat,
+
+        HasNoToken,
+        InvalidToken,
     }
 }
