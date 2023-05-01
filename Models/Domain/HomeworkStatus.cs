@@ -1,6 +1,6 @@
 ﻿namespace HomemadeLMS.Models.Domain
 {
-	public class HomeworkStatus
+    public class HomeworkStatus
     {
         public const string UidSeparator = ":";
         public static readonly int MaxSubjectIdSize = Math.Max(Account.MaxUsernameSize, Team.TagSize);

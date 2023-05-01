@@ -6,13 +6,13 @@
 
 	var team = Model.Team;
 	var leaderUsername = team.LeaderUsername;
-	var members = Model.Members;
+	var members = Model.AllMemberInfo;
 	members.Sort((first, second) => first.CourseMember.Username.CompareTo(second.CourseMember.Username));
 	members = members.Where(member => member.CourseMember.Username == leaderUsername)
 					 .Concat(members.Where(member => member.CourseMember.Username != leaderUsername))
 					 .ToList();
-	var canChangeTeam =  Model.CourseMember.CanChangeTeam(Model.Course);
-	var canEditTeam =  Model.CourseMember.CanEditTeam(Model.Course, Model.Team);
+	var canChangeTeam =  Model.Member.CanChangeTeam(Model.Course);
+	var canEditTeam =  Model.Member.CanEditTeam(Model.Course, Model.Team);
 }
 
 <div class="col-12 col-lg-8">
@@ -39,7 +39,7 @@
 		<form method="POST">
 			@if (canChangeTeam)
 			{
-				@if (Model.CourseMember.TeamId == team.Id)
+				@if (Model.Member.TeamId == team.Id)
 				{
 					<button type="submit" class="btn btn-secondary" name="actionCode" value="leave">
 						Уйти из команды

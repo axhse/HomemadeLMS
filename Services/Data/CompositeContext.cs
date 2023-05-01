@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomemadeLMS.Services.Data
 {
-    public class CourseCompositeContext : DbContext
+    public class CompositeContext : DbContext
     {
-        public CourseCompositeContext() : base()
+        public CompositeContext() : base()
         { }
 
         public DbSet<Course> Courses { get; set; }
@@ -15,7 +15,7 @@ namespace HomemadeLMS.Services.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(Program.AppConfig.DatabaseConfig.DbConnectionString);
+            optionsBuilder.UseSqlServer(Program.AppConfig.DatabaseConfig.ConnectionString);
             base.OnConfiguring(optionsBuilder);
         }
 

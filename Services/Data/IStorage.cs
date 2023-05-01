@@ -6,8 +6,6 @@ namespace HomemadeLMS.Services.Data
     {
         Task<TValue?> Find(Tkey key);
 
-        Task<bool> HasKey(Tkey key);
-
         Task<List<TValue>> Select(Expression<Func<TValue, bool>> selector);
 
         Task<bool> TryDelete(TValue value);

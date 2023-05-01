@@ -3,7 +3,6 @@ using HomemadeLMS.Models.Domain;
 using HomemadeLMS.Services.Data;
 using HomemadeLMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace HomemadeLMS.Controllers
@@ -15,27 +14,27 @@ namespace HomemadeLMS.Controllers
         private readonly IStorage<int, Course> courseStorage;
         private readonly IStorage<int, Homework> homeworkStorage;
         private readonly IStorage<int, Team> teamStorage;
-        private readonly IStorage<string, CourseMember> courseMemberStorage;
+        private readonly IStorage<string, CourseMember> memberStorage;
         private readonly IStorage<string, HomeworkStatus> homeworkStatusStorage;
-        private readonly CourseAggregator courseAggregator;
+        private readonly EntityAggregator entityAggregator;
 
         public CourseController(IStorage<int, Announcement> announcementStorage,
             IStorage<int, Course> courseStorage,
             IStorage<int, Homework> homeworkStorage,
             IStorage<int, Team> teamStorage,
             IStorage<string, Account> accountStorage,
-            IStorage<string, CourseMember> courseMemberStorage,
+            IStorage<string, CourseMember> memberStorage,
             IStorage<string, HomeworkStatus> homeworkStatusStorage,
-            CourseAggregator courseAggregator) : base(accountStorage)
+            EntityAggregator entityAggregator) : base(accountStorage)
         {
             SectionRootPath = CourseRootPath;
             this.announcementStorage = announcementStorage;
             this.courseStorage = courseStorage;
             this.homeworkStorage = homeworkStorage;
             this.teamStorage = teamStorage;
-            this.courseMemberStorage = courseMemberStorage;
+            this.memberStorage = memberStorage;
             this.homeworkStatusStorage = homeworkStatusStorage;
-            this.courseAggregator = courseAggregator;
+            this.entityAggregator = entityAggregator;
         }
 
         [HttpGet]
@@ -58,16 +57,13 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            var courseMember = await GetCourseMember(courseId, account.Username);
-            if (!await CanViewCourse(course, courseMember))
+            var member = await GetSelfCourseMember(courseId);
+            if (!await CanViewCourse(course, member))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
-            var announcements = await announcementStorage.Select(
-                announcement => announcement.CourseId == courseId
-            );
-            courseMember ??= CourseMember.BuildSpectator(courseId, account.Username);
-            var model = new CourseMemberAndObject<List<Announcement>>(courseMember, announcements);
+            var announcements = await announcementStorage.Select(item => item.CourseId == courseId);
+            var model = new MemberAndObject<List<Announcement>>(member, announcements);
             return View("Announcements", model);
         }
 
@@ -86,13 +82,14 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            var course = await courseStorage.Find(courseId);
-            if (course is null)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            var courseMember = await GetCourseMember(courseId, account.Username);
-            if (courseMember is null || !courseMember.IsTeacher)
+            // Should be used if course deletion is not 100% clean.
+            //var course = await courseStorage.Find(courseId);
+            //if (course is null)
+            //{
+            //    return View("Status", ActionStatus.NotSupported);
+            //}
+            var member = await GetSelfCourseMember(courseId);
+            if (!member.IsTeacher)
             {
                 return View("Status", ActionStatus.NoPermission);
             }
@@ -124,13 +121,14 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            var course = await courseStorage.Find(announcement.CourseId);
-            if (course is null)
-            {
-                return View("Status", ActionStatus.NotFound);
-            }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (courseMember is null || !courseMember.IsTeacher)
+            // Should be used if course deletion is not 100% clean.
+            //var course = await courseStorage.Find(announcement.CourseId);
+            //if (course is null)
+            //{
+            //    return View("status", ActionStatus.NotFound);
+            //}
+            var member = await GetSelfCourseMember(announcement.CourseId);
+            if (!member.IsTeacher)
             {
                 return View("Status", ActionStatus.NoPermission);
             }
@@ -157,13 +155,14 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            var course = await courseStorage.Find(announcement.CourseId);
-            if (course is null)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (courseMember is null || !courseMember.IsTeacher)
+            // Should be used if course deletion is not 100% clean.
+            //var course = await courseStorage.Find(announcement.CourseId);
+            //if (course is null)
+            //{
+            //    return View("Status", ActionStatus.NotSupported);
+            //}
+            var member = await GetSelfCourseMember(announcement.CourseId);
+            if (!member.IsTeacher)
             {
                 return View("Status", ActionStatus.NoPermission);
             }
@@ -207,13 +206,12 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (!await CanViewCourse(course, courseMember))
+            var member = await GetSelfCourseMember(announcement.CourseId);
+            if (!await CanViewCourse(course, member))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
-            courseMember ??= CourseMember.BuildSpectator(course.Id, account.Username);
-            var model = new CourseMemberAndObject<Announcement>(courseMember, announcement);
+            var model = new MemberAndObject<Announcement>(member, announcement);
             return View("Announcement", model);
         }
 
@@ -237,18 +235,20 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            var course = await courseStorage.Find(announcement.CourseId);
-            if (course is null)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (courseMember is null || !courseMember.IsTeacher)
+            var courseId = announcement.CourseId;
+            // Should be used if course deletion is not 100% clean.
+            //var course = await courseStorage.Find(announcement.CourseId);
+            //if (course is null)
+            //{
+            //    return View("Status", ActionStatus.NotSupported);
+            //}
+            var member = await GetSelfCourseMember(courseId);
+            if (!member.IsTeacher)
             {
                 return View("Status", ActionStatus.NoPermission);
             }
             await announcementStorage.TryDelete(announcement);
-            return RedirectPermanent($"{CourseRootPath}/announcements?courseId={course.Id}");
+            return RedirectPermanent($"{CourseRootPath}/announcements?courseId={courseId}");
         }
 
         [HttpGet]
@@ -262,22 +262,22 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            List<Course> allCourses;
+            List<Course> courses;
             if (account.Role == UserRole.Manager)
             {
-                allCourses = await courseStorage.Select(_ => true);
+                courses = await courseStorage.Select(_ => true);
             }
             else
             {
-                allCourses = await courseAggregator.GetUserCourses(account.Username);
+                courses = await entityAggregator.GetUserCourses(account.Username);
                 var ownedCourses = await courseStorage.Select(
                     course => course.OwnerUsername == account.Username
                 );
-                bool IsIdSelected(int id) => allCourses.Any(course => course.Id == id);
-                var notSelectedCourses = ownedCourses.Where(course => !IsIdSelected(course.Id));
-                allCourses = allCourses.Concat(notSelectedCourses).ToList();
+                bool IsSelected(int courseId) => courses.Any(course => course.Id == courseId);
+                var notSelectedCourses = ownedCourses.Where(course => !IsSelected(course.Id));
+                courses = courses.Concat(notSelectedCourses).ToList();
             }
-            var model = new AccountAndObject<List<Course>>(account, allCourses);
+            var model = new AccountAndObject<List<Course>>(account, courses);
             return View("Courses", model);
         }
 
@@ -301,12 +301,10 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.UnknownError);
             }
-            if (account.Role == UserRole.Teacher)
+            if (account.Role != UserRole.Manager)
             {
-                var courseMember = new CourseMember(
-                    course.Id, account.Username, CourseRole.Teacher
-                );
-                if (!await courseMemberStorage.TryInsert(courseMember))
+                var member = new CourseMember(course.Id, account.Username, CourseRole.Teacher);
+                if (!await memberStorage.TryInsert(member))
                 {
                     return View("Status", ActionStatus.UnknownError);
                 }
@@ -417,7 +415,8 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            if (!await CanViewCourse(course))
+            var member = await GetSelfCourseMember(course.Id);
+            if (!await CanViewCourse(course, member))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
@@ -444,11 +443,12 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            if (!await CanViewCourse(course))
+            var member = await GetSelfCourseMember(courseId);
+            if (!await CanViewCourse(course, member))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
-            var members = await courseMemberStorage.Select(member => member.CourseId == courseId);
+            var members = await GetCourseMembers(courseId);
             var model = new CourseAndObject<List<CourseMember>>(account, course, members);
             return View("CourseMembers", model);
         }
@@ -519,8 +519,8 @@ namespace HomemadeLMS.Controllers
                     model.InvalidUsernames.Add(username);
                     continue;
                 }
-                var courseMember = new CourseMember(courseId, username, CourseRole.Student);
-                if (await courseMemberStorage.TryInsert(courseMember))
+                var member = new CourseMember(courseId, username, CourseRole.Student);
+                if (await memberStorage.TryInsert(member))
                 {
                     model.AddedUsernames.Add(username);
                 }
@@ -587,7 +587,7 @@ namespace HomemadeLMS.Controllers
             var accountIdText = parser.GetString("accountIdText");
             accountIdText ??= string.Empty;
             accountIdText = accountIdText.Replace("\n", " ").Replace("\t", " ")
-                                   .Replace(",", " ").Replace(";", " ");
+                                         .Replace(",", " ").Replace(";", " ");
             var accountIds = accountIdText.Split(" ", StringSplitOptions.RemoveEmptyEntries)
                                           .ToHashSet();
 
@@ -600,18 +600,14 @@ namespace HomemadeLMS.Controllers
                     model.InvalidUsernames.Add(username);
                     continue;
                 }
-                var courseMembers = await courseMemberStorage.Select(
-                    member => member.CourseId == courseId && member.Username == username
-                );
-                if (!courseMembers.Any())
+                var uid = CourseMember.BuildUid(courseId, username);
+                var member = await memberStorage.Find(uid);
+                if (member is null)
                 {
                     model.AlreadyRemovedUsernames.Add(username);
                     continue;
                 }
-                foreach (var courseMember in courseMembers)
-                {
-                    await courseMemberStorage.TryDelete(courseMember);
-                }
+                await memberStorage.TryDelete(member);
                 model.RemovedUsernames.Add(username);
             }
             return View("MemberChangelog", model);
@@ -637,13 +633,19 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            var courseMember = await GetCourseMember(courseId, username);
-            if (courseMember is null || !await CanViewCourse(course, courseMember))
+            var uid = CourseMember.BuildUid(courseId, username);
+            var otherMember = await memberStorage.Find(uid);
+            if (otherMember is null)
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            var model = new CourseAndObject<CourseMember>(account, course, courseMember);
-            return View("CourseMember", model);
+            var selfMember = await GetSelfCourseMember(courseId);
+            if (!await CanViewCourse(course, selfMember))
+            {
+                return View("Status", ActionStatus.NoAccess);
+            }
+            var model = new CourseAndObject<CourseMember>(account, course, otherMember);
+            return View("Member", model);
         }
 
         [HttpPost]
@@ -667,19 +669,24 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            var courseMember = await GetCourseMember(courseId, username);
-            if (courseMember is null || !course.CanBeEditedBy(account))
+            if (!course.CanBeEditedBy(account))
+            {
+                return View("Status", ActionStatus.NoPermission);
+            }
+            var uid = CourseMember.BuildUid(courseId, username);
+            var otherMember = await memberStorage.Find(uid);
+            if (otherMember is null)
             {
                 return View("Status", ActionStatus.NotSupported);
             }
             if (new FormParser(Request.Form).TryGetCourseRole("roleCode", out CourseRole role))
             {
-                courseMember.Role = role;
-                courseMember.TeamId = null;
-                await courseMemberStorage.Update(courseMember);
+                otherMember.Role = role;
+                otherMember.TeamId = null;
+                await memberStorage.Update(otherMember);
             }
-            var model = new CourseAndObject<CourseMember>(account, course, courseMember);
-            return View("CourseMember", model);
+            var model = new CourseAndObject<CourseMember>(account, course, otherMember);
+            return View("Member", model);
         }
 
         [HttpGet]
@@ -702,13 +709,19 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            var courseMember = await GetCourseMember(homework.CourseId, account.Username);
-            if (courseMember is null || courseMember.IsStudent)
+            // Should be used if course deletion is not 100% clean.
+            //var course = await courseStorage.Find(homework.CourseId);
+            //if (course is null)
+            //{
+            //    return View("Status", ActionStatus.NotFound);
+            //}
+            var member = await GetSelfCourseMember(homework.CourseId);
+            if (!member.IsAssistantOrTeacher)
             {
                 return View("Status", ActionStatus.NoAccess);
             }
             var allStatus = await GetAllHomeworkStatus(homework);
-            return View("Marks", new HomeworkWithAllStatus(homework, allStatus));
+            return View("Marks", new HomeworkInfo(homework, allStatus));
         }
 
         [HttpPost]
@@ -731,8 +744,14 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            var courseMember = await GetCourseMember(homework.CourseId, account.Username);
-            if (courseMember is null || courseMember.IsStudent)
+            // Should be used if course deletion is not 100% clean.
+            //var course = await courseStorage.Find(homework.CourseId);
+            //if (course is null)
+            //{
+            //    return View("Status", ActionStatus.NotSupported);
+            //}
+            var member = await GetSelfCourseMember(homework.CourseId);
+            if (!member.IsAssistantOrTeacher)
             {
                 return View("Status", ActionStatus.NoPermission);
             }
@@ -758,7 +777,7 @@ namespace HomemadeLMS.Controllers
                     await homeworkStatusStorage.Update(status);
                 }
             }
-            return View("Marks", new HomeworkWithAllStatus(homework, allStatus));
+            return View("Marks", new HomeworkInfo(homework, allStatus));
         }
 
         [HttpGet]
@@ -781,16 +800,13 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            var courseMember = await GetCourseMember(courseId, account.Username);
-            if (!await CanViewCourse(course, courseMember))
+            var member = await GetSelfCourseMember(courseId);
+            if (!await CanViewCourse(course, member))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
-            courseMember ??= CourseMember.BuildSpectator(course.Id, account.Username);
-            var allPersonalHomework = await GetAllPersonalHomework(courseMember);
-            var model = new CourseMemberAndObject<List<PersonalHomework>>(
-                courseMember, allPersonalHomework
-            );
+            var allPersonalHomework = await GetAllPersonalHomework(member);
+            var model = new MemberAndObject<List<PersonalHomework>>(member, allPersonalHomework);
             return View("Tasks", model);
         }
 
@@ -815,13 +831,14 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            var course = await courseStorage.Find(courseId);
-            if (course is null)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            var courseMember = await GetCourseMember(courseId, account.Username);
-            if (courseMember is null || !courseMember.IsTeacher)
+            // Should be used if course deletion is not 100% clean.
+            //var course = await courseStorage.Find(courseId);
+            //if (course is null)
+            //{
+            //    return View("Status", ActionStatus.NotSupported);
+            //}
+            var member = await GetSelfCourseMember(courseId);
+            if (!member.IsTeacher)
             {
                 return View("Status", ActionStatus.NoPermission);
             }
@@ -854,13 +871,14 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            var course = await courseStorage.Find(homework.CourseId);
-            if (course is null)
-            {
-                return View("Status", ActionStatus.NotFound);
-            }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (courseMember is null || !courseMember.IsTeacher)
+            // Should be used if course deletion is not 100% clean.
+            //var course = await courseStorage.Find(homework.CourseId);
+            //if (course is null)
+            //{
+            //    return View("Status", ActionStatus.NotFound);
+            //}
+            var member = await GetSelfCourseMember(homework.CourseId);
+            if (!member.IsTeacher)
             {
                 return View("Status", ActionStatus.NoPermission);
             }
@@ -887,13 +905,14 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            var course = await courseStorage.Find(homework.CourseId);
-            if (course is null)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (courseMember is null || !courseMember.IsTeacher)
+            // Should be used if course deletion is not 100% clean.
+            //var course = await courseStorage.Find(homework.CourseId);
+            //if (course is null)
+            //{
+            //    return View("Status", ActionStatus.NotSupported);
+            //}
+            var member = await GetSelfCourseMember(homework.CourseId);
+            if (!member.IsTeacher)
             {
                 return View("Status", ActionStatus.NoPermission);
             }
@@ -961,22 +980,18 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotFound);
             }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (!await CanViewCourse(course, courseMember))
+            var member = await GetSelfCourseMember(homework.CourseId);
+            if (!await CanViewCourse(course, member))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
             HomeworkStatus? homeworkStatus = null;
-            if (courseMember is null)
-            {
-                courseMember ??= CourseMember.BuildSpectator(course.Id, account.Username);
-            }
-            else
+            if (!member.IsStranger)
             {
                 string? subjectId = null;
                 if (homework.IsTeamwork)
                 {
-                    int? teamId = courseMember.TeamId;
+                    int? teamId = member.TeamId;
                     if (teamId is not null)
                     {
                         subjectId = Team.BuildTag((int)teamId);
@@ -994,7 +1009,7 @@ namespace HomemadeLMS.Controllers
             }
             homeworkStatus ??= new HomeworkStatus(homework.Id, account.Username);
             var personalHomework = new PersonalHomework(homework, homeworkStatus);
-            var model = new CourseMemberAndObject<PersonalHomework>(courseMember, personalHomework);
+            var model = new MemberAndObject<PersonalHomework>(member, personalHomework);
             return View("Task", model);
         }
 
@@ -1010,6 +1025,11 @@ namespace HomemadeLMS.Controllers
             }
             var parser = new FormParser(Request.Form);
             var actionCode = parser.GetString("actionCode");
+            var allCodes = new string[] { "delete", "mark-as-submitted", "mark-as-not-submitted" };
+            if (!allCodes.Contains(actionCode))
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
             var account = await GetAccount();
             if (account is null)
             {
@@ -1020,33 +1040,31 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            var courseMember = await GetCourseMember(homework.CourseId, account.Username);
-            if (courseMember is null)
-            {
-                return View("Status", ActionStatus.NoPermission);
-            }
+            // Should be used if course deletion is not 100 % clean.
+            //var course = await courseStorage.Find(homework.CourseId);
+            //if (course is null)
+            //{
+            //    return View("Status", ActionStatus.NotSupported);
+            //}
+            var member = await GetSelfCourseMember(homework.CourseId);
             if (actionCode == "delete")
             {
-                if (!courseMember.IsTeacher)
+                if (!member.IsTeacher)
                 {
                     return View("Status", ActionStatus.NoPermission);
                 }
                 await homeworkStorage.TryDelete(homework);
-                var allStatus = await homeworkStatusStorage.Select(status => status.HomeworkId == id);
+                var allStatus = await homeworkStatusStorage.Select(item => item.HomeworkId == id);
                 foreach (var status in allStatus)
                 {
                     await homeworkStatusStorage.TryDelete(status);
                 }
                 return RedirectPermanent($"{CourseRootPath}/tasks?courseId={homework.CourseId}");
             }
-            if (actionCode != "mark-as-submitted" && actionCode != "mark-as-not-submitted")
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
             string subjectId;
             if (homework.IsTeamwork)
             {
-                int? teamId = courseMember.TeamId;
+                int? teamId = member.TeamId;
                 if (teamId is null)
                 {
                     return View("Status", ActionStatus.NotSupported);
@@ -1073,13 +1091,8 @@ namespace HomemadeLMS.Controllers
             {
                 await homeworkStatusStorage.Update(homeworkStatus);
             }
-            var course = await courseStorage.Find(homework.CourseId);
-            if (course is null)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
             var personalHomework = new PersonalHomework(homework, homeworkStatus);
-            var model = new CourseMemberAndObject<PersonalHomework>(courseMember, personalHomework);
+            var model = new MemberAndObject<PersonalHomework>(member, personalHomework);
             return View("Task", model);
         }
 
@@ -1107,20 +1120,17 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent($"{CourseRootPath}?id={courseId}");
             }
-            var courseMember = await GetCourseMember(courseId, account.Username);
-            if (!await CanViewCourse(course, courseMember))
+            var member = await GetSelfCourseMember(courseId);
+            if (!await CanViewCourse(course, member))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
-            courseMember ??= CourseMember.BuildSpectator(courseId, account.Username);
-            var model = new TeamsVM(course, courseMember);
             var teams = await teamStorage.Select(team => team.CourseId == courseId);
-            model.Teams = teams;
-            var allMembers = await courseMemberStorage.Select(team => team.CourseId == courseId);
-            await FixTeamIds(allMembers, teams);
-            model.MembersWithoutTeam = allMembers.Where(
-                member => member.TeamId is null && member.IsStudent
-            ).ToList();
+            var members = await GetCourseMembers(courseId);
+            await FixTeamIds(members, teams);
+            var singleStudents
+                = members.Where(member => member.TeamId is null && member.IsStudent).ToList();
+            var model = new TeamsVM(course, member, teams, singleStudents);
             return View("Teams", model);
         }
 
@@ -1140,17 +1150,17 @@ namespace HomemadeLMS.Controllers
                 return RedirectPermanent(SignInPath);
             }
             var course = await courseStorage.Find(courseId);
-            if (course is null)
+            if (course is null || !course.HasTeams)
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (courseMember is null || !courseMember.CanCreateTeam(course))
+            var member = await GetSelfCourseMember(courseId);
+            if (!member.CanCreateTeam(course))
             {
                 return View("Status", ActionStatus.NoPermission);
             }
             var team = new Team(courseId);
-            if (courseMember.IsStudent)
+            if (member.IsStudent)
             {
                 team.LeaderUsername = account.Username;
             }
@@ -1158,8 +1168,11 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.UnknownError);
             }
-            courseMember.TeamId = team.Id;
-            await courseMemberStorage.Update(courseMember);
+            if (member.IsStudent)
+            {
+                member.TeamId = team.Id;
+                await memberStorage.Update(member);
+            }
             return RedirectPermanent($"{CourseRootPath}/team/edit?id={team.Id}");
         }
 
@@ -1192,17 +1205,17 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent($"{CourseRootPath}?id={course.Id}");
             }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (courseMember is null || !await CanViewCourse(course, courseMember))
+            var member = await GetSelfCourseMember(course.Id);
+            if (!await CanViewCourse(course, member))
             {
                 return View("Status", ActionStatus.NoAccess);
             }
-            var teamMembers = await courseMemberStorage.Select(member => member.TeamId == team.Id);
-            var model = new TeamVM(course, courseMember, team);
-            foreach (var member in teamMembers)
+            var teamMembers = await GetTeamMembers(team.Id);
+            var model = new TeamVM(course, member, team);
+            foreach (var otherMember in teamMembers)
             {
-                var memberAccount = await accountStorage.Find(member.Username);
-                model.Members.Add(new(member, memberAccount));
+                var otherAccount = await accountStorage.Find(otherMember.Username);
+                model.AllMemberInfo.Add(new(otherMember, otherAccount));
             }
             await FixLeaderUsername(team, teamMembers);
             return View("Team", model);
@@ -1235,7 +1248,7 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NotSupported);
             }
             var course = await courseStorage.Find(team.CourseId);
-            if (course is null)
+            if (course is null || !course.HasTeams)
             {
                 return View("Status", ActionStatus.NotSupported);
             }
@@ -1243,28 +1256,29 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent($"{CourseRootPath}/course?id={course.Id}");
             }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (courseMember is null)
-            {
-                return View("Status", ActionStatus.NoPermission);
-            }
+            var member = await GetSelfCourseMember(course.Id);
             if (actionCode == "join" || actionCode == "leave")
             {
-                courseMember.TeamId = actionCode == "join" ? team.Id : null;
-                await courseMemberStorage.Update(courseMember);
+                if (!member.CanChangeTeam(course))
+                {
+                    return View("Status", ActionStatus.NotSupported);
+                }
+                member.TeamId = actionCode == "join" ? team.Id : null;
+                await memberStorage.Update(member);
                 return RedirectPermanent($"{CourseRootPath}/team?id={team.Id}");
             }
             else
             {
-                if (!courseMember.CanEditTeam(course, team))
+                // actionCode == "delete"
+                if (!member.CanEditTeam(course, team))
                 {
                     return View("Status", ActionStatus.NoPermission);
                 }
-                var teamMembers = await courseMemberStorage.Select(member => member.TeamId == team.Id);
-                foreach (var member in teamMembers)
+                var teamMembers = await GetTeamMembers(team.Id);
+                foreach (var teamMember in teamMembers)
                 {
-                    member.TeamId = null;
-                    await courseMemberStorage.Update(member);
+                    teamMember.TeamId = null;
+                    await memberStorage.Update(member);
                 }
                 await teamStorage.TryDelete(team);
             }
@@ -1301,16 +1315,12 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NotSupported);
             }
             var course = await courseStorage.Find(team.CourseId);
-            if (course is null)
+            if (course is null || !course.HasTeams)
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            if (course is null)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (courseMember is null || !courseMember.CanEditTeam(course, team))
+            var member = await GetSelfCourseMember(course.Id);
+            if (!member.CanEditTeam(course, team))
             {
                 return View("Status", ActionStatus.NoPermission);
             }
@@ -1359,16 +1369,12 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NotSupported);
             }
             var course = await courseStorage.Find(team.CourseId);
-            if (course is null)
+            if (course is null || !course.HasTeams)
             {
                 return View("Status", ActionStatus.NotSupported);
             }
-            if (!course.HasTeams)
-            {
-                return RedirectPermanent($"{CourseRootPath}/course?id={course.Id}");
-            }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (courseMember is null || !courseMember.CanEditTeam(course, team))
+            var member = await GetSelfCourseMember(course.Id);
+            if (!member.CanEditTeam(course, team))
             {
                 return View("Status", ActionStatus.NoPermission);
             }
@@ -1385,21 +1391,21 @@ namespace HomemadeLMS.Controllers
             if (actionCode == "add" && Account.HasUsernameValidFormat(addedUsername))
             {
                 var uid = CourseMember.BuildUid(course.Id, addedUsername);
-                var otherMember = await courseMemberStorage.Find(uid);
+                var otherMember = await memberStorage.Find(uid);
                 if (otherMember is not null && otherMember.TeamId is null)
                 {
                     otherMember.TeamId = teamId;
-                    await courseMemberStorage.Update(otherMember);
+                    await memberStorage.Update(otherMember);
                 }
             }
             if (actionCode == "remove" && Account.HasUsernameValidFormat(removedUsername))
             {
                 var uid = CourseMember.BuildUid(course.Id, removedUsername);
-                var otherMember = await courseMemberStorage.Find(uid);
+                var otherMember = await memberStorage.Find(uid);
                 if (otherMember is not null && otherMember.TeamId == teamId)
                 {
                     otherMember.TeamId = null;
-                    await courseMemberStorage.Update(otherMember);
+                    await memberStorage.Update(otherMember);
                 }
             }
             return RedirectPermanent($"{CourseRootPath}/team/members?teamId={team.Id}");
@@ -1430,44 +1436,30 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent($"{CourseRootPath}?id={course.Id}");
             }
-            var courseMember = await GetCourseMember(course.Id, account.Username);
-            if (courseMember is null || !courseMember.CanEditTeam(course, team))
+            var member = await GetSelfCourseMember(course.Id);
+            if (!member.CanEditTeam(course, team))
             {
                 return View("Status", ActionStatus.NoPermission);
             }
             var model = new TeamEditionVM(team);
-            var teamMembers = await courseMemberStorage.Select(member => member.TeamId == team.Id);
+            var teamMembers = await GetTeamMembers(team.Id);
             model.Members = teamMembers;
             await FixLeaderUsername(team, teamMembers);
             return View(isForMembers ? "EditTeamMembers" : "EditTeam", model);
         }
 
-        private async Task<bool> CanViewCourse(Course course)
+        private async Task<bool> CanViewCourse(Course course, CourseMember member)
         {
             var account = await GetAccount();
             if (account is null)
             {
-                return false;
+                throw new NotSupportedException("Request maker must be authorized.");
             }
             if (account.Role == UserRole.Manager || account.Username == course.OwnerUsername)
             {
                 return true;
             }
-            return await GetCourseMember(course.Id, account.Username) is not null;
-        }
-
-        private async Task<bool> CanViewCourse(Course course, CourseMember? courseMember)
-        {
-            var account = await GetAccount();
-            if (account is null)
-            {
-                return false;
-            }
-            if (account.Role == UserRole.Manager || account.Username == course.OwnerUsername)
-            {
-                return true;
-            }
-            return courseMember is not null;
+            return !member.IsStranger;
         }
 
         private async Task<List<HomeworkStatus>> GetAllHomeworkStatus(Homework homework)
@@ -1488,11 +1480,9 @@ namespace HomemadeLMS.Controllers
             }
             else
             {
-                var allMembers = await courseMemberStorage.Select(
-                    courseMember => courseMember.CourseId == homework.CourseId
-                );
-                var completers = allMembers.Where(member => member.IsStudent).ToList();
-                foreach (var member in completers)
+                var courseMembers = await GetCourseMembers(homework.CourseId);
+                var students = courseMembers.Where(member => member.IsStudent).ToList();
+                foreach (var member in students)
                 {
                     if (allStatus.All(status => status.SubjectId != member.Username))
                     {
@@ -1507,12 +1497,12 @@ namespace HomemadeLMS.Controllers
         {
             var courseId = courseMember.CourseId;
             var username = courseMember.Username;
-            var result = await courseAggregator.GetAllHomeworkWithStatus(courseId, username);
+            var result = await entityAggregator.GetAllPersonalHomework(courseId, username);
             var teamId = courseMember.TeamId;
             if (teamId is not null)
             {
                 var tag = Team.BuildTag((int)teamId);
-                var allTeamHomework = await courseAggregator.GetAllHomeworkWithStatus(courseId, tag);
+                var allTeamHomework = await entityAggregator.GetAllPersonalHomework(courseId, tag);
                 result = result.Concat(allTeamHomework).ToList();
             }
             var allHomework = await homeworkStorage.Select(homework => homework.CourseId == courseId);
@@ -1536,21 +1526,42 @@ namespace HomemadeLMS.Controllers
             return result;
         }
 
-        private async Task<CourseMember?> GetCourseMember(int courseId, string username)
+        private async Task<CourseMember> GetSelfCourseMember(int courseId)
         {
-            var members = await courseMemberStorage.Select(
-                    member => member.CourseId == courseId && member.Username == username
-            );
-            return members.FirstOrDefault();
+            var account = await GetAccount();
+            if (account is null)
+            {
+                throw new NotSupportedException("Request maker must be authorized.");
+            }
+            var uid = CourseMember.BuildUid(courseId, account.Username);
+            var member = await memberStorage.Find(uid);
+            member ??= CourseMember.BuildStranger(courseId, account.Username);
+            return member;
+        }
+
+        private async Task<List<CourseMember>> GetCourseMembers(int courseId)
+            => await memberStorage.Select(member => member.CourseId == courseId);
+
+        private async Task<List<CourseMember>> GetTeamMembers(int teamId)
+        {
+            var members = await memberStorage.Select(member => member.TeamId == teamId);
+            return members.Where(member => member.IsStudent).ToList();
         }
 
         private async Task FixLeaderUsername(Team team, List<CourseMember> teamMembers)
         {
-            if (teamMembers.Any()
-                && teamMembers.All(member => member.Username != team.LeaderUsername))
+            if (teamMembers.All(member => member.Username != team.LeaderUsername))
             {
-                team.LeaderUsername = teamMembers.First().Username;
-                await teamStorage.Update(team);
+                if (teamMembers.Any())
+                {
+                    team.LeaderUsername = teamMembers.First().Username;
+                    await teamStorage.Update(team);
+                }
+                else if (team.LeaderUsername is not null)
+                {
+                    team.LeaderUsername = null;
+                    await teamStorage.Update(team);
+                }
             }
         }
 
@@ -1565,7 +1576,7 @@ namespace HomemadeLMS.Controllers
                 if (courseTeams.All(team => team.Id != member.TeamId))
                 {
                     member.TeamId = null;
-                    await courseMemberStorage.Update(member);
+                    await memberStorage.Update(member);
                 }
             }
         }

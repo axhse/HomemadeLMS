@@ -2,11 +2,11 @@
 
 namespace HomemadeLMS.Models
 {
-	public static class DataUtils
+    public static class DataUtils
     {
         public const int MskHourOffset = +3;
         public const char SpaceChar = '\u0020';
-		public static readonly int MaxNumericStringSize = long.MinValue.ToString().Length;
+        public static readonly int MaxNumericStringSize = long.MinValue.ToString().Length;
 
         public static bool IsValuable(string? text)
         {
@@ -26,12 +26,12 @@ namespace HomemadeLMS.Models
         }
 
         public static string? GetTrimmed(string? text)
-		{
-			if (text is null)
-			{
-				return null;
-			}
-			return text.Trim();
+        {
+            if (text is null)
+            {
+                return null;
+            }
+            return text.Trim();
         }
-	}
+    }
 }

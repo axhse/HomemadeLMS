@@ -3,7 +3,7 @@
 @{
 	ViewData["Title"] = "Курсы";
 	var navbarMenu = MenuBuilder.DefaultNavbarMenu;
-	navbarMenu.Items.RemoveAt(1);
+	navbarMenu.Links.RemoveAt(1);
 	ViewData["NavbarMenu"] = navbarMenu;
 
 	Model.Object.Sort((first, second) => -first.Id.CompareTo(second.Id));

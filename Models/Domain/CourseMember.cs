@@ -3,7 +3,7 @@
     public enum CourseRole
     {
         Assistant,
-        Spectator,
+        None,
         Student,
         Teacher,
     }
@@ -26,8 +26,8 @@
         public static string BuildUid(int courseId, string username)
             => $"{courseId}{UidSeparator}{username}";
 
-        public static CourseMember BuildSpectator(int courseId, string username)
-            => new(courseId, username, CourseRole.Spectator);
+        public static CourseMember BuildStranger(int courseId, string username)
+            => new(courseId, username, CourseRole.None);
 
         public int CourseId { get; set; }
         public int? TeamId { get; set; }
@@ -52,15 +52,14 @@
             }
         }
 
+        public bool IsAssistantOrTeacher => Role == CourseRole.Assistant || IsTeacher;
+        public bool IsStranger => Role == CourseRole.None;
         public bool IsStudent => Role == CourseRole.Student;
         public bool IsTeacher => Role == CourseRole.Teacher;
 
-        public bool CanChangeTeam(Course course) => IsStudent
-            && course.HasTeams && !course.IsTeamStateLocked;
-
-        public bool CanCreateTeam(Course course) => !IsStudent || !course.IsTeamStateLocked;
-
-        public bool CanEditTeam(Course course, Team team) => !IsStudent
-            || (team.LeaderUsername == Username && !course.IsTeamStateLocked);
+        public bool CanChangeTeam(Course course) => IsStudent && !course.IsTeamStateLocked;
+        public bool CanCreateTeam(Course course) => IsAssistantOrTeacher || CanChangeTeam(course);
+        public bool CanEditTeam(Course course, Team team)
+            => IsAssistantOrTeacher || (CanChangeTeam(course) && team.LeaderUsername == Username);
     }
 }

@@ -2,18 +2,18 @@
 {
 	public static class MenuBuilder
     {
-        public static LinkItem AccountLink => new() { Href = "/account", Label = "Аккаунт" };
-        public static LinkItem CourseLink => new() { Href = "/courses", Label = "Курсы" };
-        public static LinkItem ExtensionLink => new() { Href = "/extension", Label = "Дополнения" };
+        public static Link AccountLink => new() { Href = "/account", Label = "Аккаунт" };
+        public static Link CourseLink => new() { Href = "/courses", Label = "Курсы" };
+        public static Link ExtensionLink => new() { Href = "/extension", Label = "Дополнения" };
 
         public static LinkGroup DefaultNavbarMenu
 		{
             get
             {
                 var linkGroup = new LinkGroup();
-                linkGroup.Items.Add(AccountLink);
-                linkGroup.Items.Add(CourseLink);
-                linkGroup.Items.Add(ExtensionLink);
+                linkGroup.Links.Add(AccountLink);
+                linkGroup.Links.Add(CourseLink);
+                linkGroup.Links.Add(ExtensionLink);
                 return linkGroup;
             }
         }

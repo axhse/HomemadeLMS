@@ -24,13 +24,13 @@
                             <button id="popup-menu-button" class="btn dropdown-toggle"
                             data-bs-toggle="dropdown" aria-expanded="false">☰</button>
                             <ul id="popup-menu" class="dropdown-menu">
-                                @foreach (var linkGroup in menu.LinkGroups)
+                                @foreach (var linkGroup in menu.Groups)
                                 {
-                                    if (linkGroup != menu.LinkGroups[0])
+                                    if (linkGroup != menu.Groups[0])
                                     {
                                         <li class="dropdown-divider"></li>
                                     }
-                                    @foreach (var linkItem in linkGroup.Items)
+                                    @foreach (var linkItem in linkGroup.Links)
                                     {
                                         string linkCategoryName = linkItem.LinkCategory switch
                                         {
@@ -57,7 +57,7 @@
                     if (menuLinkGroup is not null)
                     {
                         <div class="ms-4"></div>
-                        foreach (LinkItem item in menuLinkGroup.Items)
+                        foreach (Link item in menuLinkGroup.Links)
                         {
                             <a href="@item.Href">
                                 <div class="mx-4 my-2">@item.Label</div>

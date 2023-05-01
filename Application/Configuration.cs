@@ -2,30 +2,42 @@ namespace HomemadeLMS.Application
 {
     public struct AppConfig
     {
-        public BuildingConfig BuildingConfig;
-        public DatabaseConfig DatabaseConfig;
+        public AppConfig(BuilderConfig builderConfig, DatabaseConfig databaseConfig)
+        {
+            BuilderConfig = builderConfig;
+            DatabaseConfig = databaseConfig;
+        }
+
+        public BuilderConfig BuilderConfig { get; set; }
+        public DatabaseConfig DatabaseConfig { get; set; }
     }
 
-    public struct BuildingConfig
+    public struct BuilderConfig
     {
-        public bool IsDevelopmentExceptionHandlerEnabled;
-        public bool IsHttpsForced;
-
-        public BuildingConfig()
+        public BuilderConfig()
         {
-            IsDevelopmentExceptionHandlerEnabled = false;
+            HasDevExceptionHandler = false;
             IsHttpsForced = false;
         }
+
+        public BuilderConfig(bool hasDevExceptionHandler, bool isHttpsForced)
+        {
+            HasDevExceptionHandler = hasDevExceptionHandler;
+            IsHttpsForced = isHttpsForced;
+        }
+
+        public bool HasDevExceptionHandler { get; set; }
+        public bool IsHttpsForced { get; set; }
     }
 
     public struct DatabaseConfig
     {
-        public string DbConnectionString;
-
-        public DatabaseConfig(string dbConnectionString)
+        public DatabaseConfig(string connectionString)
         {
-            DbConnectionString = dbConnectionString;
+            ConnectionString = connectionString;
         }
+
+        public string ConnectionString { get; set; }
     }
 
     public static class AppConfigBuilder
@@ -44,20 +56,16 @@ namespace HomemadeLMS.Application
 
         private static AppConfig ParseConfigRoot(IConfigurationRoot configRoot)
         {
-            var buildingConfigRoot = configRoot.GetSection("Building");
-            var buildingConfig = new BuildingConfig
-            {
-                IsDevelopmentExceptionHandlerEnabled
-                    = buildingConfigRoot.GetValue<bool>("IsDevelopmentExceptionHandlerEnabled"),
-                IsHttpsForced = buildingConfigRoot.GetValue<bool>("IsHttpsForced"),
-            };
-            var databaseConfig = new DatabaseConfig(
-                buildingConfigRoot.GetValue<string>("DbConnectionString"));
-            return new AppConfig
-            {
-                BuildingConfig = buildingConfig,
-                DatabaseConfig = databaseConfig,
-            };
+            var builderConfigRoot = configRoot.GetSection("Builder");
+            var hasDevExceptionHandler = builderConfigRoot.GetValue<bool>("HasDevExceptionHandler");
+            var isHttpsForced = builderConfigRoot.GetValue<bool>("IsHttpsForced");
+            var builderConfig = new BuilderConfig(hasDevExceptionHandler, isHttpsForced);
+
+            var databaseConfigRoot = configRoot.GetSection("Database");
+            var connectionString = databaseConfigRoot.GetValue<string>("ConnectionString");
+            var databaseConfig = new DatabaseConfig(connectionString);
+
+            return new AppConfig(builderConfig, databaseConfig);
         }
     }
 }

@@ -107,16 +107,10 @@ namespace HomemadeLMS.Controllers
             }
             var username = role.ToString().ToLower() + id.ToString();
 
-            if (!await accountStorage.HasKey(username))
+            if (await accountStorage.Find(username) is null)
             {
-                var newAccount = new Account(username, "password123")
-                {
-                    Role = role
-                };
-                if (!await accountStorage.TryInsert(newAccount))
-                {
-                    return View("Status", ActionStatus.UnknownError);
-                }
+                var newAccount = new Account(username, "password123") { Role = role };
+                await accountStorage.TryInsert(newAccount);
             }
             var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, username) };
             ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);

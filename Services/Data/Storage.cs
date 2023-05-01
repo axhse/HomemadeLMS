@@ -36,22 +36,6 @@ namespace HomemadeLMS.Services.Data
             }
         }
 
-        public async Task<bool> HasKey(TPrimaryKey key)
-        {
-            if (key is null)
-            {
-                return false;
-            }
-            try
-            {
-                return await Find(key) is not null;
-            }
-            catch (Exception exception)
-            {
-                throw new StorageException(exception);
-            }
-        }
-
         public async Task<List<TEntity>> Select(Expression<Func<TEntity, bool>> selector)
         {
             if (selector is null)

@@ -1,12 +1,12 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseMemberAndObject<PersonalHomework>
+@model MemberAndObject<PersonalHomework>
 @{
 	ViewData["Title"] = "Задание";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 
 	var homework = Model.Object.Homework;
 	var homeworkStatus = Model.Object.HomeworkStatus;
-	List<LinkItem> links = new();
+	List<Link> links = new();
 	if (homework.TaskUrl is not null && DataUtils.IsValuable(homework.TaskUrl))
 	{
 		links.Add(new() { Href = homework.TaskUrl, Label = "Cсылка на задание" });
@@ -61,7 +61,7 @@
 	}
 	<div class="mt-4"></div>
 	<label>@(homework.IsTeamwork ? "Командное задание" : "Индивидуальное задание")</label>
-	@if (Model.CourseMember.IsStudent)
+	@if (Model.Member.IsStudent)
 	{
 		<div class="mt-5"></div>
 		@if (homeworkStatus.IsSubmitted && homeworkStatus.SubmitTime is not null)
@@ -90,7 +90,7 @@
 			}
 		</form>
 	}
-	@if (Model.CourseMember.IsTeacher)
+	@if (Model.Member.IsTeacher)
 	{
 		<div class="mt-5"></div>
 		<form method="POST">
@@ -100,7 +100,7 @@
 			</button>
 		</form>
 	}
-	@if (!Model.CourseMember.IsStudent)
+	@if (Model.Member.IsAssistantOrTeacher)
 	{
 		<div class="mt-4"></div>
 		<a href="/course/marks?taskId=@homework.Id">Оценки</a>

@@ -4,15 +4,15 @@
 	ViewData["Title"] = "Команды";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 
-	var username = Model.CourseMember.Username;
+	var username = Model.Member.Username;
 	var teams = Model.Teams;
-	var members = Model.MembersWithoutTeam;
+	var members = Model.SingleStudents;
 	teams.Sort((first, second) => first.Id.CompareTo(second.Id));
 	members.Sort((first, second) => first.Username.CompareTo(second.Username));
 }
 
 <div class="col-12 col-md-10 col-lg-8 col-xl-6">
-	@if (Model.CourseMember.CanCreateTeam(Model.Course))
+	@if (Model.Member.CanCreateTeam(Model.Course))
 	{
 		<form method="POST">
 			<button type="submit" class="btn btn-secondary">+ Создать команду</button>

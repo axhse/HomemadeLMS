@@ -1,6 +1,6 @@
 ﻿namespace HomemadeLMS.Models.Domain
 {
-	public class Announcement
+    public class Announcement
     {
         public const int MaxContentSize = 3000;
         public const int MaxTitleSize = 500;

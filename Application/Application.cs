@@ -1,8 +1,6 @@
 using HomemadeLMS.Models.Domain;
 using HomemadeLMS.Services.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace HomemadeLMS.Application
 {
@@ -27,15 +25,14 @@ namespace HomemadeLMS.Application
         public static App BuildApp(AppConfig appConfig)
         {
             var builder = WebApplication.CreateBuilder();
-            ConfigureWebServices(builder.Services, appConfig.BuildingConfig);
+            ConfigureWebServices(builder.Services, appConfig.BuilderConfig);
             ConfigureDomainServices(builder.Services);
             var webApplication = builder.Build();
-            ConfigureWebApp(webApplication, appConfig.BuildingConfig);
+            ConfigureWebApp(webApplication, appConfig.BuilderConfig);
             return new App(appConfig, webApplication);
         }
 
-        private static void ConfigureWebServices(
-            IServiceCollection services, BuildingConfig config)
+        private static void ConfigureWebServices(IServiceCollection services, BuilderConfig config)
         {
             services.AddControllersWithViews();
             if (config.IsHttpsForced)
@@ -44,47 +41,26 @@ namespace HomemadeLMS.Application
             }
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(
-                options =>
-                {
-                    options.Cookie.Name = "AuthToken";
-                }
-            );
+                    .AddCookie(options => { options.Cookie.Name = "AuthToken"; });
         }
 
-        private static void ConfigureDomainServices(
-            IServiceCollection services)
+        private static void ConfigureDomainServices(IServiceCollection services)
         {
-            services.AddScoped<IStorage<int, Announcement>>(
-                _ => new Storage<int, Announcement>(new AnnouncementContext())
-            );
-            services.AddScoped<IStorage<int, Course>>(
-                _ => new Storage<int, Course>(new CourseContext())
-            );
-            services.AddScoped<IStorage<int, Homework>>(
-                _ => new Storage<int, Homework>(new HomeworkContext())
-            );
-            services.AddScoped<IStorage<int, Team>>(
-                _ => new Storage<int, Team>(new TeamContext())
-            );
-            services.AddScoped<IStorage<string, Account>>(
-                _ => new Storage<string, Account>(new AccountContext())
-            );
-            services.AddScoped<IStorage<string, CourseMember>>(
-                _ => new Storage<string, CourseMember>(new CourseMemberContext())
-            );
-            services.AddScoped<IStorage<string, HomeworkStatus>>(
-                _ => new Storage<string, HomeworkStatus>(new HomeworkStatusContext())
-            );
-            services.AddScoped<IStorage<string, RoleTestResult>>(
-                _ => new Storage<string, RoleTestResult>(new RoleTestResultContext())
-            );
-            services.AddScoped(_ => new CourseAggregator(new CourseCompositeContext()));
+            AddStorage<int, Announcement>(services, () => new AnnouncementContext());
+            AddStorage<int, Course>(services, () => new CourseContext());
+            AddStorage<int, Homework>(services, () => new HomeworkContext());
+            AddStorage<int, Team>(services, () => new TeamContext());
+            AddStorage<string, Account>(services, () => new AccountContext());
+            AddStorage<string, CourseMember>(services, () => new CourseMemberContext());
+            AddStorage<string, HomeworkStatus>(services, () => new HomeworkStatusContext());
+            AddStorage<string, RoleTestResult>(services, () => new RoleTestResultContext());
+
+            services.AddScoped(_ => new EntityAggregator(new CompositeContext()));
         }
 
-        private static void ConfigureWebApp(WebApplication app, BuildingConfig config)
+        private static void ConfigureWebApp(WebApplication app, BuilderConfig config)
         {
-            if (config.IsDevelopmentExceptionHandlerEnabled)
+            if (config.HasDevExceptionHandler)
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -98,13 +74,19 @@ namespace HomemadeLMS.Application
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
+
             app.UseStaticFiles();
 
             app.UseAuthentication();
-            app.UseAuthorization();
 
             app.UseRouting();
-            app.UseEndpoints(endpoints => new Router().ConfigureEndpoints(endpoints));
+            app.UseEndpoints(endpoints => Router.ConfigureEndpoints(endpoints));
+        }
+
+        private static void AddStorage<TKey, TValue>(IServiceCollection services,
+            Func<GenericContext<TValue>> source) where TValue : class
+        {
+            services.AddScoped<IStorage<TKey, TValue>>(_ => new Storage<TKey, TValue>(source()));
         }
     }
 }

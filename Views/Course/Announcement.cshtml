@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseMemberAndObject<Announcement>
+@model MemberAndObject<Announcement>
 @{
 	ViewData["Title"] = "Объявление";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
@@ -14,7 +14,7 @@
 			<pre class="pre-vertical">@Model.Object.Content</pre>
 		</div>
 	}
-	@if (Model.CourseMember.IsTeacher)
+	@if (Model.Member.IsTeacher)
 	{
 		var editionUrl = $"/course/announcement/edit?id={Model.Object.Id}";
 

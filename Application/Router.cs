@@ -1,8 +1,8 @@
 namespace HomemadeLMS.Application
 {
-    public sealed class Router
+    public static class Router
     {
-        public void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
+        public static void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapControllers();
             endpoints.MapControllerRoute(

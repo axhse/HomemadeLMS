@@ -10,10 +10,10 @@ namespace HomemadeLMS.ViewModels
 
     public class LinkGroup
     {
-        public List<LinkItem> Items = new();
+        public List<Link> Links = new();
     }
 
-    public class LinkItem
+    public class Link
     {
         public string Href { get; set; } = string.Empty;
         public string Label { get; set; } = string.Empty;
@@ -22,6 +22,6 @@ namespace HomemadeLMS.ViewModels
 
     public class Menu
     {
-        public List<LinkGroup> LinkGroups = new();
+        public List<LinkGroup> Groups = new();
     }
 }

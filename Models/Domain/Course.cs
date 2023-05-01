@@ -107,7 +107,7 @@
             }
         }
 
-        public bool CanBeEditedBy(Account account) => account.Role == UserRole.Manager
-            || (account.Role == UserRole.Teacher && OwnerUsername == account.Username);
+        public bool CanBeEditedBy(Account account)
+            => account.Role == UserRole.Manager || OwnerUsername == account.Username;
     }
 }

@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseMemberAndObject<List<PersonalHomework>>
+@model MemberAndObject<List<PersonalHomework>>
 @{
 	ViewData["Title"] = "Задания";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
@@ -10,7 +10,7 @@
 }
 
 <div class="col-12 col-md-10 col-lg-8 col-xl-6">
-	@if (Model.CourseMember.IsTeacher)
+	@if (Model.Member.IsTeacher)
 	{
 		<form method="POST">
 			<button type="submit" class="btn btn-secondary mt-1" name="actionCode" value="add-individual">

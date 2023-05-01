@@ -15,7 +15,7 @@ namespace HomemadeLMS.Services.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(Program.AppConfig.DatabaseConfig.DbConnectionString);
+            optionsBuilder.UseSqlServer(Program.AppConfig.DatabaseConfig.ConnectionString);
             base.OnConfiguring(optionsBuilder);
         }
 

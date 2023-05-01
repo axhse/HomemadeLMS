@@ -1,6 +1,6 @@
 ﻿namespace HomemadeLMS.Models.Domain
 {
-	public class Homework
+    public class Homework
     {
         public const int MaxUrlLabelSize = 200;
 

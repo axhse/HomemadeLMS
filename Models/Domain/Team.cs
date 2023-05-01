@@ -1,10 +1,10 @@
 ﻿namespace HomemadeLMS.Models.Domain
 {
-	public class Team
+    public class Team
     {
         public const int MaxNameSize = 100;
         public const string TagStarting = "#t";
-		public static readonly int TagSize = TagStarting.Length + DataUtils.MaxNumericStringSize;
+        public static readonly int TagSize = TagStarting.Length + DataUtils.MaxNumericStringSize;
 
         private const string DefaultName = "New Team";
         private string name;
@@ -23,20 +23,20 @@
         }
 
         public static bool HasTagValidFormat(string? tag)
-		{
-			return tag is not null
-				   && tag.StartsWith(TagStarting)
-				   && int.TryParse(tag[TagStarting.Length..], out var _);
+        {
+            return tag is not null
+                   && tag.StartsWith(TagStarting)
+                   && int.TryParse(tag[TagStarting.Length..], out var _);
         }
 
-		public static bool TryGetId(string? tag, out int id)
-		{
-			id = 0;
-			if (tag is null || !tag.StartsWith(TagStarting))
-			{
-				return false;
-			}
-			return int.TryParse(tag[TagStarting.Length..], out id);
+        public static bool TryGetId(string? tag, out int id)
+        {
+            id = 0;
+            if (tag is null || !tag.StartsWith(TagStarting))
+            {
+                return false;
+            }
+            return int.TryParse(tag[TagStarting.Length..], out id);
         }
 
         public static string BuildTag(int teamId) => $"{TagStarting}{teamId}";

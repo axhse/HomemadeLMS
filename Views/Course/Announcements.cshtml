@@ -1,5 +1,5 @@
 ﻿@using HomemadeLMS.Models.Domain
-@model CourseMemberAndObject<List<Announcement>>
+@model MemberAndObject<List<Announcement>>
 @{
 	ViewData["Title"] = "Объявления";
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
@@ -8,7 +8,7 @@
 }
 
 <div class="col-12 col-lg-8">
-	@if (Model.CourseMember.IsTeacher)
+	@if (Model.Member.IsTeacher)
 	{
 		<form method="POST">
 			<button type="submit" class="btn btn-secondary">+ Добавить объявление</button>
