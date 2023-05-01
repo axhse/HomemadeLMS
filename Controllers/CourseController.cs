@@ -645,7 +645,7 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NoAccess);
             }
             var model = new CourseAndObject<CourseMember>(account, course, otherMember);
-            return View("Member", model);
+            return View("CourseMember", model);
         }
 
         [HttpPost]
@@ -686,7 +686,7 @@ namespace HomemadeLMS.Controllers
                 await memberStorage.Update(otherMember);
             }
             var model = new CourseAndObject<CourseMember>(account, course, otherMember);
-            return View("Member", model);
+            return View("CourseMember", model);
         }
 
         [HttpGet]
