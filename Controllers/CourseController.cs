@@ -1178,115 +1178,6 @@ namespace HomemadeLMS.Controllers
 
         [HttpGet]
         [RequireHttps]
-        [Route(CourseRootPath + "/team")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> Team_One_Get(int id)
-        {
-            if (id <= 0)
-            {
-                return View("Status", ActionStatus.NotFound);
-            }
-            var account = await GetAccount();
-            if (account is null)
-            {
-                return RedirectPermanent(SignInPath);
-            }
-            var team = await teamStorage.Find(id);
-            if (team is null)
-            {
-                return View("Status", ActionStatus.NotFound);
-            }
-            var course = await courseStorage.Find(team.CourseId);
-            if (course is null)
-            {
-                return View("Status", ActionStatus.NotFound);
-            }
-            if (!course.HasTeams)
-            {
-                return RedirectPermanent($"{CourseRootPath}?id={course.Id}");
-            }
-            var member = await GetSelfCourseMember(course.Id);
-            if (!await CanViewCourse(course, member))
-            {
-                return View("Status", ActionStatus.NoAccess);
-            }
-            var teamMembers = await GetTeamMembers(team.Id);
-            var model = new TeamVM(course, member, team);
-            foreach (var otherMember in teamMembers)
-            {
-                var otherAccount = await accountStorage.Find(otherMember.Username);
-                model.AllMemberInfo.Add(new(otherMember, otherAccount));
-            }
-            await FixLeaderUsername(team, teamMembers);
-            return View("Team", model);
-        }
-
-        [HttpPost]
-        [RequireHttps]
-        [Route(CourseRootPath + "/team")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> Team_One_Post(int id)
-        {
-            if (id <= 0)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            var parser = new FormParser(Request.Form);
-            var actionCode = parser.GetString("actionCode");
-            if (actionCode != "join" && actionCode != "leave" && actionCode != "delete")
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            var account = await GetAccount();
-            if (account is null)
-            {
-                return RedirectPermanent(SignInPath);
-            }
-            var team = await teamStorage.Find(id);
-            if (team is null)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            var course = await courseStorage.Find(team.CourseId);
-            if (course is null || !course.HasTeams)
-            {
-                return View("Status", ActionStatus.NotSupported);
-            }
-            if (!course.HasTeams)
-            {
-                return RedirectPermanent($"{CourseRootPath}/course?id={course.Id}");
-            }
-            var member = await GetSelfCourseMember(course.Id);
-            if (actionCode == "join" || actionCode == "leave")
-            {
-                if (!member.CanChangeTeam(course))
-                {
-                    return View("Status", ActionStatus.NotSupported);
-                }
-                member.TeamId = actionCode == "join" ? team.Id : null;
-                await memberStorage.Update(member);
-                return RedirectPermanent($"{CourseRootPath}/team?id={team.Id}");
-            }
-            else
-            {
-                // actionCode == "delete"
-                if (!member.CanEditTeam(course, team))
-                {
-                    return View("Status", ActionStatus.NoPermission);
-                }
-                var teamMembers = await GetTeamMembers(team.Id);
-                foreach (var teamMember in teamMembers)
-                {
-                    teamMember.TeamId = null;
-                    await memberStorage.Update(member);
-                }
-                await teamStorage.TryDelete(team);
-            }
-            return RedirectPermanent($"{CourseRootPath}/teams?courseId={course.Id}");
-        }
-
-        [HttpGet]
-        [RequireHttps]
         [Route(CourseRootPath + "/team" + "/edit")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Team_Edit_Get(int id)
@@ -1411,6 +1302,115 @@ namespace HomemadeLMS.Controllers
             return RedirectPermanent($"{CourseRootPath}/team/members?teamId={team.Id}");
         }
 
+        [HttpGet]
+        [RequireHttps]
+        [Route(CourseRootPath + "/team")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Team_One_Get(int id)
+        {
+            if (id <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var team = await teamStorage.Find(id);
+            if (team is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var course = await courseStorage.Find(team.CourseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            if (!course.HasTeams)
+            {
+                return RedirectPermanent($"{CourseRootPath}?id={course.Id}");
+            }
+            var member = await GetSelfCourseMember(course.Id);
+            if (!await CanViewCourse(course, member))
+            {
+                return View("Status", ActionStatus.NoAccess);
+            }
+            var teamMembers = await GetTeamMembers(team.Id);
+            var model = new TeamVM(course, member, team);
+            foreach (var otherMember in teamMembers)
+            {
+                var otherAccount = await accountStorage.Find(otherMember.Username);
+                model.AllMemberInfo.Add(new(otherMember, otherAccount));
+            }
+            await FixLeaderUsername(team, teamMembers);
+            return View("Team", model);
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(CourseRootPath + "/team")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Team_One_Post(int id)
+        {
+            if (id <= 0)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var parser = new FormParser(Request.Form);
+            var actionCode = parser.GetString("actionCode");
+            if (actionCode != "join" && actionCode != "leave" && actionCode != "delete")
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var team = await teamStorage.Find(id);
+            if (team is null)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            var course = await courseStorage.Find(team.CourseId);
+            if (course is null || !course.HasTeams)
+            {
+                return View("Status", ActionStatus.NotSupported);
+            }
+            if (!course.HasTeams)
+            {
+                return RedirectPermanent($"{CourseRootPath}/course?id={course.Id}");
+            }
+            var member = await GetSelfCourseMember(course.Id);
+            if (actionCode == "join" || actionCode == "leave")
+            {
+                if (!member.CanChangeTeam(course))
+                {
+                    return View("Status", ActionStatus.NotSupported);
+                }
+                member.TeamId = actionCode == "join" ? team.Id : null;
+                await memberStorage.Update(member);
+                return RedirectPermanent($"{CourseRootPath}/team?id={team.Id}");
+            }
+            else
+            {
+                // actionCode == "delete"
+                if (!member.CanEditTeam(course, team))
+                {
+                    return View("Status", ActionStatus.NoPermission);
+                }
+                var teamMembers = await GetTeamMembers(team.Id);
+                foreach (var teamMember in teamMembers)
+                {
+                    teamMember.TeamId = null;
+                    await memberStorage.Update(member);
+                }
+                await teamStorage.TryDelete(team);
+            }
+            return RedirectPermanent($"{CourseRootPath}/teams?courseId={course.Id}");
+        }
+
         private async Task<IActionResult> Team_Edit_Get_Result(int teamId, bool isForMembers)
         {
             if (teamId <= 0)
@@ -1448,6 +1448,39 @@ namespace HomemadeLMS.Controllers
             return View(isForMembers ? "EditTeamMembers" : "EditTeam", model);
         }
 
+        private async Task FixLeaderUsername(Team team, List<CourseMember> teamMembers)
+        {
+            if (teamMembers.All(member => member.Username != team.LeaderUsername))
+            {
+                if (teamMembers.Any())
+                {
+                    team.LeaderUsername = teamMembers.First().Username;
+                    await teamStorage.Update(team);
+                }
+                else if (team.LeaderUsername is not null)
+                {
+                    team.LeaderUsername = null;
+                    await teamStorage.Update(team);
+                }
+            }
+        }
+
+        private async Task FixTeamIds(List<CourseMember> courseMembers, List<Team> courseTeams)
+        {
+            foreach (var member in courseMembers)
+            {
+                if (!member.IsStudent || member.TeamId is null)
+                {
+                    continue;
+                }
+                if (courseTeams.All(team => team.Id != member.TeamId))
+                {
+                    member.TeamId = null;
+                    await memberStorage.Update(member);
+                }
+            }
+        }
+
         private async Task<bool> CanViewCourse(Course course, CourseMember member)
         {
             var account = await GetAccount();
@@ -1460,6 +1493,28 @@ namespace HomemadeLMS.Controllers
                 return true;
             }
             return !member.IsStranger;
+        }
+
+        private async Task<CourseMember> GetSelfCourseMember(int courseId)
+        {
+            var account = await GetAccount();
+            if (account is null)
+            {
+                throw new NotSupportedException("Request maker must be authorized.");
+            }
+            var uid = CourseMember.BuildUid(courseId, account.Username);
+            var member = await memberStorage.Find(uid);
+            member ??= CourseMember.BuildStranger(courseId, account.Username);
+            return member;
+        }
+
+        private async Task<List<CourseMember>> GetCourseMembers(int courseId)
+            => await memberStorage.Select(member => member.CourseId == courseId);
+
+        private async Task<List<CourseMember>> GetTeamMembers(int teamId)
+        {
+            var members = await memberStorage.Select(member => member.TeamId == teamId);
+            return members.Where(member => member.IsStudent).ToList();
         }
 
         private async Task<List<HomeworkStatus>> GetAllHomeworkStatus(Homework homework)
@@ -1524,61 +1579,6 @@ namespace HomemadeLMS.Controllers
                 }
             }
             return result;
-        }
-
-        private async Task<CourseMember> GetSelfCourseMember(int courseId)
-        {
-            var account = await GetAccount();
-            if (account is null)
-            {
-                throw new NotSupportedException("Request maker must be authorized.");
-            }
-            var uid = CourseMember.BuildUid(courseId, account.Username);
-            var member = await memberStorage.Find(uid);
-            member ??= CourseMember.BuildStranger(courseId, account.Username);
-            return member;
-        }
-
-        private async Task<List<CourseMember>> GetCourseMembers(int courseId)
-            => await memberStorage.Select(member => member.CourseId == courseId);
-
-        private async Task<List<CourseMember>> GetTeamMembers(int teamId)
-        {
-            var members = await memberStorage.Select(member => member.TeamId == teamId);
-            return members.Where(member => member.IsStudent).ToList();
-        }
-
-        private async Task FixLeaderUsername(Team team, List<CourseMember> teamMembers)
-        {
-            if (teamMembers.All(member => member.Username != team.LeaderUsername))
-            {
-                if (teamMembers.Any())
-                {
-                    team.LeaderUsername = teamMembers.First().Username;
-                    await teamStorage.Update(team);
-                }
-                else if (team.LeaderUsername is not null)
-                {
-                    team.LeaderUsername = null;
-                    await teamStorage.Update(team);
-                }
-            }
-        }
-
-        private async Task FixTeamIds(List<CourseMember> courseMembers, List<Team> courseTeams)
-        {
-            foreach (var member in courseMembers)
-            {
-                if (!member.IsStudent || member.TeamId is null)
-                {
-                    continue;
-                }
-                if (courseTeams.All(team => team.Id != member.TeamId))
-                {
-                    member.TeamId = null;
-                    await memberStorage.Update(member);
-                }
-            }
         }
     }
 }
