@@ -5,8 +5,9 @@ namespace HomemadeLMS
 {
     public static class Program
     {
-        public static readonly AppConfig AppConfig = AppConfigBuilder.BuildConfig();
         public static readonly ILogger Logger = BuildLogger(nameof(Program));
+        public static readonly AppConfig AppConfig = AppConfigBuilder.BuildConfig();
+        public static readonly MailingService MailingService = new();
 
         public static void Main()
         {

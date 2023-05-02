@@ -1,0 +1,25 @@
+﻿@using HomemadeLMS.Models.Domain
+@{
+	ViewData["Title"] = "Авторизация";
+
+	var navbarMenu = new LinkGroup();
+	navbarMenu.Links.Add(new Link { Href = "/", Label = "Главная страница" });
+	ViewData["NavbarMenu"] = navbarMenu;
+}
+
+<div class="col-10 col-sm-7 col-md-5 col-lg-4 col-xl-3">
+	<form method="POST">
+		<div class="input-group">
+			<input class="form-control text-center" name="accountId"
+				   maxlength="@Account.MaxAccountIdSize">
+			<div class="input-group-append">
+				<span class="input-group-text">@Account.EmailAddressBase</span>
+			</div>
+		</div>
+		<div class="mt-5"></div>
+		<button type="submit" class="btn btn-secondary">Отправить письмо</button>
+	</form>
+</div>
+<div class="mt-5" align="center">
+	<a class="link-custom-secondary" href="/signin">Войти по логину и паролю</a>
+</div>

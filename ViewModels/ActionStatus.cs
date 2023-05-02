@@ -13,7 +13,12 @@ namespace HomemadeLMS.ViewModels
         PasswordConfirmationError,
         PasswordInvalidFormat,
 
-        HasNoToken,
-        InvalidToken,
+        HasNoManagerToken,
+        InvalidManagerToken,
+
+        InvalidConfirmationUrl,
+        PasswordIsNotCorrect,
+        UsernameInvalidFormat,
+        UserNotFound,
     }
 }

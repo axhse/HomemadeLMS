@@ -23,14 +23,32 @@
 		ActionStatus.PasswordConfirmationError => "Ошибка — введенные пароли не совпадают",
 		ActionStatus.PasswordInvalidFormat => passwordFormatDesc,
 
-		ActionStatus.HasNoToken => "Токен не установлен или уже был использован",
-		ActionStatus.InvalidToken => "Токен приложения отличается от введенного",
+		ActionStatus.HasNoManagerToken => "Токен не установлен или уже был использован",
+		ActionStatus.InvalidManagerToken => "Токен приложения отличается от введенного",
+
+		ActionStatus.InvalidConfirmationUrl => "Ссылка подтверждения невалидна или устарела (ссылки действуют 1 час)",
+		ActionStatus.PasswordIsNotCorrect => "Неправильный пароль",
+		ActionStatus.UsernameInvalidFormat => "Некорректный username",
+		ActionStatus.UserNotFound => "Пользователь не найден",
 
 		_ => "",
 	};
 
 	ViewData["Title"] = title;
-	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+
+	if (Model == ActionStatus.InvalidConfirmationUrl
+		|| Model == ActionStatus.PasswordIsNotCorrect
+		|| Model == ActionStatus.UsernameInvalidFormat
+		|| Model == ActionStatus.UserNotFound)
+	{
+		var navbarMenu = new LinkGroup();
+		navbarMenu.Links.Add(new Link { Href = "/", Label = "Главная страница" });
+		ViewData["NavbarMenu"] = navbarMenu;
+	}
+	else
+	{
+		ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+	}
 }
 
 <h5 class="text-secondary fw-bold">@statusDescription</h5>

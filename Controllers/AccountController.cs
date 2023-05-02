@@ -213,11 +213,11 @@ namespace HomemadeLMS.Controllers
             var managerToken = Program.AppConfig.ServiceConfig.ManagerToken;
             if (managerToken is null)
             {
-                return View("Status", ActionStatus.HasNoToken);
+                return View("Status", ActionStatus.HasNoManagerToken);
             }
             if (managerToken != token)
             {
-                return View("Status", ActionStatus.InvalidToken);
+                return View("Status", ActionStatus.InvalidManagerToken);
             }
             account.Role = UserRole.Manager;
             await accountStorage.Update(account);
@@ -231,7 +231,7 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult SignIn_Get()
         {
-            return View("SignIn");
+            return View("SignInByPass");
         }
 
         [HttpPost]
@@ -245,22 +245,71 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NotSupported);
             }
             var parser = new FormParser(Request.Form);
-            if (!parser.TryGetUserRole("roleCode", out UserRole role)
-                || !parser.TryGetInt("id", out int id))
+            var username = Account.GetUsername(parser.GetString("accountId"));
+            var password = parser.GetString("password");
+            var account = await accountStorage.Find(username);
+            if (account is null)
             {
-                return View("Status", ActionStatus.InvalidFormData);
+                return View("Status", ActionStatus.UserNotFound);
             }
-            var username = role.ToString().ToLower() + id.ToString();
+            if (!account.IsPasswordCorrect(password))
+            {
+                return View("Status", ActionStatus.PasswordIsNotCorrect);
+            }
+            return await SignIn_Result(username);
+        }
 
-            if (await accountStorage.Find(username) is null)
+        [HttpGet]
+        [RequireHttps]
+        [Route(SignInPath + "/mail")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult SignIn_ByMail_Get()
+        {
+            return View("SignInByMail");
+        }
+
+        [HttpPost]
+        [RequireHttps]
+        [Route(SignInPath + "/mail")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult SignIn_ByMail_Post()
+        {
+            if (!Request.HasFormContentType)
             {
-                var newAccount = new Account(username, "password123") { Role = role };
-                await accountStorage.TryInsert(newAccount);
+                return View("Status", ActionStatus.NotSupported);
             }
-            var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, username) };
-            ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
-            return RedirectPermanent(AccountRootPath);
+            var parser = new FormParser(Request.Form);
+            var username = Account.GetUsername(parser.GetString("accountId"));
+            if (username is null || !Account.HasUsernameValidFormat(username))
+            {
+                return View("Status", ActionStatus.UsernameInvalidFormat);
+            }
+            var emailAdress = Account.GetEmailAddress(username);
+            Program.MailingService.CreateRequest(emailAdress);
+            return View("MailSent", emailAdress);
+        }
+
+        [HttpGet]
+        [RequireHttps]
+        [Route(SignInPath + "/confirm")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> SignIn_Confirm_Get(string? token)
+        {
+            var emailAdress = Program.MailingService.GetEmailAddress(token);
+            if (emailAdress is null)
+            {
+                return View("Status", ActionStatus.InvalidConfirmationUrl);
+            }
+            var account = await accountStorage.Find(Account.GetUsername(emailAdress));
+            if (account is null)
+            {
+                account = new Account(emailAdress, UserRole.Student);
+                if (!await accountStorage.TryInsert(account))
+                {
+                    return View("Status", ActionStatus.UnknownError);
+                }
+            }
+            return await SignIn_Result(account.Username);
         }
 
         [HttpGet]
@@ -271,6 +320,14 @@ namespace HomemadeLMS.Controllers
         {
             await HttpContext.SignOutAsync();
             return RedirectPermanent(SignInPath);
+        }
+
+        private async Task<IActionResult> SignIn_Result(string username)
+        {
+            var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, username) };
+            ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
+            return RedirectPermanent(AccountRootPath);
         }
     }
 }

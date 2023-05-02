@@ -22,32 +22,32 @@ namespace HomemadeLMS.Models.Domain
         public const int MinTelegramUsernameSize = 5;
         public const int MinUsernameSize = 1;
         public const int PasswordHashSize = 64;
+        public const string EmailAddressBase = "@edu.hse.ru";
+        public static readonly int MaxAccountIdSize = MaxUsernameSize + EmailAddressBase.Length;
 
-        private const string EmailAddressBase = "@edu.hse.ru";
-        private string passwordHash;
         private string username;
         private string? headUsername;
         private string? name;
+        private string? passwordHash;
         private string? telegramUsername;
 
-        public Account(string username, string passwordHash, UserRole role, string? headUsername)
+        public Account(string username, UserRole role)
         {
             Username = username;
-            PasswordHash = passwordHash;
             Role = role;
-            HeadUsername = headUsername;
-
             this.username = Username;
-            this.passwordHash = PasswordHash;
         }
 
-        public Account(string accountId, string password)
+        public Account(string accountId, UserRole role, string? password = null)
         {
+            Role = role;
             SetAccountId(accountId);
-            SetPassword(password);
+            if (password is not null)
+            {
+                SetPassword(password);
+            }
 
             username = Username;
-            passwordHash = PasswordHash;
         }
 
         public static string CalculateHash(string text)
@@ -64,6 +64,8 @@ namespace HomemadeLMS.Models.Domain
             }
             return Convert.ToHexString(bytes);
         }
+
+        public static string GetEmailAddress(string username) => username + EmailAddressBase;
 
         public static string GetUsername(string? accountId)
         {
@@ -97,14 +99,14 @@ namespace HomemadeLMS.Models.Domain
             return name is null || name.Length <= MaxNameSize;
         }
 
-        public UserRole Role { get; set; } = UserRole.None;
+        public UserRole Role { get; set; }
 
-        public string PasswordHash
+        public string? PasswordHash
         {
             get => passwordHash;
             set
             {
-                if (!HasPasswordHashValidFormat(value))
+                if (value is not null && !HasPasswordHashValidFormat(value))
                 {
                     throw new ArgumentException("Invalid passwordHash format.");
                 }
@@ -166,7 +168,7 @@ namespace HomemadeLMS.Models.Domain
         }
 
         public bool CanEditCourses => Role == UserRole.Teacher || Role == UserRole.Manager;
-        public string EmailAddress => Username + EmailAddressBase;
+        public string EmailAddress => GetEmailAddress(Username);
 
         public void SetAccountId(string accountId)
         {
@@ -188,5 +190,8 @@ namespace HomemadeLMS.Models.Domain
                 other.Role != UserRole.Manager || other.HeadUsername == Username
             );
         }
+
+        public bool IsPasswordCorrect(string? password) => password is not null
+            && HasPasswordValidFormat(password) && CalculateHash(password) == PasswordHash;
     }
 }

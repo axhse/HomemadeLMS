@@ -1,0 +1,11 @@
+﻿@using HomemadeLMS.Models.Domain
+@model string
+@{
+	ViewData["Title"] = "Письмо отправлено";
+
+	var navbarMenu = new LinkGroup();
+	navbarMenu.Links.Add(new Link { Href = "/", Label = "Главная страница" });
+	ViewData["NavbarMenu"] = navbarMenu;
+}
+
+<h5 class="text-success fw-bold">Письмо отпарвлено на почту @Model</h5>

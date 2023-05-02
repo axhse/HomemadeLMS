@@ -16,7 +16,6 @@ namespace HomemadeLMS.Services.Data
             builder.Property(account => account.Name).HasConversion<StringHexConverter>();
             builder.Property(account => account.TelegramUsername).HasMaxLength(Account.MaxTelegramUsernameSize);
             builder.Property(account => account.PasswordHash).HasMaxLength(Account.PasswordHashSize);
-            builder.Property(account => account.PasswordHash).IsFixedLength(true);
             builder.Property(account => account.Role).IsRequired();
             builder.ToTable(nameof(Account));
         }

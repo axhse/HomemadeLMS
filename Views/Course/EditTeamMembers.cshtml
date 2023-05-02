@@ -30,8 +30,8 @@
 				<label class="align-self-center">Удалить участника</label>
 				<div class="ms-3"></div>
 				<div class="align-self-center">
-					<select id="removedUsernameInput" class="form-control text-center"
-							name="removedUsername" oninput="showRemovingBlock()">
+					<select class="form-control text-center" name="removedUsername"
+						    oninput="showRemovingBlock()">
 						<option value="" selected>Выбрать</option>
 						@foreach (var member in Model.Members)
 						{
@@ -52,8 +52,8 @@
 			<label class="align-self-center">Добавить участника</label>
 			<div class="ms-3"></div>
 			<div>
-				<input class="form-control" name="addedUsername" placeholder="username"
-					   maxlength="@Account.MaxUsernameSize" oninput="showAddingBlock()">
+				<input class="form-control" name="addedAccountId" placeholder="username"
+					   maxlength="@Account.MaxAccountIdSize" oninput="showAddingBlock()">
 			</div>
 			<div id="addingBlock" class="ms-5" hidden>
 				<button type="submit" class="btn btn-secondary" name="actionCode" value="add">

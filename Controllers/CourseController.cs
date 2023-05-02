@@ -371,7 +371,7 @@ namespace HomemadeLMS.Controllers
             var description = DataUtils.GetTrimmed(parser.GetString("description"));
             var smartLmsUrl = DataUtils.GetTrimmed(parser.GetString("smartLmsUrl"));
             var pldUrl = DataUtils.GetTrimmed(parser.GetString("pldUrl"));
-            var ownerUsername = Account.GetUsername(parser.GetString("ownerUsername"));
+            var ownerUsername = Account.GetUsername(parser.GetString("ownerAccountId"));
             if (title is not null && Course.HasTitleValidFormat(title))
             {
                 course.Title = title;
@@ -1298,8 +1298,8 @@ namespace HomemadeLMS.Controllers
             }
             var parser = new FormParser(Request.Form);
             var actionCode = parser.GetString("actionCode");
-            var addedUsername = DataUtils.GetTrimmed(parser.GetString("addedUsername"));
-            var removedUsername = DataUtils.GetTrimmed(parser.GetString("removedUsername"));
+            var addedUsername = Account.GetUsername(parser.GetString("addedAccountId"));
+            var removedUsername = parser.GetString("removedUsername");
             addedUsername ??= string.Empty;
             removedUsername ??= string.Empty;
             if (actionCode != "add" && actionCode != "remove")

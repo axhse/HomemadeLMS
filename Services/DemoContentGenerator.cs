@@ -57,9 +57,8 @@ namespace HomemadeLMS.Services
 
             for (int index = 1; index <= 5; index++)
             {
-                var teacher = new Account($"teacher{index}", password)
+                var teacher = new Account($"teacher{index}", UserRole.Teacher, password)
                 {
-                    Role = UserRole.Teacher,
                     Name = $"Преподаватель {index}",
                     TelegramUsername = $"teacher{index}{index}{index}"
                 };
@@ -67,9 +66,8 @@ namespace HomemadeLMS.Services
             }
             for (int index = 1; index <= 5; index++)
             {
-                var assistant = new Account($"assistant{index}", password)
+                var assistant = new Account($"assistant{index}", UserRole.Student, password)
                 {
-                    Role = UserRole.Student,
                     Name = $"Ассистент {index}",
                     TelegramUsername = $"helper{index}"
                 };
@@ -87,9 +85,8 @@ namespace HomemadeLMS.Services
                 for (int lastNameIndex = 0; lastNameIndex < 4; lastNameIndex++)
                 {
                     var username = $"{studentNameCodes[nameIndex][0]}{studentLastNameCodes[lastNameIndex]}";
-                    var student = new Account(username, password)
+                    var student = new Account(username, UserRole.Student, password)
                     {
-                        Role = UserRole.Student,
                         Name = $"{studentNames[nameIndex]} {studentLastNames[lastNameIndex]}",
                         TelegramUsername = $"{studentNameCodes[nameIndex]}{studentNameCodes[nameIndex][..3]}"
                     };
