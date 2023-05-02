@@ -5,22 +5,17 @@
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 
 	var team = Model.Team;
-	var leaderUsername = team.LeaderUsername;
-	var members = Model.Members;
-	members.Sort((first, second) => first.Username.CompareTo(second.Username));
-	members = members.Where(member => member.Username == leaderUsername)
-					 .Concat(members.Where(member => member.Username != leaderUsername))
-					 .ToList();
+	Model.Members.Sort(Comparators.TeamMembers(team));
 }
 
 <div class="col-12 col-lg-8">
-	@foreach (var member in members)
+	@foreach (var member in Model.Members)
 	{
 		var url = $"/course/member?courseId={team.CourseId}&username={member.Username}";
 
 		<div class="mt-1"></div>
 		<a href=@url>@member.Username</a>
-		@if (member.Username == leaderUsername)
+		@if (member.IsLeader(team))
 		{
 			<label class="ms-3 fw-bold">лидер</label>
 		}
@@ -38,7 +33,7 @@
 					<select id="removedUsernameInput" class="form-control text-center"
 							name="removedUsername" oninput="showRemovingBlock()">
 						<option value="" selected>Выбрать</option>
-						@foreach (var member in members)
+						@foreach (var member in Model.Members)
 						{
 							<option value="@member.Username">@member.Username</option>
 						}

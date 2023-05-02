@@ -10,27 +10,14 @@
 <p>Тест Белбина используется для определения командных ролей</p>
 @if (Model is not null)
 {
-	var allNamedScore = new []
-	{
-		new {Score = Model.TeamWorkerScore, Name = "Душа команды"},
-		new {Score = Model.CoordinatorScore, Name = "Координатор"},
-		new {Score = Model.ResourceInvestigatorScore, Name = "Исследователь ресурсов"},
-		new {Score = Model.ShaperScore, Name = "Мотиватор"},
-		new {Score = Model.ImplementerScore, Name = "Исполнитель"},
-		new {Score = Model.CompleterScore, Name = "Педант"},
-		new {Score = Model.PlantScore, Name = "Генератор идей"},
-		new {Score = Model.MonitorEvaluatorScore, Name = "Аналитик-стратег"},
-	}.ToList();
-	allNamedScore.Sort((first, second) => -first.Score.CompareTo(second.Score));
-
 	<div class="mt-5"></div>
 	<div class="fw-bold">
 		<label>Текущий результат</label>
 		<div class="mt-4"></div>
-		@foreach (var namedScore in allNamedScore)
+		@foreach (var namedScore in NamedRoleScore.GetAllSortedFromTestResult(Model))
 		{
 			<div class="mt-1"></div>
-			<label>@($"{namedScore.Name} — {namedScore.Score}")</label>
+			<label>@namedScore.Name — @namedScore.Score</label>
 		}
 	</div>
 }

@@ -1,0 +1,45 @@
+﻿@using HomemadeLMS.Models.Domain
+@model TeamRoles
+@{
+	ViewData["Title"] = "Роли команды";
+	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
+
+	var allWithoutRoles = Model.AllMemberRoles.Where(memberRoles => memberRoles.TestResult is null);
+}
+
+@foreach (var memberRoles in Model.AllMemberRoles)
+{
+	var result = memberRoles.TestResult;
+	if (result is null)
+	{
+		continue;
+	}
+	var member = memberRoles.MemberInfo.Member;
+	var name = memberRoles.MemberInfo.Account?.Name;
+	var url = $"/course/member?courseId={member.CourseId}&username={member.Username}";
+
+	<a href=@url>@(name is null ? member.Username : name)</a>
+	<div class="mt-3"></div>
+	@foreach (var namedScore in NamedRoleScore.GetAllSortedFromTestResult(result))
+	{
+		<label class="me-5">@namedScore.Name @namedScore.Score</label>
+	}
+	<div class="mt-5"></div>
+}
+@if (allWithoutRoles.Any())
+{
+	<div class="mt-5"></div>
+	<h6>Не прошли тест</h6>
+	<div class="mt-2"></div>
+	@foreach (var memberRoles in allWithoutRoles)
+	{
+		var member = memberRoles.MemberInfo.Member;
+		var name = memberRoles.MemberInfo.Account?.Name;
+		var url = $"/course/member?courseId={member.CourseId}&username={member.Username}";
+
+		<div class="mt-1"></div>
+		<a href=@url>@(name is null ? member.Username : name)</a>
+	}
+}
+<div class="mt-5"></div>
+<a class="link-custom-secondary" href="/course/team?id=@Model.TeamId">Вернуться</a>

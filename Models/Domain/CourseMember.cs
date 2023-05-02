@@ -60,6 +60,9 @@
         public bool CanChangeTeam(Course course) => IsStudent && !course.IsTeamStateLocked;
         public bool CanCreateTeam(Course course) => IsAssistantOrTeacher || CanChangeTeam(course);
         public bool CanEditTeam(Course course, Team team)
-            => IsAssistantOrTeacher || (CanChangeTeam(course) && team.LeaderUsername == Username);
+            => IsAssistantOrTeacher || (CanChangeTeam(course) && IsLeader(team));
+        public bool CanSeeRoleResults(Team team) => IsAssistantOrTeacher || IsInTeam(team);
+        public bool IsInTeam(Team team) => TeamId == team.Id;
+        public bool IsLeader(Team team) => Username == team.LeaderUsername;
     }
 }

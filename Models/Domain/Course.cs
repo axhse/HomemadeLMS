@@ -35,6 +35,7 @@
             return url is null || url.Length <= MaxUrlSize;
         }
 
+        public bool HasRoleTestResults { get; set; } = false;
         public bool HasTeams { get; set; } = false;
         public bool IsTeamStateLocked { get; set; } = false;
         public int Id { get; set; }

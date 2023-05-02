@@ -54,6 +54,17 @@
 			</label>
 		</div>
 
+		<div class="mt-1"></div>
+		<div class="d-inline-flex">
+			<div class="ms-3"></div>
+			<div>
+				<input id="hasRoleTestResultsInput" type="checkbox" class="form-check-input"
+					   name="hasRoleTestResults" @(Model.HasRoleTestResults ? "checked" : "")>
+			</div>
+			<div class="ms-2"></div>
+			<label for="hasRoleTestResultsInput">Показывать роли по Белбину для команд</label>
+		</div>
+
 		<div class="mt-5" align="center">
 			<button type="submit" class="btn btn-secondary">Сохранить</button>
 		</div>

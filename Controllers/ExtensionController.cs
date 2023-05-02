@@ -8,13 +8,13 @@ namespace HomemadeLMS.Controllers
     public class ExtensionController : ControllerWithAccounts
     {
         public const string ExtensionRootPath = "/extension";
-        private readonly IStorage<string, RoleTestResult> roleTestResultStorage;
+        private readonly IStorage<string, RoleTestResult> testResultStorage;
 
         public ExtensionController(IStorage<string, Account> accountStorage,
-            IStorage<string, RoleTestResult> roleTestResultStorage) : base(accountStorage)
+            IStorage<string, RoleTestResult> testResultStorage) : base(accountStorage)
         {
             SectionRootPath = ExtensionRootPath;
-            this.roleTestResultStorage = roleTestResultStorage;
+            this.testResultStorage = testResultStorage;
         }
 
         [HttpGet]
@@ -80,9 +80,9 @@ namespace HomemadeLMS.Controllers
                     return View("Status", ActionStatus.InvalidFormData);
                 }
             }
-            if (!await roleTestResultStorage.TryInsert(testResult))
+            if (!await testResultStorage.TryInsert(testResult))
             {
-                await roleTestResultStorage.Update(testResult);
+                await testResultStorage.Update(testResult);
             }
             return RedirectPermanent(ExtensionRootPath + "/roletest" + "/status");
         }
@@ -98,7 +98,7 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            var testResults = await roleTestResultStorage.Select(
+            var testResults = await testResultStorage.Select(
                 result => result.Username == account.Username
             );
             return View("RoleTestStatus", testResults.FirstOrDefault());

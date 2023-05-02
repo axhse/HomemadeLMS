@@ -120,38 +120,71 @@
 
                 _ => TeamRole.TeamWorker,
             };
+
+            SetScore(role, GetScore(role) + score);
+        }
+
+        public int GetScore(TeamRole role)
+        {
+            var score = role switch
+            {
+                TeamRole.Completer => CompleterScore,
+                TeamRole.Coordinator => CoordinatorScore,
+                TeamRole.Implementer => ImplementerScore,
+                TeamRole.MonitorEvaluator => MonitorEvaluatorScore,
+                TeamRole.Plant => PlantScore,
+                TeamRole.ResourceInvestigator => ResourceInvestigatorScore,
+                TeamRole.Shaper => ShaperScore,
+                TeamRole.TeamWorker => TeamWorkerScore,
+                _ => throw new ArgumentException("Invalid role value."),
+            };
+            return score;
+        }
+
+        public void SetScore(TeamRole role, int score)
+        {
             if (role == TeamRole.Completer)
             {
-                CompleterScore += score;
+                CompleterScore = score;
             }
             if (role == TeamRole.Coordinator)
             {
-                CoordinatorScore += score;
+                CoordinatorScore = score;
             }
             if (role == TeamRole.Implementer)
             {
-                ImplementerScore += score;
+                ImplementerScore = score;
             }
             if (role == TeamRole.MonitorEvaluator)
             {
-                MonitorEvaluatorScore += score;
+                MonitorEvaluatorScore = score;
             }
             if (role == TeamRole.Plant)
             {
-                PlantScore += score;
+                PlantScore = score;
             }
             if (role == TeamRole.ResourceInvestigator)
             {
-                ResourceInvestigatorScore += score;
+                ResourceInvestigatorScore = score;
             }
             if (role == TeamRole.Shaper)
             {
-                ShaperScore += score;
+                ShaperScore = score;
             }
             if (role == TeamRole.TeamWorker)
             {
-                TeamWorkerScore += score;
+                TeamWorkerScore = score;
             }
+        }
+
+        public Dictionary<TeamRole, int> GetScoreDict()
+        {
+            var dict = new Dictionary<TeamRole, int>();
+            foreach (var role in Enum.GetValues<TeamRole>())
+            {
+                dict.Add(role, GetScore(role));
+            }
+            return dict;
         }
     }
 }

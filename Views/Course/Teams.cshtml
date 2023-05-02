@@ -8,7 +8,7 @@
 	var teams = Model.Teams;
 	var allMemberInfo = Model.SingleStudents;
 	teams.Sort((first, second) => first.Id.CompareTo(second.Id));
-	allMemberInfo.Sort(Comparators.ByNameThenByUsername);
+	allMemberInfo.Sort(Comparators.MemberInfo);
 }
 
 <div class="col-12 col-md-10 col-lg-8 col-xl-6">
@@ -33,7 +33,7 @@
 	@if (allMemberInfo.Any())
 	{
 		<h6>Без команды</h6>
-		<div class="mt-4"></div>
+		<div class="mt-3"></div>
 		@foreach (var memberInfo in allMemberInfo)
 		{
 			var member = memberInfo.Member;

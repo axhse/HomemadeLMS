@@ -20,7 +20,7 @@
 	}
 	@foreach (var role in sortedRoles) {
 		var allCurrentInfo = Model.Object.Where(info => info.Member.Role == role).ToList();
-		allCurrentInfo.Sort(Comparators.ByNameThenByUsername);
+		allCurrentInfo.Sort(Comparators.MemberInfo);
 		var roleName = role switch
 		{
 			CourseRole.Teacher => "Преподаватели",

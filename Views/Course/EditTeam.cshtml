@@ -23,7 +23,7 @@
 					<select class="form-control text-center" name="leaderUsername">
 						@foreach (var member in Model.Members)
 						{
-							@if (member.Username == team.LeaderUsername)
+							@if (member.IsLeader(team))
 							{
 								<option value="@member.Username" selected>@member.Username</option>
 							}

@@ -16,6 +16,7 @@ namespace HomemadeLMS.Controllers
         private readonly IStorage<int, Team> teamStorage;
         private readonly IStorage<string, CourseMember> memberStorage;
         private readonly IStorage<string, HomeworkStatus> homeworkStatusStorage;
+        private readonly IStorage<string, RoleTestResult> testResultStorage;
         private readonly EntityAggregator entityAggregator;
 
         public CourseController(IStorage<int, Announcement> announcementStorage,
@@ -25,6 +26,7 @@ namespace HomemadeLMS.Controllers
             IStorage<string, Account> accountStorage,
             IStorage<string, CourseMember> memberStorage,
             IStorage<string, HomeworkStatus> homeworkStatusStorage,
+            IStorage<string, RoleTestResult> testResultStorage,
             EntityAggregator entityAggregator) : base(accountStorage)
         {
             SectionRootPath = CourseRootPath;
@@ -34,6 +36,7 @@ namespace HomemadeLMS.Controllers
             this.teamStorage = teamStorage;
             this.memberStorage = memberStorage;
             this.homeworkStatusStorage = homeworkStatusStorage;
+            this.testResultStorage = testResultStorage;
             this.entityAggregator = entityAggregator;
         }
 
@@ -391,6 +394,7 @@ namespace HomemadeLMS.Controllers
             }
             course.HasTeams = parser.IsChecked("hasTeams");
             course.IsTeamStateLocked = parser.IsChecked("isTeamStateLocked");
+            course.HasRoleTestResults = parser.IsChecked("hasRoleTestResults");
             await courseStorage.Update(course);
             return RedirectPermanent($"{CourseRootPath}?id={course.Id}");
         }
@@ -1316,7 +1320,7 @@ namespace HomemadeLMS.Controllers
             {
                 var uid = CourseMember.BuildUid(course.Id, removedUsername);
                 var otherMember = await memberStorage.Find(uid);
-                if (otherMember is not null && otherMember.TeamId == teamId)
+                if (otherMember is not null && otherMember.IsInTeam(team))
                 {
                     otherMember.TeamId = null;
                     await memberStorage.Update(otherMember);
@@ -1434,6 +1438,51 @@ namespace HomemadeLMS.Controllers
             return RedirectPermanent($"{CourseRootPath}/teams?courseId={course.Id}");
         }
 
+        [HttpGet]
+        [RequireHttps]
+        [Route(CourseRootPath + "/team" + "/roles")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> TeamRoles_Get(int teamId)
+        {
+            if (teamId <= 0)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var account = await GetAccount();
+            if (account is null)
+            {
+                return RedirectPermanent(SignInPath);
+            }
+            var team = await teamStorage.Find(teamId);
+            if (team is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            var course = await courseStorage.Find(team.CourseId);
+            if (course is null)
+            {
+                return View("Status", ActionStatus.NotFound);
+            }
+            if (!course.HasTeams || !course.HasRoleTestResults)
+            {
+                return RedirectPermanent($"{CourseRootPath}?id={course.Id}");
+            }
+            var member = await GetSelfCourseMember(course.Id);
+            if (!member.CanSeeRoleResults(team))
+            {
+                return View("Status", ActionStatus.NoAccess);
+            }
+            var teamMembers = await GetTeamMembers(team.Id);
+            var model = new TeamRoles(team);
+            foreach (var otherMember in teamMembers)
+            {
+                var otherAccount = await accountStorage.Find(otherMember.Username);
+                var testResult = await testResultStorage.Find(otherMember.Username);
+                model.AllMemberRoles.Add(new(new(otherMember, otherAccount), testResult));
+            }
+            return View("TeamRoles", model);
+        }
+
         private async Task<IActionResult> Team_Edit_Get_Result(int teamId, bool isForMembers)
         {
             if (teamId <= 0)
@@ -1473,7 +1522,7 @@ namespace HomemadeLMS.Controllers
 
         private async Task FixLeaderUsername(Team team, List<CourseMember> teamMembers)
         {
-            if (teamMembers.All(member => member.Username != team.LeaderUsername))
+            if (teamMembers.All(member => !member.IsLeader(team)))
             {
                 if (teamMembers.Any())
                 {
@@ -1496,7 +1545,7 @@ namespace HomemadeLMS.Controllers
                 {
                     continue;
                 }
-                if (courseTeams.All(team => team.Id != member.TeamId))
+                if (courseTeams.All(team => !member.IsInTeam(team)))
                 {
                     member.TeamId = null;
                     await memberStorage.Update(member);
