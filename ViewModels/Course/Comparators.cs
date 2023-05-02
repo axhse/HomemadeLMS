@@ -19,7 +19,7 @@ namespace HomemadeLMS.ViewModels
         private static int CompareMemberInfo(MemberInfo first, MemberInfo second)
         {
             var firstName = first.Account?.Name;
-            var secondName = second.Account?.Username;
+            var secondName = second.Account?.Name;
             if (firstName is null)
             {
                 if (secondName is null)

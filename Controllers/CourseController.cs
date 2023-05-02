@@ -822,7 +822,7 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NoAccess);
             }
             var allPersonalHomework = await GetAllPersonalHomework(member);
-            var model = new MemberAndObject<List<PersonalHomework>>(member, allPersonalHomework);
+            var model = new MemberAndAllPersonalHomework(member, allPersonalHomework, course);
             return View("Tasks", model);
         }
 
@@ -1620,12 +1620,21 @@ namespace HomemadeLMS.Controllers
             return allStatus;
         }
 
-        private async Task<List<PersonalHomework>> GetAllPersonalHomework(CourseMember courseMember)
+        private async Task<List<PersonalHomework>> GetAllPersonalHomework(CourseMember member)
         {
-            var courseId = courseMember.CourseId;
-            var username = courseMember.Username;
+            if (!member.IsStudent)
+            {
+                var allCourseHomework = await homeworkStorage.Select(
+                    homework => homework.CourseId == member.CourseId
+                );
+                return allCourseHomework.Select(
+                    homework => new PersonalHomework(homework, new(homework.Id, member.Username))
+                ).ToList();
+            }
+            var courseId = member.CourseId;
+            var username = member.Username;
             var result = await entityAggregator.GetAllPersonalHomework(courseId, username);
-            var teamId = courseMember.TeamId;
+            var teamId = member.TeamId;
             if (teamId is not null)
             {
                 var tag = Team.BuildTag((int)teamId);

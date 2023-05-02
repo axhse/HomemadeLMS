@@ -5,6 +5,7 @@
 	ViewData["NavbarMenu"] = MenuBuilder.DefaultNavbarMenu;
 
 	var course = Model.Object;
+	var ownerUrl = $"/course/member?courseId={course.Id}&username={course.OwnerUsername}";
 }
 
 <div class="col-12 col-md-10 col-lg-8 col-xl-6">
@@ -28,6 +29,10 @@
 		<div class="mt-@marginSize"></div>
 		<a href="@course.PldUrl">Cсылка на ПУД</a>
 	}
+
+	<div class="mt-5"></div>
+	<label>Владелец: <a href=@ownerUrl>@course.OwnerUsername</a></label>
+
 	<div class="mt-5"></div>
 	<a href="/course/tasks?courseId=@course.Id">Задания</a>
 	<a class="ms-4" href="/course/announcements?courseId=@course.Id">Объявления</a>
