@@ -37,10 +37,13 @@ namespace HomemadeLMS.Application
     {
         private string? managerToken;
 
-        public ServiceConfig(string? managerToken = null)
+        public ServiceConfig(bool hasDemoContent, string? managerToken = null)
         {
             this.managerToken = managerToken;
+            HasDemoContent = hasDemoContent;
         }
+
+        public bool HasDemoContent { get; private set; }
 
         public string? ManagerToken => managerToken;
 
@@ -86,8 +89,9 @@ namespace HomemadeLMS.Application
             var databaseConfig = new DatabaseConfig(connectionString);
 
             var serviceConfigRoot = configRoot.GetSection("Service");
+            var hasDemoContent = serviceConfigRoot.GetValue<bool>("HasDemoContent");
             var managerToken = serviceConfigRoot.GetValue<string?>("ManagerToken");
-            var serviceConfig = new ServiceConfig(managerToken);
+            var serviceConfig = new ServiceConfig(hasDemoContent, managerToken);
 
             return new AppConfig(builderConfig, databaseConfig, serviceConfig);
         }

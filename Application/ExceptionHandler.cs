@@ -14,8 +14,9 @@ namespace HomemadeLMS.Application
             {
                 await next(context);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
+                Program.Logger.LogError(new EventId(), exception, "Unexpected exception.");
                 context.Response.Redirect(HomeController.ErrorPath);
             }
         }
