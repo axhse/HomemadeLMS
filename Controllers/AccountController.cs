@@ -247,6 +247,10 @@ namespace HomemadeLMS.Controllers
             var parser = new FormParser(Request.Form);
             var username = Account.GetUsername(parser.GetString("accountId"));
             var password = parser.GetString("password");
+            if (username is null || !Account.HasUsernameValidFormat(username))
+            {
+                return View("Status", ActionStatus.UserNotFound);
+            }
             var account = await accountStorage.Find(username);
             if (account is null)
             {
@@ -272,7 +276,7 @@ namespace HomemadeLMS.Controllers
         [RequireHttps]
         [Route(SignInPath + "/mail")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult SignIn_ByMail_Post()
+        public async Task<IActionResult> SignIn_ByMail_Post()
         {
             if (!Request.HasFormContentType)
             {
@@ -285,7 +289,7 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.UsernameInvalidFormat);
             }
             var emailAdress = Account.GetEmailAddress(username);
-            Program.MailingService.CreateRequest(emailAdress);
+            await Program.MailingService.CreateRequest(emailAdress);
             return View("MailSent", emailAdress);
         }
 
@@ -296,14 +300,15 @@ namespace HomemadeLMS.Controllers
         public async Task<IActionResult> SignIn_Confirm_Get(string? token)
         {
             var emailAdress = Program.MailingService.GetEmailAddress(token);
-            if (emailAdress is null)
+            var username = Account.GetUsername(emailAdress);
+            if (username is null)
             {
                 return View("Status", ActionStatus.InvalidConfirmationUrl);
             }
-            var account = await accountStorage.Find(Account.GetUsername(emailAdress));
+            var account = await accountStorage.Find(username);
             if (account is null)
             {
-                account = new Account(emailAdress, UserRole.Student);
+                account = new Account(username, UserRole.Student);
                 if (!await accountStorage.TryInsert(account))
                 {
                     return View("Status", ActionStatus.UnknownError);

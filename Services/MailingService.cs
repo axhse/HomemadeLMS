@@ -1,4 +1,8 @@
-﻿namespace HomemadeLMS.Services
+﻿using RestSharp;
+using RestSharp.Authenticators;
+using System.Text.Json;
+
+namespace HomemadeLMS.Services
 {
     public class AuthCertificate
     {
@@ -21,6 +25,8 @@
 
 	public class MailingService
     {
+        public const int RequestTimeoutMilliseconds = 30 * 1000;    // 30 seconds
+
         private readonly object syncRoot = new();
         private readonly Random randomGenerator;
         private readonly List<AuthCertificate> certificates = new();
@@ -30,15 +36,15 @@
             randomGenerator = new Random(DateTime.UtcNow.Millisecond);
         }
 
-        public void CreateRequest(string emailAddress)
+        public async Task CreateRequest(string emailAddress)
         {
+            string token;
             lock (syncRoot)
             {
-                var token = GenerateToken();
-                token = emailAddress;   // TODO: remove
+                token = GenerateToken();
                 certificates.Add(new(emailAddress, token));
-                SendMail(emailAddress, token);
             }
+            await SendMail(emailAddress, token);
         }
 
         public string? GetEmailAddress(string? token)
@@ -73,9 +79,41 @@
             return Convert.ToHexString(bytes);
         }
 
-        private void SendMail(string emailAddress, string token)
+        private static async Task SendMail(string emailAddress, string token)
         {
-            // TODO
+            var apiDomain = Program.AppConfig.ServiceConfig.MailingServiceConfig.ApiDomain;
+            var apiKey = Program.AppConfig.ServiceConfig.MailingServiceConfig.ApiKey;
+            var selfUrlBase = Program.AppConfig.ServiceConfig.SelfBaseUrl;
+
+            var resource = $"https://api.mailgun.net/v3/{apiDomain}/messages";
+            var url = $"{selfUrlBase}/signin/confirm?token={token}";
+            var variableData = new Dictionary<string, string>()
+            {
+                ["url"] = url
+            };
+            var serializedVariableData = JsonSerializer.Serialize(variableData);
+
+            var clientOptions = new RestClientOptions()
+            {
+                Authenticator = new HttpBasicAuthenticator("api", apiKey)
+            };
+            var client = new RestClient(clientOptions);
+            var request = new RestRequest(resource)
+            {
+                Method = Method.Post,
+                Timeout = RequestTimeoutMilliseconds,
+            };
+            request.AddParameter("from", $"HomemadeLMS <postmaster@{apiDomain}>");
+            request.AddParameter("to", emailAddress);
+            request.AddParameter("subject", "Подтверждение авторизации");
+            request.AddParameter("template", "confirmsignin");
+            request.AddParameter("h:X-Mailgun-Variables", serializedVariableData);
+
+            var result = await client.ExecuteAsync(request);
+            if (!result.IsSuccessful)
+            {
+                throw new NotSupportedException("Mail sending is failed.");
+            }
         }
     }
 }

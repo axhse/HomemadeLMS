@@ -388,7 +388,7 @@ namespace HomemadeLMS.Controllers
             {
                 course.PldUrl = pldUrl;
             }
-            if (Account.HasUsernameValidFormat(ownerUsername))
+            if (ownerUsername is not null && Account.HasUsernameValidFormat(ownerUsername))
             {
                 course.OwnerUsername = ownerUsername;
             }
@@ -525,7 +525,7 @@ namespace HomemadeLMS.Controllers
             var model = new MemberChangelogVM(course);
             foreach (var accountId in accountIds)
             {
-                var username = Account.GetUsername(accountId);
+                var username = Account.GetNotNullableUsername(accountId);
                 if (!Account.HasUsernameValidFormat(username))
                 {
                     model.InvalidUsernames.Add(username);
@@ -606,7 +606,7 @@ namespace HomemadeLMS.Controllers
             var model = new MemberChangelogVM(course);
             foreach (var accountId in accountIds)
             {
-                var username = Account.GetUsername(accountId);
+                var username = Account.GetNotNullableUsername(accountId);
                 if (!Account.HasUsernameValidFormat(username))
                 {
                     model.InvalidUsernames.Add(username);

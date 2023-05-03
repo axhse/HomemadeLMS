@@ -57,20 +57,22 @@ namespace HomemadeLMS.Services
 
             for (int index = 1; index <= 5; index++)
             {
-                var teacher = new Account($"teacher{index}", UserRole.Teacher, password)
+                var teacher = new Account($"teacher{index}", UserRole.Teacher)
                 {
                     Name = $"Преподаватель {index}",
                     TelegramUsername = $"teacher{index}{index}{index}"
                 };
+                teacher.SetPassword(password);
                 AssertIsCompleted(accountStorage.TryInsert(teacher).Result);
             }
             for (int index = 1; index <= 5; index++)
             {
-                var assistant = new Account($"assistant{index}", UserRole.Student, password)
+                var assistant = new Account($"assistant{index}", UserRole.Student)
                 {
                     Name = $"Ассистент {index}",
                     TelegramUsername = $"helper{index}"
                 };
+                assistant.SetPassword(password);
                 AssertIsCompleted(accountStorage.TryInsert(assistant).Result);
             }
 
@@ -85,11 +87,12 @@ namespace HomemadeLMS.Services
                 for (int lastNameIndex = 0; lastNameIndex < 4; lastNameIndex++)
                 {
                     var username = $"{studentNameCodes[nameIndex][0]}{studentLastNameCodes[lastNameIndex]}";
-                    var student = new Account(username, UserRole.Student, password)
+                    var student = new Account(username, UserRole.Student)
                     {
                         Name = $"{studentNames[nameIndex]} {studentLastNames[lastNameIndex]}",
                         TelegramUsername = $"{studentNameCodes[nameIndex]}{studentNameCodes[nameIndex][..3]}"
                     };
+                    student.SetPassword(password);
                     AssertIsCompleted(accountStorage.TryInsert(student).Result);
                 }
             }

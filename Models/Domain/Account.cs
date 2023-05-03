@@ -38,18 +38,6 @@ namespace HomemadeLMS.Models.Domain
             this.username = Username;
         }
 
-        public Account(string accountId, UserRole role, string? password = null)
-        {
-            Role = role;
-            SetAccountId(accountId);
-            if (password is not null)
-            {
-                SetPassword(password);
-            }
-
-            username = Username;
-        }
-
         public static string CalculateHash(string text)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(text);
@@ -67,12 +55,17 @@ namespace HomemadeLMS.Models.Domain
 
         public static string GetEmailAddress(string username) => username + EmailAddressBase;
 
-        public static string GetUsername(string? accountId)
+        public static string? GetUsername(string? accountId)
         {
             if (accountId is null)
             {
-                return string.Empty;
+                return null;
             }
+            return GetNotNullableUsername(accountId);
+        }
+
+        public static string GetNotNullableUsername(string accountId)
+        {
             accountId = accountId.Trim().ToLower();
             if (accountId.EndsWith(EmailAddressBase))
             {
@@ -172,7 +165,7 @@ namespace HomemadeLMS.Models.Domain
 
         public void SetAccountId(string accountId)
         {
-            Username = GetUsername(accountId);
+            Username = GetNotNullableUsername(accountId);
         }
 
         public void SetPassword(string password)
