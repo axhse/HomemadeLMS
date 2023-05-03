@@ -243,7 +243,7 @@ namespace HomemadeLMS.Services
             var teachers = accounts.Where(account => account.Username.StartsWith("teacher"));
             var assistants = accounts.Where(account => account.Username.StartsWith("assistant"));
             var students = accounts.Where(
-                account => !teachers.Contains(account) && !assistants.Contains(account)
+                    account => account.Role == UserRole.Student && !assistants.Contains(account)
             );
 
             int studentWithRoleResultCount = 0;
