@@ -27,7 +27,8 @@
 	};
 }
 
-@if (Model.Object.Name is not null) {
+@if (DataUtils.IsValuable(Model.Object.Name))
+{
 	<h6 class="fw-bold">@Model.Object.Name</h6>
 	<div class="mt-5"></div>
 }

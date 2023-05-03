@@ -70,7 +70,12 @@
 			var url = $"/course/member?courseId={Model.CourseId}&username={username}";
 			var submitTimeMsk = ((DateTime)homeworkStatus.SubmitTime).AddHours(DataUtils.MskHourOffset);
 
-			<label>Отмечено выполненым: <a href=@url>@username</a> @submitTimeMsk.ToString()</label>
+			<label>Отмечено выполненым: </label>
+			@if (homework.IsTeamwork)
+			{
+				<a href=@url>@username</a>
+			}
+			<label> @submitTimeMsk.ToString()</label>
 			<div class="mt-4"></div>
 		}
 		<form method="POST">

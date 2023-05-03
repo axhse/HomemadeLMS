@@ -81,12 +81,21 @@ namespace HomemadeLMS.Services
 
         private static async Task SendMail(string emailAddress, string token)
         {
-            var apiDomain = Program.AppConfig.ServiceConfig.MailingServiceConfig.ApiDomain;
-            var apiKey = Program.AppConfig.ServiceConfig.MailingServiceConfig.ApiKey;
-            var selfUrlBase = Program.AppConfig.ServiceConfig.SelfBaseUrl;
+            var config = Program.AppConfig.ServiceConfig.MailingServiceConfig;
+            if (config is null)
+            {
+                throw new NotSupportedException("Mailing serivce is not configured.");
+            }
+            var apiDomain = config.ApiDomain;
+            var apiKey = config.ApiKey;
+            var hostUrlBase = Program.AppConfig.ServiceConfig.HostUrlBase;
+            if (hostUrlBase is null)
+            {
+                throw new NotSupportedException("Host url base is not specified.");
+            }
 
             var resource = $"https://api.mailgun.net/v3/{apiDomain}/messages";
-            var url = $"{selfUrlBase}/signin/confirm?token={token}";
+            var url = $"{hostUrlBase}/signin/confirm?token={token}";
             var variableData = new Dictionary<string, string>()
             {
                 ["url"] = url

@@ -17,20 +17,12 @@ namespace HomemadeLMS.Application
 
     public class BuilderConfig
     {
-        public BuilderConfig()
-        {
-            HasDevExceptionHandler = false;
-            IsHttpsForced = false;
-        }
-
-        public BuilderConfig(bool hasDevExceptionHandler, bool isHttpsForced)
+        public BuilderConfig(bool hasDevExceptionHandler)
         {
             HasDevExceptionHandler = hasDevExceptionHandler;
-            IsHttpsForced = isHttpsForced;
         }
 
         public bool HasDevExceptionHandler { get; set; }
-        public bool IsHttpsForced { get; set; }
     }
 
 
@@ -50,34 +42,26 @@ namespace HomemadeLMS.Application
     {
         private string? managerToken;
 
-        public ServiceConfig(bool hasDemoContent, string selfBaseUrl,
-                             MailingServiceConfig mailingServiceConfig, string? managerToken = null)
+        public ServiceConfig(bool hasDemoContent,
+                             string? hostUrlBase = null,
+                             string? managerToken = null,
+                             MailingServiceConfig? mailingServiceConfig = null)
         {
             this.managerToken = managerToken;
             HasDemoContent = hasDemoContent;
-            SelfBaseUrl = GetUrlWithFixedProtocol(selfBaseUrl);
+            HostUrlBase = hostUrlBase;
             MailingServiceConfig = mailingServiceConfig;
         }
 
-        public bool HasDemoContent { get; private set; }
-        public string SelfBaseUrl { get; private set; }
-        public MailingServiceConfig MailingServiceConfig { get; private set; }
+        public bool HasDemoContent { get; set; }
+        public string? HostUrlBase { get; set; }
+        public MailingServiceConfig? MailingServiceConfig { get; set; }
 
         public string? ManagerToken => managerToken;
 
         public void DeleteManagerToken()
         {
             managerToken = null;
-        }
-
-        private static string GetUrlWithFixedProtocol(string url)
-        {
-            url = url.Replace("http://", "https://");
-            if (!url.StartsWith("https://"))
-            {
-                url = "https://" + url;
-            }
-            return url;
         }
     }
 
@@ -107,25 +91,36 @@ namespace HomemadeLMS.Application
 
         private static AppConfig ParseConfigRoot(IConfigurationRoot configRoot)
         {
-            var builderConfigRoot = configRoot.GetSection("Builder");
-            var hasDevExceptionHandler = builderConfigRoot.GetValue<bool>("HasDevExceptionHandler");
-            var isHttpsForced = builderConfigRoot.GetValue<bool>("IsHttpsForced");
-            var builderConfig = new BuilderConfig(hasDevExceptionHandler, isHttpsForced);
+            var builderConfigRoot = configRoot.GetSection(nameof(BuilderConfig));
+            var hasDevExceptionHandler = builderConfigRoot.GetValue(
+                nameof(BuilderConfig.HasDevExceptionHandler), false
+            );
+            var builderConfig = new BuilderConfig(hasDevExceptionHandler);
 
-            var databaseConfigRoot = configRoot.GetSection("Database");
-            var connectionString = databaseConfigRoot.GetValue<string>("ConnectionString");
+            var databaseConfigRoot = configRoot.GetSection(nameof(DatabaseConfig));
+            var connectionString = databaseConfigRoot.GetValue<string?>(
+                nameof(DatabaseConfig.ConnectionString)
+            );
+            if (connectionString is null)
+            {
+                var errorMessage = nameof(DatabaseConfig.ConnectionString) + " must be specified.";
+                throw new ArgumentException(errorMessage);
+            }
             var databaseConfig = new DatabaseConfig(connectionString);
 
-            var serviceConfigRoot = configRoot.GetSection("Service");
-            var hasDemoContent = serviceConfigRoot.GetValue<bool>("HasDemoContent");
-            var selfBaseUrl = serviceConfigRoot.GetValue<string>("SelfBaseUrl");
-            var mailingApiDomain = serviceConfigRoot.GetValue<string>("MailingApiDomain");
-            var mailingApiKey = serviceConfigRoot.GetValue<string>("MailingApiKey");
-            var managerToken = serviceConfigRoot.GetValue<string?>("ManagerToken");
-            var mailingServiceConfig = new MailingServiceConfig(mailingApiDomain, mailingApiKey);
-            var serviceConfig = new ServiceConfig(
-                hasDemoContent, selfBaseUrl, mailingServiceConfig, managerToken
+            var serviceConfigRoot = configRoot.GetSection(nameof(ServiceConfig));
+            var hasDemoContent = serviceConfigRoot.GetValue(
+                nameof(ServiceConfig.HasDemoContent), false
             );
+            var hostUrlBase = serviceConfigRoot.GetValue<string?>(nameof(ServiceConfig.HostUrlBase));
+            var managerToken = serviceConfigRoot.GetValue<string?>(nameof(ServiceConfig.ManagerToken));
+            var mailingApiDomain = serviceConfigRoot.GetValue<string?>("MailingApiDomain");
+            var mailingApiKey = serviceConfigRoot.GetValue<string?>("MailingApiKey");
+            var serviceConfig = new ServiceConfig(hasDemoContent, hostUrlBase, managerToken);
+            if (mailingApiDomain is not null && mailingApiKey is not null)
+            {
+                serviceConfig.MailingServiceConfig = new(mailingApiDomain, mailingApiKey);
+            }
 
             return new AppConfig(builderConfig, databaseConfig, serviceConfig);
         }

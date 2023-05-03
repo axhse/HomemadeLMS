@@ -18,7 +18,8 @@
 		<a class="btn btn-secondary" href="/course/members/remove?courseId=@Model.Course.Id">Удалить</a>
 		<div class="mt-5"></div>
 	}
-	@foreach (var role in sortedRoles) {
+	@foreach (var role in sortedRoles)
+	{
 		var allCurrentInfo = Model.Object.Where(info => info.Member.Role == role).ToList();
 		allCurrentInfo.Sort(Comparators.MemberInfo);
 		var roleName = role switch
@@ -29,7 +30,8 @@
 			_ => string.Empty,
 		};
 
-		@if (allCurrentInfo.Any()) {
+		@if (allCurrentInfo.Any())
+		{
 			<label class="fw-bold">@roleName (@allCurrentInfo.Count())</label>
 			<div class="mt-3"></div>
 			@foreach (var memberInfo in allCurrentInfo)

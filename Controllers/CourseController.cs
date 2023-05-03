@@ -170,8 +170,8 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NoPermission);
             }
             var parser = new FormParser(Request.Form);
-            var title = DataUtils.GetTrimmed(parser.GetString("title"));
-            var content = DataUtils.GetTrimmed(parser.GetString("content"));
+            var title = DataUtils.CleanSpaces(parser.GetString("title"));
+            var content = parser.GetString("content");
             if (title is not null && Announcement.HasTitleValidFormat(title))
             {
                 announcement.Title = title;
@@ -367,8 +367,8 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NoPermission);
             }
             var parser = new FormParser(Request.Form);
-            var title = DataUtils.GetTrimmed(parser.GetString("title"));
-            var description = DataUtils.GetTrimmed(parser.GetString("description"));
+            var title = DataUtils.CleanSpaces(parser.GetString("title"));
+            var description = parser.GetString("description");
             var smartLmsUrl = DataUtils.GetTrimmed(parser.GetString("smartLmsUrl"));
             var pldUrl = DataUtils.GetTrimmed(parser.GetString("pldUrl"));
             var ownerUsername = Account.GetUsername(parser.GetString("ownerAccountId"));
@@ -933,12 +933,12 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.NoPermission);
             }
             var parser = new FormParser(Request.Form);
-            var title = DataUtils.GetTrimmed(parser.GetString("title"));
-            var content = DataUtils.GetTrimmed(parser.GetString("content"));
+            var title = DataUtils.CleanSpaces(parser.GetString("title"));
+            var content = parser.GetString("content");
             var taskUrl = DataUtils.GetTrimmed(parser.GetString("taskUrl"));
             var submitUrl = DataUtils.GetTrimmed(parser.GetString("submitUrl"));
             var extraUrl = DataUtils.GetTrimmed(parser.GetString("extraUrl"));
-            var extraUrlLabel = DataUtils.GetTrimmed(parser.GetString("extraUrlLabel"));
+            var extraUrlLabel = DataUtils.CleanSpaces(parser.GetString("extraUrlLabel"));
             if (title is not null && Announcement.HasTitleValidFormat(title))
             {
                 homework.Title = title;

@@ -35,10 +35,8 @@ namespace HomemadeLMS.Application
         private static void ConfigureWebServices(IServiceCollection services, BuilderConfig config)
         {
             services.AddControllersWithViews();
-            if (config.IsHttpsForced)
-            {
-                services.AddHsts(options => { options.MaxAge = TimeSpan.FromDays(365); });
-            }
+
+            services.AddHsts(options => { options.MaxAge = TimeSpan.FromDays(365); });
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                     .AddCookie(options => { options.Cookie.Name = "AuthToken"; });
@@ -69,11 +67,8 @@ namespace HomemadeLMS.Application
                 app.UseMiddleware<ExceptionHandler>();
             }
 
-            if (config.IsHttpsForced)
-            {
-                app.UseHsts();
-                app.UseHttpsRedirection();
-            }
+            app.UseHsts();
+            app.UseHttpsRedirection();
 
             app.UseStaticFiles();
 

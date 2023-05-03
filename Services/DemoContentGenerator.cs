@@ -50,10 +50,23 @@ namespace HomemadeLMS.Services
         {
             logger.LogInformation("Content generation started.");
 
-            var password = "11111111";
+            var password = "88888888";
             var courseOwnerUsername = "teacher1";
             var yearEnd = new DateTime(DateTime.Now.Year, 12, 31, 23, 59, 59);
             yearEnd = yearEnd.AddHours(-DataUtils.MskHourOffset);
+
+            for (int index = 1; index <= 5; index++)
+            {
+                var manager = new Account($"manager{index}", UserRole.Manager)
+                {
+                    Name = $"Менеджер {index}",
+                    TelegramUsername = $"manaGGer{index}"
+                };
+                manager.SetPassword(password);
+                AssertIsCompleted(accountStorage.TryInsert(manager).Result);
+            }
+
+            logger.LogInformation("Manager accounts are created.");
 
             for (int index = 1; index <= 5; index++)
             {
@@ -81,7 +94,7 @@ namespace HomemadeLMS.Services
             var studentNames = new string[] { "Иван", "Василий", "Петр", "Михаил", "Richard" };
             var studentLastNames = new string[] { "Иванов", "Васильев", "Петров", "Михайлов" };
             var studentNameCodes = new string[] { "ivan", "vasily", "petr", "mikhayl", "richard" };
-            var studentLastNameCodes = new string[] { "ivanov", "mikhaylov", "vasilev", "petrov" };
+            var studentLastNameCodes = new string[] { "ivanov", "vasilev", "petrov", "mikhaylov" };
             for (int nameIndex = 0; nameIndex < 5; nameIndex++)
             {
                 for (int lastNameIndex = 0; lastNameIndex < 4; lastNameIndex++)
@@ -90,7 +103,7 @@ namespace HomemadeLMS.Services
                     var student = new Account(username, UserRole.Student)
                     {
                         Name = $"{studentNames[nameIndex]} {studentLastNames[lastNameIndex]}",
-                        TelegramUsername = $"{studentNameCodes[nameIndex]}{studentNameCodes[nameIndex][..3]}"
+                        TelegramUsername = $"{studentNameCodes[nameIndex]}{studentLastNameCodes[lastNameIndex][..3]}"
                     };
                     student.SetPassword(password);
                     AssertIsCompleted(accountStorage.TryInsert(student).Result);
@@ -160,7 +173,7 @@ namespace HomemadeLMS.Services
                               " станет китайский. После прохождения факультатива вы больше" +
                               " не будете переживать по этому поводу.",
                 HasRoleTestResults = false,
-                HasTeams = true,
+                HasTeams = false,
                 IsTeamStateLocked = false,
             };
             AssertIsCompleted(courseStorage.TryInsert(chineseCourse).Result);
