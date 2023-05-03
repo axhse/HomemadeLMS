@@ -83,7 +83,7 @@ namespace HomemadeLMS.Controllers
             var parser = new FormParser(Request.Form);
             var newPassword = parser.GetString("password");
             var passwordConfirmation = parser.GetString("confirmation");
-            if (!Account.HasPasswordValidFormat(newPassword))
+            if (newPassword is null || !Account.HasPasswordValidFormat(newPassword))
             {
                 return View("Status", ActionStatus.PasswordInvalidFormat);
             }
@@ -91,6 +91,8 @@ namespace HomemadeLMS.Controllers
             {
                 return View("Status", ActionStatus.PasswordConfirmationError);
             }
+            account.SetPassword(newPassword);
+            await accountStorage.Update(account);
             return RedirectPermanent(AccountRootPath);
         }
 
