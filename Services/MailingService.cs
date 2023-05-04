@@ -118,10 +118,13 @@ namespace HomemadeLMS.Services
             request.AddParameter("template", "confirmsignin");
             request.AddParameter("h:X-Mailgun-Variables", serializedVariableData);
 
-            var result = await client.ExecuteAsync(request);
-            if (!result.IsSuccessful)
+            var response = await client.ExecuteAsync(request);
+            response.ThrowIfError();
+            if (!response.IsSuccessStatusCode)
             {
-                throw new NotSupportedException("Mail sending is failed.");
+                throw new NotSupportedException(
+                    $"Request failure: {response.StatusCode} {response.StatusDescription}."
+                );
             }
         }
     }
