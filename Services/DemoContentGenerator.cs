@@ -52,13 +52,13 @@ namespace HomemadeLMS.Services
             logger.LogInformation("Content generation started.");
 
             var password = "88888888";
-            var courseOwnerUsername = "teacher1";
+            var courseOwnerUsername = "teacher1@hse.ru";
             var yearEnd = new DateTime(DateTime.Now.Year, 12, 31, 23, 59, 59);
             yearEnd = yearEnd.AddHours(-DataUtils.MskHourOffset);
 
             for (int index = 1; index <= 5; index++)
             {
-                var manager = new Account($"manager{index}", UserRole.Manager)
+                var manager = new Account($"manager{index}@hse.ru", UserRole.Manager)
                 {
                     Name = $"Менеджер {index}",
                     TelegramUsername = $"manaGGer{index}"
@@ -71,7 +71,7 @@ namespace HomemadeLMS.Services
 
             for (int index = 1; index <= 5; index++)
             {
-                var teacher = new Account($"teacher{index}", UserRole.Teacher)
+                var teacher = new Account($"teacher{index}@hse.ru", UserRole.Teacher)
                 {
                     Name = $"Преподаватель {index}",
                     TelegramUsername = $"teacher{index}{index}{index}"
@@ -81,7 +81,7 @@ namespace HomemadeLMS.Services
             }
             for (int index = 1; index <= 5; index++)
             {
-                var assistant = new Account($"assistant{index}", UserRole.Student)
+                var assistant = new Account($"assistant{index}@edu.hse.ru", UserRole.Student)
                 {
                     Name = $"Ассистент {index}",
                     TelegramUsername = $"helper{index}"
@@ -100,7 +100,7 @@ namespace HomemadeLMS.Services
             {
                 for (int lastNameIndex = 0; lastNameIndex < 4; lastNameIndex++)
                 {
-                    var username = $"{studentNameCodes[nameIndex][0]}{studentLastNameCodes[lastNameIndex]}";
+                    var username = $"{studentNameCodes[nameIndex][0]}{studentLastNameCodes[lastNameIndex]}@edu.hse.ru";
                     var student = new Account(username, UserRole.Student)
                     {
                         Name = $"{studentNames[nameIndex]} {studentLastNames[lastNameIndex]}",

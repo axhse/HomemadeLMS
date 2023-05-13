@@ -1,6 +1,6 @@
 {
   "Application": {
-    "HasDemoContent": false,
+    "HasDemoContent": true,
     "HasDevExceptionHandler": false
   },
   "Host": {

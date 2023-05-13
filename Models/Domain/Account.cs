@@ -20,10 +20,9 @@ namespace HomemadeLMS.Models.Domain
         public const int MaxUsernameSize = 100;
         public const int MinPasswordSize = 8;
         public const int MinTelegramUsernameSize = 5;
-        public const int MinUsernameSize = 1;
+        public const int MinUsernameSize = 4;
         public const int PasswordHashSize = 64;
-        public const string EmailAddressBase = "@edu.hse.ru";
-        public static readonly int MaxAccountIdSize = MaxUsernameSize + EmailAddressBase.Length;
+        public static readonly int MaxAccountIdSize = MaxUsernameSize;
 
         private string username;
         private string? headUsername;
@@ -53,7 +52,7 @@ namespace HomemadeLMS.Models.Domain
             return Convert.ToHexString(bytes);
         }
 
-        public static string GetEmailAddress(string username) => username + EmailAddressBase;
+        public static string GetEmailAddress(string username) => username;
 
         public static string? GetUsername(string? accountId)
         {
@@ -67,10 +66,6 @@ namespace HomemadeLMS.Models.Domain
         public static string GetNotNullableUsername(string accountId)
         {
             accountId = accountId.Trim().ToLower();
-            if (accountId.EndsWith(EmailAddressBase))
-            {
-                return accountId[..^EmailAddressBase.Length];
-            }
             return accountId;
         }
 
@@ -84,7 +79,16 @@ namespace HomemadeLMS.Models.Domain
             => username is not null && Regex.IsMatch(username, $"^[A-Za-z0-9_]{{{MinTelegramUsernameSize},{MaxTelegramUsernameSize}}}$");
 
         public static bool HasUsernameValidFormat(string? username)
-            => username is not null && Regex.IsMatch(username, $"^[a-z0-9_.]{{{MinUsernameSize},{MaxUsernameSize}}}$");
+        {
+            if (username is null)
+            {
+                return false;
+            }
+            username = username.Trim().ToLower();
+            return MinUsernameSize <= username.Length
+                   && username.Length <= MaxUsernameSize
+                   && DataUtils.IsValidEmailAddress(username);
+        }
 
         public static bool HasNameValidFormat(string? name)
         {
@@ -112,6 +116,7 @@ namespace HomemadeLMS.Models.Domain
             get => username;
             set
             {
+                value = value.Trim().ToLower();
                 if (!HasUsernameValidFormat(value))
                 {
                     throw new ArgumentException("Invalid username format.");
@@ -162,11 +167,6 @@ namespace HomemadeLMS.Models.Domain
 
         public bool CanEditCourses => Role == UserRole.Teacher || Role == UserRole.Manager;
         public string EmailAddress => GetEmailAddress(Username);
-
-        public void SetAccountId(string accountId)
-        {
-            Username = GetNotNullableUsername(accountId);
-        }
 
         public void SetPassword(string password)
         {
