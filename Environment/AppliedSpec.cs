@@ -14,6 +14,15 @@
                         new(PropertyType.Bool, PropertyName.HasDevExceptionHandler, isRequired: false),
                     }
                 };
+                var authServiceComponentSpec = new ComponentSpec(ComponentName.AuthService)
+                {
+                    Properties = new()
+                    {
+                        new(PropertyType.String, PropertyName.ApiEmailAddress, isRequired: true),
+                        new(PropertyType.Int, PropertyName.ApiTimeoutInSeconds, isRequired: true),
+                        new(PropertyType.Int, PropertyName.RequestLifetimeInMinutes, isRequired: true),
+                    }
+                };
                 var hostComponentSpec = new ComponentSpec(ComponentName.Host)
                 {
                     Properties = new()
@@ -21,21 +30,13 @@
                         new(PropertyType.String, PropertyName.DomainName, isRequired: true),
                     }
                 };
-                var mailerComponentSpec = new ComponentSpec(ComponentName.Mailer)
-                {
-                    Properties = new()
-                    {
-                        new(PropertyType.String, PropertyName.ServiceEmailAddress, isRequired: true),
-                        new(PropertyType.Int, PropertyName.TimeoutInSeconds, isRequired: true),
-                    }
-                };
                 var configurationSpec = new ConfigurationSpec()
                 {
                     Components = new()
                     {
                         applicationComponentSpec,
+                        authServiceComponentSpec,
                         hostComponentSpec,
-                        mailerComponentSpec,
                     }
                 };
                 return configurationSpec;

@@ -6,8 +6,9 @@
   "Host": {
     "DomainName": "string; required"
   },
-  "Mailer": {
-    "ServiceEmailAddress": "string; required",
-    "TimeoutInSeconds": "int; required"
+  "AuthService": {
+    "ApiEmailAddress": "string; required",
+    "ApiTimeoutInSeconds": "int; required",
+    "RequestLifetimeInMinutes": "int; required"
   }
 }

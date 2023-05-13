@@ -290,7 +290,7 @@ namespace HomemadeLMS.Controllers
                 return View("Status", ActionStatus.UsernameInvalidFormat);
             }
             var emailAdress = Account.GetEmailAddress(username);
-            await Program.MailingService.CreateRequest(emailAdress);
+            await Program.AuthService.CreateRequest(emailAdress);
             return View("MailSent", emailAdress);
         }
 
@@ -300,7 +300,7 @@ namespace HomemadeLMS.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> SignIn_Confirm_Get(string? token)
         {
-            var emailAdress = Program.MailingService.GetEmailAddress(token);
+            var emailAdress = Program.AuthService.GetEmailAddress(token);
             var username = Account.GetUsername(emailAdress);
             if (username is null)
             {

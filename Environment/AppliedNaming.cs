@@ -3,17 +3,18 @@
     public enum ComponentName
     {
         Application,
+        AuthService,
         Host,
-        Mailer,
     }
 
     public enum PropertyName
     {
+        ApiEmailAddress,
+        ApiTimeoutInSeconds,
         DomainName,
         HasDemoContent,
         HasDevExceptionHandler,
-        ServiceEmailAddress,
-        TimeoutInSeconds,
+        RequestLifetimeInMinutes,
     }
 
     public enum SecretName

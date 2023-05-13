@@ -11,7 +11,9 @@ namespace HomemadeLMS
         {
             configuration = Builder.BuildConfiguration(AppliedSpec.Configuration);
             SecretManager = Builder.BuildSecretManager(AppliedSpec.SecretManager);
-            MailingService = new(configuration[ComponentName.Mailer], configuration[ComponentName.Host]);
+            AuthService = new(
+                configuration[ComponentName.AuthService], configuration[ComponentName.Host]
+            );
         }
 
         public static void Main()
@@ -20,7 +22,7 @@ namespace HomemadeLMS
             app.Run();
         }
 
-        public static MailingService MailingService { get; private set; }
+        public static AuthService AuthService { get; private set; }
         public static SecretManager SecretManager { get; private set; }
     }
 }

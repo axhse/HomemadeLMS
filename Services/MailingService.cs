@@ -5,95 +5,25 @@ using System.Text.Json;
 
 namespace HomemadeLMS.Services
 {
-    public class AuthCertificate
-    {
-        public const int LifeTimeSeconds = 3600;
-
-        public AuthCertificate(string emailAddress, string token)
-        {
-            EmailAddress = emailAddress;
-            Token = token;
-            CreationTime = DateTime.UtcNow;
-        }
-
-        public string EmailAddress { get; private set; }
-        public string Token { get; private set; }
-        public DateTime CreationTime { get; private set; }
-
-        public bool IsExpired => ExpirationTime < DateTime.UtcNow;
-        public DateTime ExpirationTime => CreationTime.AddSeconds(LifeTimeSeconds);
-    }
-
     public class MailingService
     {
-        private readonly object syncRoot = new();
-        private readonly Random randomGenerator;
-        private readonly List<AuthCertificate> certificates = new();
-        private readonly int timeoutInSeconds;
+        private readonly int apiTimeoutInSeconds;
+        private readonly string apiEmailAddress;
         private readonly string apiKey;
-        private readonly string domainName;
-        private readonly string serviceEmailAddress;
 
-        public MailingService(ConfigurationComponent mailerConfiguration,
-                              ConfigurationComponent hostConfiguration)
+        public MailingService(ConfigurationComponent mailerConfiguration)
         {
-            timeoutInSeconds = mailerConfiguration.GetInt(PropertyName.TimeoutInSeconds);
-            serviceEmailAddress = mailerConfiguration.GetString(PropertyName.ServiceEmailAddress);
-            domainName = hostConfiguration.GetString(PropertyName.DomainName);
+            apiTimeoutInSeconds = mailerConfiguration.GetInt(PropertyName.ApiTimeoutInSeconds);
+            apiEmailAddress = mailerConfiguration.GetString(PropertyName.ApiEmailAddress);
             apiKey = Program.SecretManager.Get(SecretName.MailingApiKey);
-            randomGenerator = new Random(DateTime.UtcNow.Millisecond);
         }
 
-        public async Task CreateRequest(string emailAddress)
+        public async Task SendConfirmationMail(string emailAddress, string confirmationUrl)
         {
-            string token;
-            lock (syncRoot)
-            {
-                token = GenerateToken();
-                certificates.Add(new(emailAddress, token));
-            }
-            await SendMail(emailAddress, token);
-        }
-
-        public string? GetEmailAddress(string? token)
-        {
-            if (token is null)
-            {
-                return null;
-            }
-            lock (syncRoot)
-            {
-                for (int index = certificates.Count - 1; index >= 0; index--)
-                {
-                    var certificate = certificates[index];
-                    if (certificate.IsExpired)
-                    {
-                        certificates.RemoveAt(index);
-                    }
-                    if (certificate.Token == token)
-                    {
-                        certificates.RemoveAt(index);
-                        return certificate.EmailAddress;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private string GenerateToken()
-        {
-            var bytes = new byte[32];
-            randomGenerator.NextBytes(bytes);
-            return Convert.ToHexString(bytes);
-        }
-
-        private async Task SendMail(string emailAddress, string token)
-        {
-            var resource = $"https://api.mailgun.net/v3/{serviceEmailAddress}/messages";
-            var url = $"{domainName}/signin/confirm?token={token}";
+            var resource = $"https://api.mailgun.net/v3/{apiEmailAddress}/messages";
             var variableData = new Dictionary<string, string>()
             {
-                ["url"] = url
+                ["url"] = confirmationUrl
             };
             var serializedVariableData = JsonSerializer.Serialize(variableData);
 
@@ -105,9 +35,9 @@ namespace HomemadeLMS.Services
             var request = new RestRequest(resource)
             {
                 Method = Method.Post,
-                Timeout = 1000 * timeoutInSeconds,
+                Timeout = 1000 * apiTimeoutInSeconds,
             };
-            request.AddParameter("from", $"HomemadeLMS <postmaster@{serviceEmailAddress}>");
+            request.AddParameter("from", $"HomemadeLMS <postmaster@{apiEmailAddress}>");
             request.AddParameter("to", emailAddress);
             request.AddParameter("subject", "Подтверждение авторизации");
             request.AddParameter("template", "confirmsignin");
