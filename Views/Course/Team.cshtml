@@ -44,20 +44,20 @@
 			{
 				@if (Model.Member.IsInTeam(team))
 				{
-					<button type="submit" class="btn btn-secondary" name="actionCode" value="leave">
+					<button type="submit" class="btn btn-secondary my-1" name="actionCode" value="leave">
 						Уйти из команды
 					</button>
 				}
 				else
 				{
-					<button type="submit" class="btn btn-secondary" name="actionCode" value="join">
+					<button type="submit" class="btn btn-secondary my-1" name="actionCode" value="join">
 						Присоединиться
 					</button>
 				}
 			}
 			@if (canEditTeam)
 			{
-				<a class="btn btn-secondary" href="/course/team/edit?id=@team.Id">Редактировать</a>
+				<a class="btn btn-secondary my-1" href="/course/team/edit?id=@team.Id">Редактировать</a>
 				<button type="submit" class="btn btn-danger" name="actionCode" value="delete">
 					Удалить
 				</button>

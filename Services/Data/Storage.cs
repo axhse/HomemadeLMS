@@ -127,11 +127,6 @@ namespace HomemadeLMS.Services.Data
             }
         }
 
-        public async Task Update(TPrimaryKey key, TEntity entity)
-        {
-            await Update(entity);
-        }
-
         private static void Detach(EntityEntry<TEntity>? entry)
         {
             if (entry is not null)
