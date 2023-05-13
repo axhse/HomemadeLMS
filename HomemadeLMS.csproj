@@ -14,27 +14,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Views\Course\EditCourse.cshtml~RF45e612c0.TMP" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
     <PackageReference Include="RestSharp" Version="110.2.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="Views\Course\Marks.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ProjectExtensions><VisualStudio><UserProperties appsettings_1local_1json__JsonSchema="https://carafe.fm/schema/draft-02/bundle.schema.json" /></VisualStudio></ProjectExtensions>
 
 </Project>

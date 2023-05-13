@@ -1,0 +1,13 @@
+{
+  "Application": {
+    "HasDemoContent": "bool; default= false",
+    "HasDevExceptionHandler": "bool; default= false"
+  },
+  "Host": {
+    "DomainName": "string; required"
+  },
+  "Mailer": {
+    "ServiceEmailAddress": "string; required",
+    "TimeoutInSeconds": "int; required"
+  }
+}

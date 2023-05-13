@@ -4,6 +4,4 @@ obj/
 Properties/PublishProfiles/
 
 Migrations/
-appsettings.Production.json
-appsettings.Prod.json
-appsettings.Demo.json
+secrets.*.json

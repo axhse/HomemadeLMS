@@ -1,4 +1,5 @@
-﻿using RestSharp;
+﻿using HomemadeLMS.Environment;
+using RestSharp;
 using RestSharp.Authenticators;
 using System.Text.Json;
 
@@ -23,16 +24,23 @@ namespace HomemadeLMS.Services
         public DateTime ExpirationTime => CreationTime.AddSeconds(LifeTimeSeconds);
     }
 
-	public class MailingService
+    public class MailingService
     {
-        public const int RequestTimeoutMilliseconds = 30 * 1000;    // 30 seconds
-
         private readonly object syncRoot = new();
         private readonly Random randomGenerator;
         private readonly List<AuthCertificate> certificates = new();
+        private readonly int timeoutInSeconds;
+        private readonly string apiKey;
+        private readonly string domainName;
+        private readonly string serviceEmailAddress;
 
-        public MailingService()
+        public MailingService(ConfigurationComponent mailerConfiguration,
+                              ConfigurationComponent hostConfiguration)
         {
+            timeoutInSeconds = mailerConfiguration.GetInt(PropertyName.TimeoutInSeconds);
+            serviceEmailAddress = mailerConfiguration.GetString(PropertyName.ServiceEmailAddress);
+            domainName = hostConfiguration.GetString(PropertyName.DomainName);
+            apiKey = Program.SecretManager.Get(SecretName.MailingApiKey);
             randomGenerator = new Random(DateTime.UtcNow.Millisecond);
         }
 
@@ -79,23 +87,10 @@ namespace HomemadeLMS.Services
             return Convert.ToHexString(bytes);
         }
 
-        private static async Task SendMail(string emailAddress, string token)
+        private async Task SendMail(string emailAddress, string token)
         {
-            var config = Program.AppConfig.ServiceConfig.MailingServiceConfig;
-            if (config is null)
-            {
-                throw new NotSupportedException("Mailing serivce is not configured.");
-            }
-            var apiDomain = config.ApiDomain;
-            var apiKey = config.ApiKey;
-            var hostUrlBase = Program.AppConfig.ServiceConfig.HostUrlBase;
-            if (hostUrlBase is null)
-            {
-                throw new NotSupportedException("Host url base is not specified.");
-            }
-
-            var resource = $"https://api.mailgun.net/v3/{apiDomain}/messages";
-            var url = $"{hostUrlBase}/signin/confirm?token={token}";
+            var resource = $"https://api.mailgun.net/v3/{serviceEmailAddress}/messages";
+            var url = $"{domainName}/signin/confirm?token={token}";
             var variableData = new Dictionary<string, string>()
             {
                 ["url"] = url
@@ -110,9 +105,9 @@ namespace HomemadeLMS.Services
             var request = new RestRequest(resource)
             {
                 Method = Method.Post,
-                Timeout = RequestTimeoutMilliseconds,
+                Timeout = 1000 * timeoutInSeconds,
             };
-            request.AddParameter("from", $"HomemadeLMS <postmaster@{apiDomain}>");
+            request.AddParameter("from", $"HomemadeLMS <postmaster@{serviceEmailAddress}>");
             request.AddParameter("to", emailAddress);
             request.AddParameter("subject", "Подтверждение авторизации");
             request.AddParameter("template", "confirmsignin");

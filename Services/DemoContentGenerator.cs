@@ -1,4 +1,5 @@
-﻿using HomemadeLMS.Models;
+﻿using HomemadeLMS.Environment;
+using HomemadeLMS.Models;
 using HomemadeLMS.Models.Domain;
 using HomemadeLMS.Services.Data;
 
@@ -20,7 +21,7 @@ namespace HomemadeLMS.Services
         public DemoContentGenerator()
         {
             randomGenerator = new Random(DateTime.UtcNow.Millisecond);
-            logger = Program.BuildLogger(nameof(DemoContentGenerator));
+            logger = LoggerBuilder.Build(nameof(DemoContentGenerator));
 
             announcementStorage = new Storage<int, Announcement>(new AnnouncementContext());
             courseStorage = new Storage<int, Course>(new CourseContext());

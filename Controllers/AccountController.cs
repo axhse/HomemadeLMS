@@ -1,4 +1,5 @@
-﻿using HomemadeLMS.Models;
+﻿using HomemadeLMS.Environment;
+using HomemadeLMS.Models;
 using HomemadeLMS.Models.Domain;
 using HomemadeLMS.Services.Data;
 using HomemadeLMS.ViewModels;
@@ -212,8 +213,7 @@ namespace HomemadeLMS.Controllers
             {
                 return RedirectPermanent(SignInPath);
             }
-            var managerToken = Program.AppConfig.ServiceConfig.ManagerToken;
-            if (managerToken is null)
+            if (!Program.SecretManager.TryGet(SecretName.ManagerToken, out string managerToken))
             {
                 return View("Status", ActionStatus.HasNoManagerToken);
             }
@@ -223,7 +223,6 @@ namespace HomemadeLMS.Controllers
             }
             account.Role = UserRole.Manager;
             await accountStorage.Update(account);
-            Program.AppConfig.ServiceConfig.DeleteManagerToken();
             return RedirectPermanent(AccountRootPath);
         }
 

@@ -1,37 +1,26 @@
-using HomemadeLMS.Application;
+using HomemadeLMS.Environment;
 using HomemadeLMS.Services;
 
 namespace HomemadeLMS
 {
     public static class Program
     {
-        public static readonly ILogger Logger = BuildLogger(nameof(Program));
-        public static readonly AppConfig AppConfig = AppConfigBuilder.BuildConfig();
-        public static readonly MailingService MailingService = new();
+        private static readonly ConfigurationGroup configuration;
+
+        static Program()
+        {
+            configuration = Builder.BuildConfiguration(AppliedSpec.Configuration);
+            SecretManager = Builder.BuildSecretManager(AppliedSpec.SecretManager);
+            MailingService = new(configuration[ComponentName.Mailer], configuration[ComponentName.Host]);
+        }
 
         public static void Main()
         {
-            if (AppConfig.ServiceConfig.HasDemoContent)
-            {
-                var contentGenerator = new DemoContentGenerator();
-                contentGenerator.CleanAllContent();
-                contentGenerator.GenerateContent();
-            }
-
-            var app = AppBuilder.BuildApp(AppConfig);
+            var app = Application.Builder.Build(configuration[ComponentName.Application]);
             app.Run();
         }
 
-        public static ILogger BuildLogger(string name)
-        {
-            var factory = LoggerFactory.Create(builder =>
-            {
-                builder.AddSimpleConsole(options =>
-                {
-                    options.TimestampFormat = "[HH:mm:ss]  ";
-                });
-            });
-            return factory.CreateLogger(name);
-        }
+        public static MailingService MailingService { get; private set; }
+        public static SecretManager SecretManager { get; private set; }
     }
 }

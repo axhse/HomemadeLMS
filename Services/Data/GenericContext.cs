@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HomemadeLMS.Environment;
+using Microsoft.EntityFrameworkCore;
 
 namespace HomemadeLMS.Services.Data
 {
@@ -15,7 +16,8 @@ namespace HomemadeLMS.Services.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(Program.AppConfig.DatabaseConfig.ConnectionString);
+            var connectionString = Program.SecretManager.Get(SecretName.DatabaseConnectionString);
+            optionsBuilder.UseSqlServer(connectionString);
             base.OnConfiguring(optionsBuilder);
         }
 

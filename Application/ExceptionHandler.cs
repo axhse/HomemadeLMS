@@ -1,4 +1,5 @@
 using HomemadeLMS.Controllers;
+using HomemadeLMS.Environment;
 
 namespace HomemadeLMS.Application
 {
@@ -16,7 +17,8 @@ namespace HomemadeLMS.Application
             }
             catch (Exception exception)
             {
-                Program.Logger.LogError(new EventId(), exception, "Unexpected exception.");
+                var logger = LoggerBuilder.Build(nameof(ExceptionHandler));
+                logger.LogError(new EventId(), exception, "Unexpected exception.");
                 context.Response.Redirect(HomeController.ErrorPath);
             }
         }
