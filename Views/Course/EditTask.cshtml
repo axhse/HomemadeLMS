@@ -8,7 +8,7 @@
 	var deadline = Model.Deadline;
 	if (deadline is not null)
 	{
-		var deadlineMsk = ((DateTime)deadline).AddHours(DataUtils.MskHourOffset);
+		var deadlineMsk = DataUtils.GetMskDateTime((DateTime)deadline);
 		deadlineValueAttr += "value=" + deadlineMsk.ToString("s");
 	}
 	var maxTitleSize = Announcement.MaxTitleSize;
@@ -45,7 +45,7 @@
 		<div class="mt-4"></div>
 		<label class="form-label">Дедлайн</label>
 		<div class="d-inline-flex">
-			<input class="form-control" name="deadline" type="datetime-local" @deadlineValueAttr>
+			<input class="form-control" name="deadline" type="datetime-local" step="60" @deadlineValueAttr>
 		</div>
 
 		<div class="mt-4"></div>

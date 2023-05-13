@@ -52,13 +52,13 @@
 			<a href="@link.Href">@link.Label</a>
 		}
 	}
+	<div class="mt-4"></div>
 	@if (homework.Deadline is not null)
 	{
-		var deadlineMsk = ((DateTime)homework.Deadline).AddHours(DataUtils.MskHourOffset);
-
-		<div class="mt-4"></div>
-		<label>Дедлайн: @deadlineMsk.ToString()</label>
+		<label>Дедлайн: @DataUtils.DateToMskString((DateTime)homework.Deadline)</label>
+		<div class="mt-3"></div>
 	}
+	<label>Создано: @DataUtils.DateToMskString(homework.CreationTime)</label>
 	<div class="mt-4"></div>
 	<label>@(homework.IsTeamwork ? "Командное задание" : "Индивидуальное задание")</label>
 	@if (Model.Member.IsStudent)
@@ -68,14 +68,13 @@
 		{
 			var username = homeworkStatus.SubmitUsername;
 			var url = $"/course/member?courseId={Model.CourseId}&username={username}";
-			var submitTimeMsk = ((DateTime)homeworkStatus.SubmitTime).AddHours(DataUtils.MskHourOffset);
 
 			<label>Отмечено выполненым: </label>
 			@if (homework.IsTeamwork)
 			{
 				<a href=@url>@username</a>
 			}
-			<label> @submitTimeMsk.ToString()</label>
+			<label> @DataUtils.DateToMskString((DateTime)homeworkStatus.SubmitTime)</label>
 			<div class="mt-4"></div>
 		}
 		<form method="POST">

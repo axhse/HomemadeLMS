@@ -14,6 +14,8 @@
 			<pre class="pre-vertical">@Model.Object.Content</pre>
 		</div>
 	}
+	<div class="mt-4"></div>
+	<label>Создано: @DataUtils.DateToMskString(Model.Object.CreationTime)</label>
 	@if (Model.Member.IsTeacher)
 	{
 		var editionUrl = $"/course/announcement/edit?id={Model.Object.Id}";

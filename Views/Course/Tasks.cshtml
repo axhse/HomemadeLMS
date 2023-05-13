@@ -34,13 +34,17 @@
 		<a class="link-card" href="/course/task?id=@homework.Id">
 			<div class="card border-secondary">
 				<div class="card-header text-@titleStyle">@homework.Title</div>
-				@if (homework.Deadline is not null)
-				{
-					var deadlineMsk = ((DateTime)homework.Deadline).AddHours(DataUtils.MskHourOffset);
-					<div class="card-body vertically-filled-div text-start">
-						<pre class="card-text">Дедлайн: @deadlineMsk.ToString()</pre>
-					</div>
-				}
+				<div class="card-body vertically-filled-div text-start">
+					@if (homework.Deadline is not null)
+					{
+						var deadline = (DateTime)homework.Deadline;
+
+						<pre class="card-text">Дедлайн: @DataUtils.DateToMskString(deadline)</pre>
+					}
+				</div>
+				<div class="card-footer bg-transparent" align="left">
+					<pre class="card-text">Создано: @DataUtils.DateToMskString(homework.CreationTime)</pre>
+				</div>
 			</div>
 		</a>
 		<div class="mt-5"></div>
